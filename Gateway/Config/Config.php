@@ -369,61 +369,88 @@ class Config extends BaseConfig {
     }
 
     /**
+      * Returns the CDN URL for sandbox environment.
+      *
+      * @return string
+      */
+    public function getSandboxCdnUrl() {
+         return (string) $this->getValue(self::KEY_SANDBOX_CDN_URL);
+    }
+ 
+    /**
+      * Returns the CDN URL for live environment.
+      *
+      * @return string
+      */
+    public function getLiveCdnUrl() {
+         return (string) $this->getValue(self::KEY_LIVE_CDN_URL);
+    }
+ 
+    /**
+      * Returns the CDN URL.
+      *
+      * @return string
+      */
+    public function getCdnUrl() {
+         return $this->isLive() ? $this->getLiveCdnUrl() : $this->getSandboxCdnUrl();
+    }
+
+   /**
      * Returns the API URL based on environment settings.
      *
      * @return string
      */
-    public function getApiUrl() {
+   public function getApiUrl() {
         return $this->isLive() ? $this->getLiveApiUrl() : $this->getSandboxApiUrl();
-    }
+   }
 
-    /**
+   /**
      * Returns the URL for hosted integration for sandbox environment.
      *
      * @return string
      */
-    public function getSandboxHostedUrl() {
+   public function getSandboxHostedUrl() {
         return (string) $this->getValue(self::KEY_SANDBOX_HOSTED_URL);
-    }
+   }
 
-    /**
+   /**
      * Returns the URL for hosted integration for live environment.
      *
      * @return string
      */
-    public function getLiveHostedUrl() {
+   public function getLiveHostedUrl() {
         return (string) $this->getValue(self::KEY_LIVE_HOSTED_URL);
-    }
+   }
 
-    /**
+   /**
      * Returns the URL for hosted integration based on environment settings.
      *
      * @return string
      */
-    public function getHostedUrl() {
+   public function getHostedUrl() {
         return $this->isLive() ? $this->getLiveHostedUrl() : $this->getSandboxHostedUrl();
-    }
+   }
 
 
-    /**
+   /**
      * Returns the URL for embedded integration for sandbox environment.
      *
      * @return string
      */
-    public function getSandboxEmbeddedUrl() {
+   public function getSandboxEmbeddedUrl() {
         return (string) $this->getValue(self::KEY_SANDBOX_EMBEDDED_URL);
     }
 
-    /**
+   /**
      * Returns the URL for embedded integration for live environment.
      *
      * @return string
      */
-    public function getLiveEmbeddedUrl() {
+   public function getLiveEmbeddedUrl() {
         return (string) $this->getValue(self::KEY_LIVE_EMBEDDED_URL);
-    }
+   }
 
-    /**
+   /**
      * Returns the URL for embedded integration based on environment settings.
      *
      * @return string
