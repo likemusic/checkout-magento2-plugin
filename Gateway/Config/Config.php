@@ -360,7 +360,7 @@ class Config extends BaseConfig {
     }
 
     /**
-     * Returns the API URL for sandbox environment.
+     * Returns the API URL for live environment.
      *
      * @return string
      */
