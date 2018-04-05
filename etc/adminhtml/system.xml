@@ -47,6 +47,15 @@
                         <config_path>payment/checkout_com/integration</config_path>
                     </field>
 
+                    <field id="frames_integration" translate="label" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                         <label>Frames</label>
+                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\Frames</source_model>
+                         <config_path>payment/checkout_com/frames_integration</config_path>
+                         <depends>
+                             <field id="integration">embedded</field>
+                         </depends>
+                    </field>
+
                     <field id="payment_mode" translate="label" sortOrder="50" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment mode</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\PaymentMode</source_model>
