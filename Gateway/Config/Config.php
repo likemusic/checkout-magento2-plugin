@@ -66,6 +66,8 @@ class Config extends BaseConfig {
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
     const KEY_FRAMES_INTEGRATION = 'frames_integration';
+    const KEY_LIVE_CDN_URL = 'live_cdn_url';
+    const KEY_SANDBOX_CDN_URL = 'sandbox_cdn_url';
 
     /**
      * @var array
