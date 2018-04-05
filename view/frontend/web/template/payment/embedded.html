@@ -30,13 +30,30 @@
             <!--/ko-->
         </div>
 
-        <div id="cko-form-holder" data-bind="click: reloadEmbeddedForm">
-            <form class="widget-container" id="embeddedForm" method="POST"></form>
-            <div data-bind="visible: getEmbeddedForm()"></div>
+        <div id="cko-payment-block">
+            <div class="cko-tab">
+                <!-- ko if: (getFramesIntegration() == 'both') -->
+                    <input id="tab-1" type="radio" name="ckotabs" checked="checked">
+                    <label for="tab-1"><!-- ko i18n: 'Payment form'--><!-- /ko --></label>
+                <!-- /ko -->
+                <div class="tab-content">
+                    <div id="cko-form-holder" data-bind="click: reloadEmbeddedForm">
+                        <form class="widget-container" id="embeddedForm" method="POST"></form>
+                        <div data-bind="visible: getEmbeddedForm()"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="cko-tab">
+                <!-- ko if: (getFramesIntegration() == 'both') -->
+                    <input id="tab-2" type="radio" name="ckotabs">
+                    <label for="tab-2"><!-- ko i18n: 'Alternative payments'--><!-- /ko --></label>
+                <!-- /ko -->
+                <div class="tab-content">
+                    <div id="cko-ap-holder"></div>
+                </div>
+            </div>
         </div>
 
-        <div id="cko-ap-holder"></div>
-        
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() -->
