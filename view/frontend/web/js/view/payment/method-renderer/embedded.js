@@ -36,7 +36,7 @@ define(
                 active: true,
                 template: 'CheckoutCom_Magento2/payment/embedded',
                 code: 'checkout_com',
-                cardTokenId: null,
+                card_token_id: null,
                 redirectAfterPlaceOrder: true
             },
 
@@ -76,10 +76,10 @@ define(
             },
 
             /**
-             * @param {string} cardTokenId
+             * @param {string} card_token_id
              */
             setCardTokenId: function(token) {
-                this.cardTokenId = token;
+                this.card_token_id = token;
             },
 
             /**
