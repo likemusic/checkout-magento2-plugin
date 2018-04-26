@@ -376,7 +376,7 @@ define(
 
                                 // Process each Alternative Payment result
                                 $.each(res.data, function(i, item) {
-                                    //if (item.id != 'lpp_15') { // Disable Boleto display
+                                    if (item.id != 'lpp_15') { // Disable Boleto display
                                         // Add the element
                                         var imageUrl = self.getCdnUrl() + 'img/lp_logos/' + item.name.toLowerCase() + '.png';
                                         $.get(imageUrl).done(function() { 
@@ -392,7 +392,7 @@ define(
                                             // Create the icon effects
                                             self.addIconEffects(item);
                                         });
-                                    //}
+                                    }
                                 });
                             }
                         },
