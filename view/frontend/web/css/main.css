@@ -82,7 +82,7 @@
 
 /* :checked */
 #cko-payment-block input:checked ~ .tab-content {
-  max-height: 10em;
+  max-height: 100%;
 }
 
 /* Icon */
