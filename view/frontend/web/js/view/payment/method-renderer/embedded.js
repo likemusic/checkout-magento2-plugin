@@ -257,39 +257,16 @@ define(
              * @returns {void}
              */
             lpCharge: function(item, issuerId) {
-                // Prepare the variables
-                var lpChargeUrl = this.getApiUrl() + 'charges/localpayment';
-
-                // Create the item payload
-                var itemData = {
-                    email : this.getEmailAddress(),
-                    localPayment : {
-                        lppId : item.id,
-                        userData : (issuerId) ? {issuerId: issuerId}  : {}
-                    },
-                    paymentToken : this.getPaymentToken()
-                };
-
                 // Perform the local payment charge
                 $.ajax({
-                    url: lpChargeUrl,
+                    url: url.build('checkout_com/payment/alternative?issuerId=' + issuerId + '&lppId=' + item.id),
                     type: "POST",
-                    data: JSON.stringify(itemData),
-                    beforeSend: function(xhr){
-                        xhr.setRequestHeader('Authorization', 'sk_test_ae8b4fe8-f140-4fe4-8e4c-946db8b179da');
-                        xhr.setRequestHeader('Content-Type', 'application/json');
-                    },
                     success: function(data, textStatus, xhr) {
-                        if ((data) && !!data.localPayment.paymentUrl.trim()) {
-                            window.location.replace(data.localPayment.paymentUrl);
-                        }
-                        else if (parseInt(data.responseCode) > 0) {
-                            var msg  = __('An error has occured. Code') + ': ' + data.responseCode;
-                                msg += (data.message) ? '-' + data.message : '';
-                            alert(msg);
+                        if (data.redirectUrl) {
+                            window.location.replace(data.redirectUrl);
                         }
                         else {
-                            console.log(data);
+                            __('This request cannot be processed. Please contact the website administrator');
                         }
                     },
                     error: function(xhr, textStatus, error) {
