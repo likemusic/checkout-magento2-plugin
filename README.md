@@ -1,5 +1,9 @@
 <img src="https://cdn.checkout.com/img/checkout-logo-online-payments.jpg" alt="Checkout.com" width="380"/>
 
+| Disclaimer on tandc branch |
+| :------------------- |
+| Tandc displaimer text   |
+
 ## Magento 2 Extension &nbsp; ![N|Solid](https://circleci.com/gh/checkout/checkout-magento2-plugin.svg?style=shield&circle-token=c246af998b0859be11b269afd0b0162303f1ac5f)
 
 [Checkout.com](https://www.checkout.com "Checkout.com") is a software platform that has integrated 100% of the value chain to create payment infrastructures that truly make a difference. Checkout.com is authorised and regulated as a Payment institution by the UK Financial Conduct Authority.
