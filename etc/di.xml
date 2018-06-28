@@ -47,11 +47,20 @@
     <!-- Around Payments Plugin -->
     <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
         <plugin name="CkoGuestPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\GuestPaymentInformationManagement" />
-        </type>
-        <type name="Magento\Checkout\Model\PaymentInformationManagement">
+    </type>
+    <type name="Magento\Checkout\Model\PaymentInformationManagement">
         <plugin name="CkoPaymentInformationManagement" type="CheckoutCom\Magento2\Plugin\PaymentInformationManagement" />
     </type>
     <!-- END Around Payments Plugin -->  
+
+    <!-- T&C workaround Plugin - Relies only on frontend validation -->
+    <type name="Magento\CheckoutAgreements\Model\Checkout\Plugin\Validation">
+        <plugin name="validate-agreements" disabled="true" />
+    </type>
+    <type name="Magento\CheckoutAgreements\Model\Checkout\Plugin\GuestValidation">
+        <plugin name="validate-guest-agreements" disabled="true" />
+    </type>
+    <!-- end T&C workaround Plugin -->
 
     <!-- Configuration reader -->
     <type name="CheckoutCom\Magento2\Gateway\Config\Config">
