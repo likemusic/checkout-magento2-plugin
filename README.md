@@ -1,7 +1,8 @@
-| Disclaimer on tandc branch |
+| Warning |
 | :------------------- |
 | This branch has been released in order to provide a workaround for a Magento 2 core bug fix affecting the 2.2.x series, where placing an order remains impossible despite having ticked the Terms and Conditions checkbox when required: [https://github.com/magento/magento2/issues/11885](https://github.com/magento/magento2/issues/11885)
- The workaround disables the backend Terms & Conditions checkbox validation through a plugin declared in the dependency injection xml file but keeps the frontend Javascript checkbox validation. Even though we will not be supporting this branch on the long term, it will allow shop owners to keep using the Checkout.com module on the Magento 2.2.x series where the bug arises. |
+ 
+ The workaround disables the backend Terms & Conditions checkbox validation through a plugin declared in the dependency injection xml file but preserves the frontend Javascript checkbox validation. Even though this branch will not be supported on the long term, it will allow shop owners to keep using the Checkout.com module on the Magento 2.2.x series where the bug arises. |
 
 <img src="https://cdn.checkout.com/img/checkout-logo-online-payments.jpg" alt="Checkout.com" width="380"/>
 
