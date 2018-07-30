@@ -12,7 +12,6 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
-use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Tools;
@@ -25,11 +24,6 @@ class TransactionHandlerService {
     protected $transactionBuilder;
 
     /**
-     * @var ManagerInterface
-     */
-    protected $messageManager;
-
-    /**
      * @var Tools
      */
     protected $tools;
@@ -37,11 +31,10 @@ class TransactionHandlerService {
     /**
      * TransactionHandlerService constructor.
      * @param BuilderInterface $transactionBuilder
-     * @param ManagerInterface $messageManager
-    */
-    public function __construct(BuilderInterface $transactionBuilder, ManagerInterface $messageManager, Tools $tools) {
+     * @param Tools $tools
+     */
+    public function __construct(BuilderInterface $transactionBuilder, Tools $tools) {
         $this->transactionBuilder = $transactionBuilder;
-        $this->messageManager     = $messageManager;
         $this->tools     = $tools;
     }
 
@@ -49,40 +42,32 @@ class TransactionHandlerService {
         // Prepare the transaction mode
         $transactionMode = ($mode == 'authorization' || !$mode) ? Transaction::TYPE_AUTH : Transaction::TYPE_CAPTURE;
 
-        // Create the transaction
-        try {
-            // Prepare payment object
-            $payment = $order->getPayment();
-            $payment->setMethod($this->tools->modmeta['tag']); 
-            $payment->setLastTransId($paymentData['transactionReference']);
-            $payment->setTransactionId($paymentData['transactionReference']);
-            $payment->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData]);
+        // Prepare the payment object
+        $payment = $order->getPayment();
+        $payment->setMethod($this->tools->modmeta['tag']); 
+        //$payment->setLastTransId($paymentData['transactionReference']);
+        //$payment->setTransactionId($paymentData['transactionReference']);
+        $payment->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData]);
 
-            // Formatted price
-            $formatedPrice = $order->getBaseCurrency()->formatTxt($order->getGrandTotal());
- 
-            // Prepare transaction
-            $transaction = $this->transactionBuilder->setPayment($payment)
-            ->setOrder($order)
-            ->setTransactionId($paymentData['transactionReference'])
-            ->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData])
-            ->setFailSafe(true)
-            ->build($transactionMode);
- 
-            // Add transaction to payment
-            $payment->addTransactionCommentsToOrder($transaction, __('The authorized amount is %1.', $formatedPrice));
-            $payment->setParentTransactionId(null);
+        // Formatted price
+        $formatedPrice = $order->getBaseCurrency()->formatTxt($order->getGrandTotal());
 
-            // Save payment, transaction and order
-            $payment->save();
-            $order->save();
-            $transaction->save();
- 
-            return $transaction->getTransactionId();
+        // Prepare transaction
+        $transaction = $this->transactionBuilder->setPayment($payment)
+        ->setOrder($order)
+        //->setTransactionId($paymentData['transactionReference'])
+        //->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData])
+        ->setFailSafe(true)
+        ->build($transactionMode);
 
-        } catch (Exception $e) {
-            $this->messageManager->addExceptionMessage($e, $e->getMessage());
-            return false;
-        }
+        // Add transaction to payment
+        $payment->setParentTransactionId(null);
+
+        // Save payment, transaction and order
+        $transaction->save();
+        $payment->save();
+        $order->save();
+
+        return $order;
     }
 }

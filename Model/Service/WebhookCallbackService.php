@@ -27,6 +27,7 @@ use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
+use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 
 class WebhookCallbackService {
 
@@ -81,6 +82,11 @@ class WebhookCallbackService {
     protected $orderService;
 
     /**
+     * @var TransactionHandlerService
+     */
+    protected $transactionService;
+
+    /**
      * CallbackService constructor.
      */
     public function __construct(
@@ -93,18 +99,20 @@ class WebhookCallbackService {
         CustomerFactory $customerFactory,
         StoreManagerInterface $storeManager,
         OrderSender $orderSender,
-        OrderHandlerService $orderService
+        OrderHandlerService $orderService,
+        TransactionHandlerService $transactionService        
     ) {
-        $this->orderFactory      = $orderFactory;
-        $this->orderRepository   = $orderRepository;
-        $this->config            = $config;
-        $this->invoiceService    = $invoiceService;
-        $this->invoiceRepository = $invoiceRepository;
-        $this->storeCardService  = $storeCardService;
-        $this->customerFactory   = $customerFactory;
-        $this->storeManager      = $storeManager;
-        $this->orderSender       = $orderSender;
-        $this->orderService      = $orderService;
+        $this->orderFactory        = $orderFactory;
+        $this->orderRepository     = $orderRepository;
+        $this->config              = $config;
+        $this->invoiceService      = $invoiceService;
+        $this->invoiceRepository   = $invoiceRepository;
+        $this->storeCardService    = $storeCardService;
+        $this->customerFactory     = $customerFactory;
+        $this->storeManager        = $storeManager;
+        $this->orderSender         = $orderSender;
+        $this->orderService        = $orderService;
+        $this->transactionService  = $transactionService;
     }
 
     /**
@@ -118,10 +126,10 @@ class WebhookCallbackService {
         $this->gatewayResponse = $response;
 
         // Extract the response info
-        $commandName    = $this->getCommandName();
+        $eventName    = $this->getEventName();
         $amount         = $this->getAmount();
 
-        // Get the order and pqyment information
+        // Get the order and payment information
         $order          = $this->getAssociatedOrder();
         $payment        = $order->getPayment();
 
@@ -131,12 +139,12 @@ class WebhookCallbackService {
         // Process the payment
         if ($payment instanceof Payment) {
             // Test the command name
-            if ($commandName == 'refund' || $commandName == 'void') {
+            if ($eventName == 'charge.refunded' || $eventName == 'charge.voided') {
                 //$this->orderService->cancelTransactionFromRemote($order);
             }
             
             // Perform authorize complementary actions
-            else if ($commandName == 'authorize') {
+            else if ($eventName == 'charge.succeeded') {
                 // Update order status
                 $order->setStatus($this->config->getOrderStatusAuthorized());
 
@@ -150,33 +158,25 @@ class WebhookCallbackService {
                     foreach ($order->getAllStatusHistory() as $orderComment) {
                         $orderComment->delete();
                     } 
-
-                    // Create new comment
-                    $newComment  = '';
-                    $newComment .= __('Authorized amount of') . ' ';
-                    $newComment .= ChargeAmountAdapter::getStoreAmountOfCurrency(
-                        $this->gatewayResponse['response']['message']['value'], 
-                        $this->gatewayResponse['response']['message']['currency']
-                    );
-                    $newComment .= ' ' . $this->gatewayResponse['response']['message']['currency'];
-                    $newComment .= ' ' . __('Transaction ID') . ':' . ' ';
-                    $newComment .= $this->gatewayResponse['response']['message']['id'];
-
-                    // Add the new comment
-                    $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
                 }
+
+                // Add authorization comment
+                $order = $this->addAuthorizationComment($order);
+
+                // Create the authorization transaction
+                //$order = $this->transactionService->createTransaction($order, array(), 'authorization');      
             }
 
             // Perform capture complementary actions
-            else if ($commandName == 'capture') {
+            else if ($eventName == 'charge.captured') {
                 // Update order status
                 $order->setStatus($this->config->getOrderStatusCaptured());
 
                 // Create the invoice
                 if ($order->canInvoice() && ($this->config->getAutoGenerateInvoice())) {
                     $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
-                        $this->gatewayResponse['response']['message']['value'],
-                        $this->gatewayResponse['response']['message']['currency']
+                        $this->gatewayResponse['message']['value'],
+                        $this->gatewayResponse['message']['currency']
                     );
                     $invoice = $this->invoiceService->prepareInvoice($order);
                     $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
@@ -185,11 +185,32 @@ class WebhookCallbackService {
 
                     $this->invoiceRepository->save($invoice);
                 }
+
+                // Create the capture transaction
+                //$order = $this->transactionService->createTransaction($order, array(), 'capture');      
             }
 
             // Save the order
             $this->orderRepository->save($order);
         }
+    }
+
+    private function addAuthorizationComment($order) {
+        // Create new comment
+        $newComment  = '';
+        $newComment .= __('Authorized amount of') . ' ';
+        $newComment .= ChargeAmountAdapter::getStoreAmountOfCurrency(
+            $this->gatewayResponse['message']['value'], 
+            $this->gatewayResponse['message']['currency']
+        );
+        $newComment .= ' ' . $this->gatewayResponse['message']['currency'];
+        $newComment .= ' ' . __('Transaction ID') . ':' . ' ';
+        $newComment .= $this->gatewayResponse['message']['id'];
+
+        // Add the new comment
+        $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+
+        return $order;
     }
 
     /**
@@ -199,7 +220,7 @@ class WebhookCallbackService {
      * @throws DomainException
      */
     private function getAssociatedOrder() {
-        $orderId    = $this->gatewayResponse['response']['message']['trackId'];
+        $orderId    = $this->gatewayResponse['message']['trackId'];
         $order      = $this->orderFactory->create()->loadByIncrementId($orderId);
 
         if (!$order->isEmpty()) return $order;
@@ -212,8 +233,8 @@ class WebhookCallbackService {
      *
      * @return null|string
      */
-    private function getCommandName() {
-        return $this->gatewayResponse['response']['eventType'];
+    private function getEventName() {
+        return $this->gatewayResponse['eventType'];
     }
 
     /**
@@ -223,8 +244,8 @@ class WebhookCallbackService {
      */
     private function getAmount() {
         return ChargeAmountAdapter::getStoreAmountOfCurrency(
-            $this->gatewayResponse['response']['message']['value'],
-            $this->gatewayResponse['response']['message']['currency']
+            $this->gatewayResponse['message']['value'],
+            $this->gatewayResponse['message']['currency']
         );
     }
 }
