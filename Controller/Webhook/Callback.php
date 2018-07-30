@@ -32,7 +32,7 @@ class Callback extends Action {
     /**
      * @var Tools
      */
-    protected $tool;
+    protected $tools;
 
     /**
      * Callback constructor.
@@ -43,7 +43,7 @@ class Callback extends Action {
     public function __construct(Context $context, WebhookCallbackService $callbackService, Tools $tools) {
         parent::__construct($context);
         $this->callbackService = $callbackService;
-	$this->tools = $tools;
+        $this->tools = $tools;
     }
 
     /**
@@ -56,11 +56,6 @@ class Callback extends Action {
         // Prepare the request and response containers
         $request    = new Zend_Controller_Request_Http();
         $response   = $this->resultFactory->create(ResultFactory::TYPE_JSON);
-      
-$writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
-$logger = new \Zend\Log\Logger();
-$logger->addWriter($writer);
-$logger->info(print_r($response, 1));
 
         // Reject non POST requests
         if (!$request->isPost()) {
@@ -69,16 +64,8 @@ $logger->info(print_r($response, 1));
             return $response;
         }
 
-$logger->info('after non post');
-
-
         // Fetch teh response
         $data = json_decode(file_get_contents('php://input'), true);
-
-
-
-$logger->info('after decode');
-
 
         // Reject empty data
         if ($data === null || empty($data)) {
@@ -87,9 +74,6 @@ $logger->info('after decode');
             return $response;
         }
 
-$logger->info('after empty');
-
-
         // Reject invalid authorization
         $auth = $request->getHeader('Authorization');
         if (!$this->requestIsValid($auth)) {
@@ -97,8 +81,6 @@ $logger->info('after empty');
 
             return $response;
         }
-
-$logger->info('after auth');
 
         // Prepare the data
         try {
