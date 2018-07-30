@@ -45,8 +45,8 @@ class TransactionHandlerService {
         // Prepare the payment object
         $payment = $order->getPayment();
         $payment->setMethod($this->tools->modmeta['tag']); 
-        //$payment->setLastTransId($paymentData['transactionReference']);
-        //$payment->setTransactionId($paymentData['transactionReference']);
+        $payment->setLastTransId($paymentData['transactionReference']);
+        $payment->setTransactionId($paymentData['transactionReference']);
         $payment->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData]);
 
         // Formatted price
@@ -55,8 +55,8 @@ class TransactionHandlerService {
         // Prepare transaction
         $transaction = $this->transactionBuilder->setPayment($payment)
         ->setOrder($order)
-        //->setTransactionId($paymentData['transactionReference'])
-        //->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData])
+        ->setTransactionId($paymentData['transactionReference'])
+        ->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData])
         ->setFailSafe(true)
         ->build($transactionMode);
 
@@ -66,7 +66,6 @@ class TransactionHandlerService {
         // Save payment, transaction and order
         $transaction->save();
         $payment->save();
-        $order->save();
 
         return $order;
     }

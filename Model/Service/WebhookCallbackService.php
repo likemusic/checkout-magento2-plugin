@@ -164,7 +164,7 @@ class WebhookCallbackService {
                 $order = $this->addAuthorizationComment($order);
 
                 // Create the authorization transaction
-                //$order = $this->transactionService->createTransaction($order, array(), 'authorization');      
+                $order = $this->transactionService->createTransaction($order, array('transactionReference' => '11111'), 'authorization');      
             }
 
             // Perform capture complementary actions
@@ -180,14 +180,17 @@ class WebhookCallbackService {
                     );
                     $invoice = $this->invoiceService->prepareInvoice($order);
                     $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+                    $invoice->setState(Invoice::STATE_PAID);
                     $invoice->setBaseGrandTotal($amount);
                     $invoice->register();
-
                     $this->invoiceRepository->save($invoice);
                 }
 
+                // Add authorization comment
+                $order = $this->addCaptureComment($order);
+
                 // Create the capture transaction
-                //$order = $this->transactionService->createTransaction($order, array(), 'capture');      
+                $order = $this->transactionService->createTransaction($order, array('transactionReference' => '22222'), 'capture');      
             }
 
             // Save the order
@@ -199,6 +202,24 @@ class WebhookCallbackService {
         // Create new comment
         $newComment  = '';
         $newComment .= __('Authorized amount of') . ' ';
+        $newComment .= ChargeAmountAdapter::getStoreAmountOfCurrency(
+            $this->gatewayResponse['message']['value'], 
+            $this->gatewayResponse['message']['currency']
+        );
+        $newComment .= ' ' . $this->gatewayResponse['message']['currency'];
+        $newComment .= ' ' . __('Transaction ID') . ':' . ' ';
+        $newComment .= $this->gatewayResponse['message']['id'];
+
+        // Add the new comment
+        $order->addStatusToHistory($order->getStatus(), $newComment, $notify = true);
+
+        return $order;
+    }
+
+    private function addCaptureComment($order) {
+        // Create new comment
+        $newComment  = '';
+        $newComment .= __('Captured amount of') . ' ';
         $newComment .= ChargeAmountAdapter::getStoreAmountOfCurrency(
             $this->gatewayResponse['message']['value'], 
             $this->gatewayResponse['message']['currency']
