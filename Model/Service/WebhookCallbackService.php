@@ -164,7 +164,11 @@ class WebhookCallbackService {
                 $order = $this->addAuthorizationComment($order);
 
                 // Create the authorization transaction
-                $order = $this->transactionService->createTransaction($order, array('transactionReference' => '11111'), 'authorization');      
+                $order = $this->transactionService->createTransaction(
+                    $order,
+                    array('transactionReference' => $this->gatewayResponse['message']['id']),
+                    'authorization'
+                );      
             }
 
             // Perform capture complementary actions
@@ -190,7 +194,11 @@ class WebhookCallbackService {
                 $order = $this->addCaptureComment($order);
 
                 // Create the capture transaction
-                $order = $this->transactionService->createTransaction($order, array('transactionReference' => '22222'), 'capture');      
+                $order = $this->transactionService->createTransaction(
+                    $order,
+                    array('transactionReference' => $this->gatewayResponse['message']['id']),
+                    'capture'
+                );      
             }
 
             // Save the order
