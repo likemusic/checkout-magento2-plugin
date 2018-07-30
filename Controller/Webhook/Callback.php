@@ -64,7 +64,7 @@ class Callback extends Action {
             return $response;
         }
 
-        // Fetch teh response
+        // Fetch the response
         $data = json_decode(file_get_contents('php://input'), true);
 
         // Reject empty data
