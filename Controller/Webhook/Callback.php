@@ -25,18 +25,25 @@ use CheckoutCom\Magento2\Helper\Tools;
 class Callback extends Action {
 
     /**
-     * @var CallbackService
+     * @var WebhookCallbackService
      */
     protected $callbackService;
 
     /**
+     * @var Tools
+     */
+    protected $tool;
+
+    /**
      * Callback constructor.
      * @param Context $context
-     * @param CallbackService $callbackService
+     * @param WebhookCallbackService $callbackService
+     * @param Tools $tools
      */
-    public function __construct(Context $context, WebhookCallbackService $callbackService) {
+    public function __construct(Context $context, WebhookCallbackService $callbackService, Tools $tools) {
         parent::__construct($context);
         $this->callbackService = $callbackService;
+	$this->tools = $tools;
     }
 
     /**
@@ -49,7 +56,7 @@ class Callback extends Action {
         // Prepare the request and response containers
         $request    = new Zend_Controller_Request_Http();
         $response   = $this->resultFactory->create(ResultFactory::TYPE_JSON);
-
+      
 $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/test.log');
 $logger = new \Zend\Log\Logger();
 $logger->addWriter($writer);
