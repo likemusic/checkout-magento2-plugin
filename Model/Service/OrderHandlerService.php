@@ -198,9 +198,4 @@ class OrderHandlerService {
             return (int) $orderId;
         }
     }
-
-    public function updateExistingOrder($order) { 
-
-    }
- 
 }
