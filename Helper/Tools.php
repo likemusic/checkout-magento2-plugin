@@ -62,10 +62,15 @@ class Tools {
     }
 
     public function tokenChargeIsSuccessful($response) {
-        /*if (isset($response['responseCode']) && ((int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100)) {
-            return true;
-        }*/
-        return true;
+        if (isset($response['responseCode'])) {
+            $responseCode = (int) $response['responseCode'];
+            if ($responseCode == 10000 || $responseCode == 10100)
+            {
+                return true;
+            }            
+        }
+        
+        return false;
     }
 
     public function quoteIsValid($quote) {
