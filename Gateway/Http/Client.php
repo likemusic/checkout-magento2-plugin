@@ -49,9 +49,9 @@ class Client {
         return $this->curl->getBody();
     }
    
-    public function get($url, $params) {
+    public function get($url) {
         // Send the CURL GET request
-        $this->curl->post($url, $params);
+        $this->curl->get($url);
 
         // Return the response
         return $this->curl->getBody();     

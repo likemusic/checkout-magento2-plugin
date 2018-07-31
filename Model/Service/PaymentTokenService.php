@@ -120,4 +120,12 @@ class PaymentTokenService {
         // Return the response
         return $response;
     }
+
+    public function verifyToken($paymentToken) {
+        // Build the payment token verification URL
+        $url = $this->config->getApiUrl() . '/charges/' . $paymentToken;
+
+        // Send the request and get the response
+        $response = $this->client->get($url);
+    }
 }
