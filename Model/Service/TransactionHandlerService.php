@@ -46,6 +46,8 @@ class TransactionHandlerService {
         $payment = $order->getPayment();
         $payment->setMethod($this->tools->modmeta['tag']); 
         $payment->setLastTransId($paymentData['transactionReference']);
+        $payment->setIsTransactionClosed(0);
+        $payment->setParentTransactionId(null);
         $payment->setTransactionId($paymentData['transactionReference']);
         $payment->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData]);
 
@@ -59,9 +61,6 @@ class TransactionHandlerService {
         ->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData])
         ->setFailSafe(true)
         ->build($transactionMode);
-
-        // Add transaction to payment
-        $payment->setParentTransactionId(null);
 
         // Save payment, transaction and order
         $transaction->save();

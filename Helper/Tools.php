@@ -65,7 +65,6 @@ class Tools {
         /*if (isset($response['responseCode']) && ((int) $response['responseCode'] == 10000 || (int) $response['responseCode'] == 10100)) {
             return true;
         }*/
-
         return true;
     }
 
