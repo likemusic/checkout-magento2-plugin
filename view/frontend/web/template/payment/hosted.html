@@ -33,6 +33,7 @@
             <input name="publicKey" data-bind="attr: {value: php('getPublicKey')}">
             <input name="cardFormMode" value="cardTokenisation">
             <input name="paymentMode" data-bind="attr: {value: php('getPaymentMode')}">
+            <input name="chargeMode" data-bind="attr: {value: php('isVerify3DSecure') === true ? 2 : 1}">
             <input name="value" data-bind="attr: {value: js('getQuoteValue')}">
             <input name="currency" data-bind="attr: {value: php('getQuoteCurrency')}">
             <input name="customerEmail" data-bind="attr: {value: js('getEmailAddress')}">
