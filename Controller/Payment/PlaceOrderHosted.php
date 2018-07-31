@@ -115,12 +115,7 @@ class PlaceOrderHosted extends Action {
     public function execute() {
         if ($this->requestIsValid()) {
             // Get the charge response
-            $response = $this->sendChargeRequest();
-
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/3ds.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($response, 1));
+            $response = json_decode($this->sendChargeRequest());
 
             // Process the response
             if ($this->tools->tokenChargeIsSuccessful($response)) {

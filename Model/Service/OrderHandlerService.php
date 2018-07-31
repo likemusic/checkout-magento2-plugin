@@ -146,10 +146,10 @@ class OrderHandlerService {
 
     public function placeOrder($data) {
         // Assign the gateway response
-        $this->data = json_decode($data);
+        $this->data = $data;
 
         // Check if the order exists
-        if (isset($this->data->trackId)) {
+        if (is_object($this->data) && isset($this->data->trackId)) {
             // Load an order from increment id
             $order = $this->orderInterface->loadByIncrementId($this->data->trackId);
 

@@ -62,8 +62,8 @@ class Tools {
     }
 
     public function tokenChargeIsSuccessful($response) {
-        if (isset($response['responseCode'])) {
-            $responseCode = (int) $response['responseCode'];
+        if (isset($response->responseCode)) {
+            $responseCode = (int) $response->responseCode;
             if ($responseCode == 10000 || $responseCode == 10100)
             {
                 return true;
