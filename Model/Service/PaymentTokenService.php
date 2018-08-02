@@ -127,5 +127,7 @@ class PaymentTokenService {
 
         // Send the request and get the response
         $response = $this->client->get($url);
+
+        return $response;
     }
 }

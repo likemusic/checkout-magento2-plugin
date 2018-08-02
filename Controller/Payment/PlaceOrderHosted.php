@@ -11,7 +11,6 @@
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Magento\Customer\Api\Data\GroupInterface;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Framework\App\Action\Action;
@@ -37,11 +36,6 @@ class PlaceOrderHosted extends Action {
      * @var CheckoutSession
      */
     protected $checkoutSession;
-
-    /**
-     * @var OrderInterface
-     */
-    protected $orderInterface;
 
     /**
      * @var OrderHandlerService
@@ -89,7 +83,6 @@ class PlaceOrderHosted extends Action {
         Tools $tools,
         ManagerInterface $messageManager,
         OrderHandlerService $orderHandlerService,
-        OrderInterface $orderInterface,
         PaymentTokenService $paymentTokenService,
         Watchdog $watchdog
     ) {
@@ -101,7 +94,6 @@ class PlaceOrderHosted extends Action {
         $this->tools                  = $tools;
         $this->messageManager         = $messageManager;
         $this->orderHandlerService    = $orderHandlerService;
-        $this->orderInterface         = $orderInterface;
         $this->paymentTokenService    = $paymentTokenService;
         $this->watchdog               = $watchdog; 
 
@@ -117,8 +109,14 @@ class PlaceOrderHosted extends Action {
             // Get the charge response
             $response = json_decode($this->sendChargeRequest());
 
+            // Check for 3DS redirection
+            if ($this->config->isVerify3DSecure() && isset($response->redirectUrl)) {
+                $redirectUrl = filter_var($response->redirectUrl, FILTER_VALIDATE_URL);
+                return $this->resultRedirectFactory->create()->setUrl($redirectUrl);
+            }
+
             // Process the response
-            if ($this->tools->tokenChargeIsSuccessful($response)) {
+            else if ($this->tools->chargeIsSuccess($response)) {
                 // Place the order
                 $orderId = $this->orderHandlerService->placeOrder($response);
 

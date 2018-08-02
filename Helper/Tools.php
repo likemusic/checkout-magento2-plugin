@@ -61,7 +61,7 @@ class Tools {
         return $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_PRIVATE_SHARED_KEY) == $key;
     }
 
-    public function tokenChargeIsSuccessful($response) {
+    public function chargeIsSuccess($response) {
         if (isset($response->responseCode)) {
             $responseCode = (int) $response->responseCode;
             if ($responseCode == 10000 || $responseCode == 10100)
