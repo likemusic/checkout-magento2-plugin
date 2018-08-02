@@ -49,7 +49,6 @@ class TransactionHandlerService {
         $payment->setIsTransactionClosed(0);
         $payment->setParentTransactionId(null);
         $payment->setTransactionId($paymentData['transactionReference']);
-        $payment->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData]);
 
         // Formatted price
         $formatedPrice = $order->getBaseCurrency()->formatTxt($order->getGrandTotal());
