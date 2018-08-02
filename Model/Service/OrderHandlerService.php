@@ -173,7 +173,7 @@ class OrderHandlerService {
         if ($this->tools->quoteIsValid($quote)) {
             // Prepare the quote payment
             $quote->setPaymentMethod(ConfigProvider::CODE);
-            $quote->getPayment()->importData (array('method' => ConfigProvider::CODE));
+            $quote->getPayment()->importData(array('method' => ConfigProvider::CODE));
 
             // Prepare the inventory
             $quote->setInventoryProcessed(false);
