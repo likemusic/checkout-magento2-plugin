@@ -85,7 +85,6 @@ class Verify extends Action {
             // Process the response
             if ($this->tools->chargeIsSuccess($response)) {
                 $orderId = $this->orderHandlerService->placeOrder($response);
-
                 if ($orderId > 0) {
                     return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
                 }
