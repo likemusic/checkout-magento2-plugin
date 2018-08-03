@@ -89,7 +89,7 @@ define(
              * @returns {string}
              */
             getRedirectUrl: function() {
-                return Url.build(this.code + '/payment/placeorderhosted');
+                return Url.build(this.code + '/payment/placeorder');
             },
 
             /**

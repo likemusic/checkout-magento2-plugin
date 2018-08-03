@@ -25,7 +25,7 @@ use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Helper\Tools;
 
-class PlaceOrderHosted extends Action {
+class PlaceOrder extends Action {
 
     /**
      * @var PaymentTokenService
