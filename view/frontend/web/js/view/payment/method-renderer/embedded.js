@@ -31,8 +31,7 @@ define(
             defaults: {
                 active: true,
                 template: Adapter.getName() + '/payment/embedded',
-                code: Adapter.getCode(),
-                redirectAfterPlaceOrder: true
+                code: Adapter.getCode()
             },
 
             /**
@@ -52,13 +51,6 @@ define(
             },
 
             /**
-             * @returns {string}
-             */
-            getCode: function() {
-                return this.code;
-            },
-
-            /**
              * @returns {bool}
              */
             isVaultEnabled: function () {
@@ -66,37 +58,18 @@ define(
             },
 
             /**
-             * @returns {{method: (*|string|String), additional_data: {card_token_id: *}}}
+             * Executes a js function from the adapter.
              */
-            getData: function() {
-                return Adapter.getData();
+            js: function(functionName, params) {
+                params = params || [];
+                return (params.length > 0) ? Adapter[functionName].apply(params) : Adapter[functionName]();
             },
-
-            /**
-             * @returns {string}
-             */
-            getQuoteValue: function() {
-                return Adapter.getQuoteValue();
-            },
-
-            /**
-             * @returns {void}
-             */
-            saveSessionData: function(dataToSave) {
-                Adapter.saveSessionData(dataToSave);
-            },  
 
             /**
              * @returns {string}
              */
             php: function(functionName) {
                 return Adapter.getPaymentConfig()[functionName];
-            },
-
-            getPlaceOrderDeferredObject: function() {
-                return $.when(
-                    PlaceOrderAction(this.getData(), this.messageContainer)
-                );
             },
 
             /**
@@ -118,28 +91,9 @@ define(
                 }
             },
 
-            /**
-             * @override
-             */
-            placeOrder: function() {
-                var self = this;
-                $.migrateMute = true;
-                this.updateButtonState(false);
-                this.getPlaceOrderDeferredObject()
-                .fail(
-                    function() {
-                        self.updateButtonState(true);
-                        $('html, body').animate({ scrollTop: 0 }, 'fast');
-                        self.reloadEmbeddedForm();
-                    }
-                ).done(
-                    function() {
-                        self.afterPlaceOrder();
-
-                        if (self.redirectAfterPlaceOrder) {
-                            RedirectOnSuccessAction.execute();
-                        }
-                    }
+            getPlaceOrderDeferredObject: function() {
+                return $.when(
+                    PlaceOrderAction(this.getData(), this.messageContainer)
                 );
             },
                         
@@ -156,10 +110,10 @@ define(
                 var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
                 var paymentForm = document.getElementById('embeddedForm');
 
-                // Freeze the place order button on initialisation
+                // Freeze the place order button on initialization
                 $('#ckoPlaceOrder').attr("disabled",true);
 
-                // Initialise the embedded form
+                // Initialize the embedded form
                 Frames.init({
                     publicKey: self.getPublicKey(),
                     containerSelector: '#cko-form-holder',
