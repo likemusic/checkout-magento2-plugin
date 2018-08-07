@@ -18,6 +18,8 @@ use CheckoutCom\Magento2\Helper\Tools;
 
 class TransactionHandlerService {
 
+    const THREE_D_SECURED = 'three_d_secure';
+
     /**
      * @var BuilderInterface
      */
@@ -44,7 +46,7 @@ class TransactionHandlerService {
 
         // Prepare the payment object
         $payment = $order->getPayment();
-        $payment->setMethod($this->tools->modmeta['tag']); 
+        $payment->setMethod($this->tools->modmeta['tag']);
         $payment->setLastTransId($paymentData['transactionReference']);
         $payment->setIsTransactionClosed(0);
         $payment->setParentTransactionId(null);
@@ -57,7 +59,6 @@ class TransactionHandlerService {
         $transaction = $this->transactionBuilder->setPayment($payment)
         ->setOrder($order)
         ->setTransactionId($paymentData['transactionReference'])
-        ->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData])
         ->setFailSafe(true)
         ->build($transactionMode);
 
