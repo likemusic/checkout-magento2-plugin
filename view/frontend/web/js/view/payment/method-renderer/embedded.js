@@ -16,13 +16,15 @@ define(
         'Magento_Payment/js/view/payment/cc-form',
         'CheckoutCom_Magento2/js/view/payment/adapter',
         'Magento_Checkout/js/action/place-order',
+        'Magento_Checkout/js/model/quote',
         'mage/url',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Vault/js/view/payment/vault-enabler',
-        'Magento_Checkout/js/action/redirect-on-success'        
+        'Magento_Checkout/js/action/redirect-on-success',
+        'framesjs'
     ],
-    function($, Component, Adapter, PlaceOrderAction, Url, FullScreenLoader, AdditionalValidators, VaultEnabler, RedirectOnSuccessAction) {
+    function($, Component, Adapter, PlaceOrderAction, Quote, Url, FullScreenLoader, AdditionalValidators, VaultEnabler, RedirectOnSuccessAction, FramesJs) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;
@@ -72,6 +74,8 @@ define(
                 return Adapter.getPaymentConfig()[functionName];
             },
 
+
+
             /**
              * @returns {string}
              */
@@ -83,7 +87,7 @@ define(
                 if (AdditionalValidators.validate()) {
                     if (Frames.isCardValid()) {
                         // Set the save card option in session
-                        self.saveSessionData();
+                        //self.saveSessionData();
 
                         // Submit frames form
                         Frames.submitCard();
@@ -96,7 +100,7 @@ define(
                     PlaceOrderAction(this.getData(), this.messageContainer)
                 );
             },
-                        
+
             /**
              * @returns {void}
              */
@@ -105,9 +109,9 @@ define(
                 var self = this;
 
                 // Prepare parameters
-                var ckoTheme = CheckoutCom.getPaymentConfig()['getEmbeddedTheme'];
-                var redirectUrl = self.getRedirectUrl();
-                var threeds_enabled = CheckoutCom.getPaymentConfig()['three_d_secure']['enabled'];
+                var ckoTheme = this.php('getEmbeddedTheme');
+                var redirectUrl = Adapter.getRedirectUrl();
+                var threeds_enabled = this.php('isVerify3DSecure');
                 var paymentForm = document.getElementById('embeddedForm');
 
                 // Freeze the place order button on initialization
@@ -115,25 +119,25 @@ define(
 
                 // Initialize the embedded form
                 Frames.init({
-                    publicKey: self.getPublicKey(),
+                    publicKey: this.php('getPublicKey'),
                     containerSelector: '#cko-form-holder',
                     theme: ckoTheme,
                     frameActivated: function () {
                         $('#ckoPlaceOrder').attr("disabled", true);
                     },
                     cardValidationChanged: function() {
-                        self.updateButtonState(!(Frames.isCardValid() && quote.billingAddress() != null));
+                        self.updateButtonState(!(Frames.isCardValid() && Quote.billingAddress() != null));
                     },
                     cardTokenised: function(event) {
-                        // Set the card token
-                        self.setCardTokenId(event.data.cardToken);
 
+                        alert(event.data.cardToken);
+                        
                         // Add the card token to the form
                         Frames.addCardToken(paymentForm, event.data.cardToken);
 
                         // Place order
                         if (threeds_enabled) {
-                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + self.getEmailAddress());
+                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + Adapter.getEmailAddress());
                         } else {
                             self.placeOrder();
                         }

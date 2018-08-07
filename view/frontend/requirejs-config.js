@@ -11,7 +11,8 @@ var config = {
     map: {
         '*': {
             'Magento_Checkout/js/model/place-order': 'CheckoutCom_Magento2/js/model/place-order',
-            'Magento_Checkout/js/model/error-processor': 'CheckoutCom_Magento2/js/model/error-processor'
+            'Magento_Checkout/js/model/error-processor': 'CheckoutCom_Magento2/js/model/error-processor',
+            'framesjs': 'https://cdn.checkout.com/js/frames.js'
         }
     }
 };
