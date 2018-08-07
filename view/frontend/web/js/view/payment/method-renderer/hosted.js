@@ -100,25 +100,6 @@ define(
                 $(frm).submit();
             },
 
-            /**
-             * @returns {void}
-             */
-            saveSessionData: function(dataToSave) {
-                // Get self
-                var self = this;
-
-                // Send the session data to be saved
-                $.ajax({
-                    url: Url.build(this.code + '/shopper/sessiondata'),
-                    type: "POST",
-                    data: dataToSave,
-                    success: function(data, textStatus, xhr) {
-                        console.log(data);
-                    },
-                    error: function(xhr, textStatus, error) {} // todo - improve error handling
-                });
-            },
-
             getPlaceOrderDeferredObject: function() {
                 return $.when(
                     PlaceOrderAction(this.js('getData'), this.messageContainer)
@@ -133,57 +114,9 @@ define(
                 var self = this;
 
                 // Validate before submission
-                if (AdditionalValidators.validate()) {
-                    // Payment action
-                    if (this.php('getOrderCreation') == 'before_auth') {
-                        // Start the loader
-                        FullScreenLoader.startLoader();
-
-                        // Prepare the vars
-                        var ajaxRequest;
-                        var orderData = {
-                            "agreement": [true]
-                        };
-
-                        // Avoid duplicate requests
-                        if (ajaxRequest) {
-                            ajaxRequest.abort();
-                        }
-
-                        // Send the request
-                        ajaxRequest = $.ajax({
-                            url: Url.build(this.code + '/payment/placeorderajax'),
-                            type: "post",
-                            data: orderData
-                        });
-
-                        // Callback handler on success
-                        ajaxRequest.done(function(response, textStatus, jqXHR) {
-                            // Save order track id response object in session
-                            self.saveSessionData({
-                                customerEmail: self.js('getEmailAddress'),
-                                orderTrackId: response.trackId
-                            });
-
-                            // Proceed with submission
-                            FullScreenLoader.stopLoader();
-                            self.submitForm(self.targetForm);
-                        });
-
-                        // Callback handler on failure
-                        ajaxRequest.fail(function(jqXHR, textStatus, errorThrown) {
-                            // Todo - improve error handling
-                        });
-
-                        // Callback handler always
-                        ajaxRequest.always(function() {
-                            // Stop the loader
-                            FullScreenLoader.stopLoader();
-                        });
-                    } else if (this.php('getOrderCreation') == 'after_auth') {                        
-                        // Proceed with submission
-                        self.submitForm(self.targetForm);
-                    }
+                if (AdditionalValidators.validate()) {                      
+                    // Proceed with submission
+                    self.submitForm(self.targetForm);
                 }
             }
         });
