@@ -74,8 +74,6 @@ define(
                 return Adapter.getPaymentConfig()[functionName];
             },
 
-
-
             /**
              * @returns {string}
              */
@@ -86,9 +84,6 @@ define(
                 // Validate before submission
                 if (AdditionalValidators.validate()) {
                     if (Frames.isCardValid()) {
-                        // Set the save card option in session
-                        //self.saveSessionData();
-
                         // Submit frames form
                         Frames.submitCard();
                     }
@@ -128,19 +123,12 @@ define(
                     cardValidationChanged: function() {
                         self.updateButtonState(!(Frames.isCardValid() && Quote.billingAddress() != null));
                     },
-                    cardTokenised: function(event) {
-
-                        alert(event.data.cardToken);
-                        
+                    cardTokenised: function(event) {                        
                         // Add the card token to the form
                         Frames.addCardToken(paymentForm, event.data.cardToken);
 
-                        // Place order
-                        if (threeds_enabled) {
-                            window.location.replace(redirectUrl + '?cko-card-token=' + event.data.cardToken + '&cko-context-id=' + Adapter.getEmailAddress());
-                        } else {
-                            self.placeOrder();
-                        }
+                        // Submit the payment form
+                        paymentForm.submit();
                     },
                 });  
             },

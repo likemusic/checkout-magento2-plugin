@@ -288,6 +288,24 @@ class Config {
     }
 
     /**
+     * Says if the integration is Hosted.
+     *
+     * @return string
+     */
+    public function isHostedIntegration() {
+        return (string) $this->getIntegration() == 'hosted';
+    }
+
+    /**
+     * Says if the integration is Embedded.
+     *
+     * @return string
+     */
+    public function isEmbeddedIntegration() {
+        return (string) $this->getIntegration() == 'embedded';
+    }
+
+    /**
      * Determines if the gateway is active.
      *
      * @return bool

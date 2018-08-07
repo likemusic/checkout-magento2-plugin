@@ -143,11 +143,20 @@ class PlaceOrder extends Action {
      * Checks if the request is valid.
      */
     private function requestIsValid() {
-        return isset($this->params['cko-public-key']) 
-        && isset($this->params['cko-card-token'])
-        && isset($this->params['cko-payment-token'])
-        && isset($this->params['cko-context-id'])
-        && $this->tools->publicKeyIsValid($this->params['cko-public-key']);
+        $result = false;
+
+        if ($this->config->isHostedIntegration()) {
+            $result = isset($this->params['cko-public-key'])
+            && isset($this->params['cko-card-token'])
+            && isset($this->params['cko-payment-token'])
+            && isset($this->params['cko-context-id'])
+            && $this->tools->publicKeyIsValid($this->params['cko-public-key']);
+        }
+        else if ($this->config->isEmbeddedIntegration()) {
+            $result = isset($this->params['cko-card-token']);
+        }
+
+        return $result;
     }
 
     /**
