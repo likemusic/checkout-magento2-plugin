@@ -120,6 +120,7 @@ class PlaceOrder extends Action {
                 // Place the order
                 $orderId = $this->orderHandlerService->placeOrder($response);
 
+                // If the order has been placed successfully
                 if ($orderId > 0) {
                     return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
                 }
