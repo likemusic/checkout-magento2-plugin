@@ -117,10 +117,11 @@ define(
                     publicKey: this.php('getPublicKey'),
                     containerSelector: '#cko-form-holder',
                     theme: ckoTheme,
+                    debugMode: Adapter.isDebugOn(),
                     frameActivated: function () {
                         $('#ckoPlaceOrder').attr("disabled", true);
                     },
-                    cardValidationChanged: function() {
+                    cardValidationChanged: function(event) {
                         self.updateButtonState(!(Frames.isCardValid() && Quote.billingAddress() != null));
                     },
                     cardTokenised: function(event) {                        

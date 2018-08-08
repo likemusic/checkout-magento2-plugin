@@ -80,7 +80,7 @@ define(
                         $('#' + targetElementId).val(data);
                     },
                     error: function(xhr, textStatus, error) {
-                        console.log(error);
+                        Adapter.watchdog(error);
                     }
                 });               
             },      

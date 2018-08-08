@@ -328,6 +328,31 @@
                     </field>
                 </group>
 
+                <group id="logging_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="8">
+                    <label>Logging Settings</label>
+
+                    <field id="php_logging" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable PHP logging</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/phpLogging</config_path>
+                        <comment>If set to yes, a PHP logging file will be created in var/log/checkout_com.log.</comment>
+                    </field>
+
+                    <field id="js_logging" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Javascript logging</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/jsLogging</config_path>
+                        <comment>If set to yes, logging information will be sent to the browser console.</comment>
+                    </field>
+
+                    <field id="gateway_logging" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display gateway messages</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com/gatewayLogging</config_path>
+                        <comment>If set to yes, geteway responses will be displayed as notifications on the website.</comment>
+                    </field>
+                </group>
+
                 <group id="callback_urls" translate="label" showInDefault="1" showInWebsite="1" sortOrder="8">
                     <label>Callbacks URLs</label>
 

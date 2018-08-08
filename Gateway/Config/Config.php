@@ -11,9 +11,11 @@
 namespace CheckoutCom\Magento2\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use CheckoutCom\Magento2\Helper\Tools;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Store\Model\StoreManagerInterface;
+use CheckoutCom\Magento2\Helper\Tools;
+
 class Config {
     
     const KEY_MODTAG = 'modtag';
@@ -62,6 +64,9 @@ class Config {
     const KEY_ORDER_COMMENTS_OVERRIDE = 'order_comments_override';
     const KEY_ORDER_CREATION = 'order_creation';
     const KEY_EMBEDDED_CSS = 'embedded_css';
+    const KEY_JS_LOGGING = 'js_logging';
+    const KEY_PHP_LOGGING = 'php_logging';
+    const KEY_GATEWAY_LOGGING = 'gateway_logging';
 
     /**
      * @var array
@@ -117,7 +122,10 @@ class Config {
      */
 
     private function getValue($path) {
-        return $this->scopeConfig->getValue('payment/' . $this->tools->modmeta['tag'] . '/' . $path);
+        return $this->scopeConfig->getValue(
+            'payment/' . $this->tools->modmeta['tag'] . '/' . $path,
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
@@ -276,6 +284,33 @@ class Config {
      */
     public function isLive() {
         return $this->getEnvironment() == self::KEY_ENVIRONMENT_LIVE;
+    }
+
+    /**
+     * Determines if PHP logging is enabled.
+     *
+     * @return bool
+     */
+    public function isPhpLogging() {
+        return (bool) $this->getValue(self::KEY_PHP_LOGGING);
+    }
+
+    /**
+     * Determines if Javascript logging is enabled.
+     *
+     * @return bool
+     */
+    public function isJsLogging() {
+        return (bool) $this->getValue(self::KEY_JS_LOGGING);
+    }
+
+    /**
+     * Determines if Gateway logging is enabled.
+     *
+     * @return bool
+     */
+    public function isGatewayLogging() {
+        return (bool) $this->getValue(self::KEY_GATEWAY_LOGGING);
     }
 
     /**

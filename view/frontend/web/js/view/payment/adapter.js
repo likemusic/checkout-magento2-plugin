@@ -105,6 +105,26 @@ define([
             GlobalMessageList.addErrorMessage({
                 message: errorMessage
             });
+        },
+
+        /**
+         * Determines if logging is on
+         *
+         * @param {Object} errorMessage
+         */
+        isDebugOn: function() {
+            return JSON.parse(this.getPaymentConfig()['isJsLogging']);
+        },
+    
+        /**
+         * Log messages to console
+         *
+         * @param {Object} errorMessage
+         */
+        watchdog: function(errorObject) {
+            if (this.isDebugOn()) {
+                console.log(errorObject);
+            }
         }
     };
 });

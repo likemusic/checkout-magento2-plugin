@@ -5,7 +5,9 @@
            <checkout_com>
                 <title>Credit Card (Checkout.com)</title>
                 <active>1</active>
-                <debug>1</debug>
+                <php_logging>0</php_logging>
+                <js_logging>0</js_logging>
+                <gateway_logging>0</gateway_logging>
                 <order_creation>after_auth</order_creation>
                 <new_order_status>pending</new_order_status>
                 <model>CheckoutCom\Magento2\Model\Methods\DefaultMethod</model>
