@@ -21,6 +21,9 @@ use CheckoutCom\Magento2\Helper\Tools;
 
 class Fail extends Action {
 
+    /**
+     * @var PaymentTokenService
+     */
     protected $paymentTokenService;
 
     /**
