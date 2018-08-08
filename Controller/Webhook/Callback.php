@@ -96,6 +96,9 @@ class Callback extends Action {
             $response->setData(['error_message' => $e->getMessage()]);
         }
 
+        // Logging with skipScreenLogging = true
+        $this->watchdog->bark($response, true);        
+
         return $response;
     }
 

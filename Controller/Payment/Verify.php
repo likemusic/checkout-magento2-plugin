@@ -17,6 +17,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Helper\Tools;
+use CheckoutCom\Magento2\Helper\Watchdog;
 
 class Verify extends Action {
 
@@ -46,6 +47,11 @@ class Verify extends Action {
     protected $tools;
 
     /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
+    /**
      * @var Array
      */
     protected $params = [];
@@ -59,7 +65,8 @@ class Verify extends Action {
         PaymentTokenService $paymentTokenService,
         OrderHandlerService $orderHandlerService,
         ManagerInterface $messageManager,
-        Tools $tools
+        Tools $tools,
+        Watchdog $watchdog
     ) 
     {
         parent::__construct($context);
@@ -69,6 +76,7 @@ class Verify extends Action {
         $this->orderHandlerService      = $orderHandlerService;
         $this->messageManager           = $messageManager;
         $this->tools                    = $tools;
+        $this->watchdog                 = $watchdog; 
 
         // Get the request parameters
         $this->params = $this->getRequest()->getParams();        
@@ -81,6 +89,9 @@ class Verify extends Action {
         if ($this->requestIsValid()) {
             // Verify the payment token
             $response = json_decode($this->paymentTokenService->verifyToken($this->params['cko-payment-token']));
+
+            // Logging
+            $this->watchdog->bark($response);
 
             // Process the response
             if ($this->tools->chargeIsSuccess($response)) {

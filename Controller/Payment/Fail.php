@@ -15,7 +15,6 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\Message\ManagerInterface;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
-use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 use CheckoutCom\Magento2\Helper\Tools;
 
@@ -36,12 +35,17 @@ class Fail extends Action {
      */
     protected $messageManager;
 
-    public function __construct(Context $context, PaymentTokenService $paymentTokenService, Tools $tools, ManagerInterface $messageManager) {
+    public function __construct(
+        Context $context,
+        PaymentTokenService $paymentTokenService,
+        Tools $tools,
+        ManagerInterface $messageManager
+        ) {
         parent::__construct($context);
 
         $this->paymentTokenService = $paymentTokenService;
         $this->tools               = $tools;
-        $this->messageManager         = $messageManager;
+        $this->messageManager      = $messageManager;
 
         // Get the request parameters
         $this->params = $this->getRequest()->getParams();
@@ -55,6 +59,7 @@ class Fail extends Action {
             // Verify the token and get the payment response
             $response = json_decode($this->paymentTokenService->verifyToken($this->params['cko-payment-token']));
 
+            // Test the result
             if (!$this->tools->chargeIsSuccess($response)) {
                 $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
             }       

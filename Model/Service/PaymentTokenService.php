@@ -15,6 +15,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Http\Client;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Watchdog;
 
 class PaymentTokenService {
 
@@ -39,18 +40,25 @@ class PaymentTokenService {
     protected $config;
 
     /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
+    /**
      * PaymentTokenService constructor.
      */
     public function __construct(
         Session $checkoutSession,
         StoreManagerInterface $storeManager,
         Client $client,
-        Config $config
+        Config $config,
+        Watchdog $watchdog
     ) {
         $this->checkoutSession = $checkoutSession;
-        $this->storeManager  = $storeManager;
-        $this->client = $client;
-        $this->config = $config;
+        $this->storeManager    = $storeManager;
+        $this->client          = $client;
+        $this->config          = $config;
+        $this->watchdog        = $watchdog;
     }
 
     /**
@@ -82,7 +90,12 @@ class PaymentTokenService {
 
             // Send the request
             $response = $this->client->post($url, $params);
+
+            // Format the response
             $response = isset($response) ? (array) json_decode($response) : null;
+
+            // Logging
+            $this->watchdog->bark($response);
 
             // Extract the payment token
             if (isset($response['id'])){
@@ -117,6 +130,9 @@ class PaymentTokenService {
         // Handle the request
         $response = $this->client->post($url, $params);
 
+        // Logging
+        $this->watchdog->bark($response);
+
         // Return the response
         return $response;
     }
@@ -127,6 +143,9 @@ class PaymentTokenService {
 
         // Send the request and get the response
         $response = $this->client->get($url);
+
+        // Logging
+        $this->watchdog->bark($response);
 
         return $response;
     }

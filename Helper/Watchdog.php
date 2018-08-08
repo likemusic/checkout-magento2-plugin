@@ -36,6 +36,9 @@ class Watchdog {
      */
     protected $data;
 
+    /**
+     * PaymentTokenService constructor.
+     */
     public function __construct(
         ManagerInterface $messageManager,
         Config $config,
@@ -46,7 +49,7 @@ class Watchdog {
         $this->tools = $tools;
     }
 
-    public function bark($data) {
+    public function bark($data, $skipScreenLogging = false) {
         // Assign the data to self
         $this->data = (array) $data;
 
@@ -56,7 +59,7 @@ class Watchdog {
         }
 
         // Log to screen
-        if ($this->config->isGatewayLogging()) {
+        if ($this->config->isGatewayLogging() && !$skipScreenLogging) {
             $this->logToScreen();
         }
     }

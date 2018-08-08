@@ -63,6 +63,11 @@ class PlaceOrder extends Action {
     protected $messageManager;
 
     /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+    
+    /**
      * @var Array
      */
     protected $params = [];
@@ -108,6 +113,9 @@ class PlaceOrder extends Action {
         if ($this->requestIsValid()) {
             // Get the charge response
             $response = json_decode($this->sendChargeRequest());
+
+            // Logging
+            $this->watchdog->bark($response);
 
             // Check for 3DS redirection
             if ($this->config->isVerify3DSecure() && isset($response->redirectUrl)) {
