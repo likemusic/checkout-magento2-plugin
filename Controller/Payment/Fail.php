@@ -12,14 +12,36 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
+use Magento\Framework\Message\ManagerInterface;
+
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class Fail extends Action {
 
-    public function __construct(Context $context) {
+    protected $paymentTokenService;
+
+    /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
+     * @var ManagerInterface
+     */
+    protected $messageManager;
+
+    public function __construct(Context $context, PaymentTokenService $paymentTokenService, Tools $tools, ManagerInterface $messageManager) {
         parent::__construct($context);
+
+        $this->paymentTokenService = $paymentTokenService;
+        $this->tools               = $tools;
+        $this->messageManager         = $messageManager;
+
+        // Get the request parameters
+        $this->params = $this->getRequest()->getParams();
     }
 
     /**
@@ -27,22 +49,24 @@ class Fail extends Action {
      */
     public function execute() {
         if ($this->requestIsValid()) {
+            // Verify the token and get the payment response
             $response = json_decode($this->paymentTokenService->verifyToken($this->params['cko-payment-token']));
 
-            echo "<pre>";
-            var_dump($response);
-            echo "</pre>";
-            exit();           
+            if (!$this->tools->chargeIsSuccess($response)) {
+                $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+            }       
         }
         else {
             $this->messageManager->addErrorMessage(__('The request is invalid.'));
         }
+
+        return $this->resultRedirectFactory->create()->setPath('checkout/cart');
     }
 
     /**
      * Checks if the request is valid.
      */
     private function requestIsValid() {
-        return isset($this->params['cko-card-token']);
+        return isset($this->params['cko-payment-token']);
     }
 }
