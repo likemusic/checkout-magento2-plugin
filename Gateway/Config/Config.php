@@ -96,6 +96,11 @@ class Config {
     protected $checkoutSession;
 
     /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * Config constructor.
      */
     public function __construct(
@@ -125,9 +130,13 @@ class Config {
      * @return string
      */
 
-    private function getValue($path) {
+    private function getValue($path, $prependPath = true) {
+        // Build the config path
+        $path = ($prependPath) ? 'payment/' . $this->tools->modmeta['tag'] . '/' . $path : $path;
+
+        // Return the value
         return $this->scopeConfig->getValue(
-            'payment/' . $this->tools->modmeta['tag'] . '/' . $path,
+            $path,
             ScopeInterface::SCOPE_STORE
         );
     }
@@ -147,9 +156,7 @@ class Config {
      * @return string
      */
     public function getVaultTitle() {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return (string) $scopeConfig->getValue('payment/checkout_com_cc_vault/title');
+        return (string) $this->getValue('payment/checkout_com_cc_vault/title', false);
     }
 
     /**
@@ -158,9 +165,7 @@ class Config {
      * @return bool
      */
     public function isCardAutosave() {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return (bool) $scopeConfig->getValue('payment/checkout_com_cc_vault/autosave');
+        return (bool) $this->getValue('payment/checkout_com_cc_vault/autosave', false);
     }
 
     /**
@@ -350,13 +355,14 @@ class Config {
      * @return bool
      */
     public function isActive() {
-        if (!$this->getValue(self::KEY_ACTIVE)) {
-            return false;
-        }
+        $quote = $this->checkoutSession->getQuote();
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $quote = $objectManager->create('Magento\Checkout\Model\Session')->getQuote();
-        return (bool) in_array($quote->getQuoteCurrencyCode(), $this->getAcceptedCurrencies());
+        // Return true if module is active and currency is accepted
+        return (bool) ($this->getValue(self::KEY_ACTIVE))
+        && in_array(
+            $quote->getQuoteCurrencyCode(),
+            $this->getAcceptedCurrencies()
+        );
     }
 
     /**
