@@ -66,7 +66,7 @@ class PlaceOrder extends Action {
      * @var Watchdog
      */
     protected $watchdog;
-    
+
     /**
      * @var Array
      */
