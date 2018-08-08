@@ -12,43 +12,86 @@ namespace CheckoutCom\Magento2\Helper;
 
 use Magento\Framework\Message\ManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class Watchdog {
 
+    /**
+     * @var ManagerInterface
+     */
     protected $messageManager;
+
+    /**
+     * @var Config
+     */
     protected $config;
 
-    public function __construct(ManagerInterface $messageManager, Config $config) {
+    /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
+     * @var Array
+     */
+    protected $data;
+
+    public function __construct(
+        ManagerInterface $messageManager,
+        Config $config,
+        Tools $tools
+    ) {
         $this->messageManager = $messageManager;
         $this->config = $config;
+        $this->tools = $tools;
     }
 
     public function bark($data) {
-        if ($this->config->isDebugMode()) {
-            // Add the response code
-            if (isset($data['responseCode'])) {
-                $this->messageManager->addNoticeMessage(__('Response code') . ' : ' .  $data['responseCode']);
-            }
+        // Assign the data to self
+        $this->data = (array) $data;
 
-            // Add the response message
-            if (isset($data['responseMessage'])) {
-                $this->messageManager->addNoticeMessage(__('Response message') . ' : ' .  $data['responseMessage']);    
-            }   
-
-            // Add the error code
-            if (isset($data['errorCode'])) {
-                $this->messageManager->addNoticeMessage(__('Error code') . ' : ' .  $data['errorCode']);    
-            }  
-
-            // Add the error code
-            if (isset($data['status'])) {
-                $this->messageManager->addNoticeMessage(__('Status') . ' : ' .  $data['status']);    
-            }   
-
-            // Add the message
-            if (isset($data['message'])) {
-                $this->messageManager->addNoticeMessage(__('Message') . ' : ' .  $data['message']);    
-            }                     
+        // Log to file
+        if ($this->config->isPhpLogging()) {
+            $this->logToFile();
         }
+
+        // Log to screen
+        if ($this->config->isGatewayLogging()) {
+            $this->logToScreen();
+        }
+    }
+
+    private function logToFile() {
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/' . $this->tools->modmeta['tag'] . '.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info(print_r($this->data, 1));              
+    }
+
+    private function logToScreen() {
+        // Add the response code
+        if (isset($data['responseCode'])) {
+            $this->messageManager->addNoticeMessage(__('Response code') . ' : ' .  $data['responseCode']);
+        }
+
+        // Add the response message
+        if (isset($data['responseMessage'])) {
+            $this->messageManager->addNoticeMessage(__('Response message') . ' : ' .  $data['responseMessage']);    
+        }   
+
+        // Add the error code
+        if (isset($data['errorCode'])) {
+            $this->messageManager->addNoticeMessage(__('Error code') . ' : ' .  $data['errorCode']);    
+        }  
+
+        // Add the Status
+        if (isset($data['status'])) {
+            $this->messageManager->addNoticeMessage(__('Status') . ' : ' .  $data['status']);    
+        }   
+
+        // Add the message
+        if (isset($data['message'])) {
+            $this->messageManager->addNoticeMessage(__('Message') . ' : ' .  $data['message']);    
+        }                     
     }
 }

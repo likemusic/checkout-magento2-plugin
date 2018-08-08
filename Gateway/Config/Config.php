@@ -22,7 +22,6 @@ class Config {
     const KEY_ENVIRONMENT = 'environment';
     const KEY_ENVIRONMENT_LIVE = 'live';
     const KEY_ACTIVE = 'active';
-    const KEY_DEBUG = 'debug';
     const KEY_INTEGRATION = 'integration';
     const KEY_INTEGRATION_HOSTED = 'hosted';
     const KEY_PUBLIC_KEY = 'public_key';
@@ -99,7 +98,12 @@ class Config {
     /**
      * Config constructor.
      */
-    public function __construct(ScopeConfigInterface $scopeConfig, Tools $tools, CheckoutSession $checkoutSession, StoreManagerInterface $storeManager) {
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        Tools $tools,
+        CheckoutSession $checkoutSession,
+        StoreManagerInterface $storeManager
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->tools = $tools;
         $this->checkoutSession = $checkoutSession;
@@ -380,15 +384,6 @@ class Config {
      */
     public function getQuoteCurrency() {
         return $this->storeManager->getStore()->getCurrentCurrencyCode();
-    }
-
-    /**
-     * Determines if debug mode is enabled.
-     *
-     * @return bool
-     */
-    public function isDebugMode() {
-        return (bool) $this->getValue(self::KEY_DEBUG);
     }
 
     /**
