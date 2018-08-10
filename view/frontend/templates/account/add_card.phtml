@@ -1,4 +1,39 @@
-<?php 
 
-echo "new page";
-?>            
+<div id="cko-form-holder">
+    <form class="widget-container" id="embeddedForm" method="POST"></form>
+</div>
+<button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>">
+    <?= $block->escapeHtml(__('Save the card')) ?>
+</button>
+<script type="text/javascript">
+    require(["jquery","domReady!", "framesjs"], function ($) {
+        // Prepare the elements
+        var buttonId = '#cko-save-card';
+        var ckoContainerSelectorId = '#cko-form-holder';
+        var ckoPublicKey = 'pk_test_243e08e3-b941-4d12-a198-ac11565781fc';
+        var paymentForm = document.getElementById('embeddedForm');
+        var ckoTheme = '';
+        var ckoDebugMode = false;
+
+        // Initialize the embedded form
+        Frames.init({
+            publicKey: ckoPublicKey,
+            containerSelector: ckoContainerSelectorId,
+            theme: ckoTheme,
+            debugMode: ckoDebugMode,
+            frameActivated: function () {
+                $(buttonId).attr("disabled", true);
+            },
+            cardValidationChanged: function(event) {
+                $(buttonId).attr("disabled", !Frames.isCardValid());
+            },
+            cardTokenised: function(event) {                        
+                // Add the card token to the form
+                Frames.addCardToken(paymentForm, event.data.cardToken);
+
+                // Submit the payment form
+                paymentForm.submit();
+            },
+        });  
+    });
+</script>

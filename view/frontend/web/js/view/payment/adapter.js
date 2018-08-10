@@ -34,13 +34,6 @@ define([
         },
 
         /**
-         * @returns {string}
-         */
-        getRedirectUrl: function() {
-            return Url.build(this.getCode() + '/payment/placeorder');
-        },
-
-        /**
          * @returns {{method: (*|string|String), additional_data: {card_token_id: *}}}
          */
         getData: function() {
