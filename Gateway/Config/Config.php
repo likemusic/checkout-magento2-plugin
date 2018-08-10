@@ -14,6 +14,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\UrlInterface;
 use CheckoutCom\Magento2\Helper\Tools;
 
 class Config {
@@ -101,18 +102,25 @@ class Config {
     protected $storeManager;
 
     /**
+     * @var UrlInterface
+     */
+    protected $urlInterface;
+
+    /**
      * Config constructor.
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         Tools $tools,
         CheckoutSession $checkoutSession,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        UrlInterface $urlInterface
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->tools = $tools;
         $this->checkoutSession = $checkoutSession;
         $this->storeManager = $storeManager;
+        $this->urlInterface = $urlInterface;
     }
 
     /**
@@ -148,6 +156,16 @@ class Config {
      */
     public function getEnvironment() {
         return (string) $this->getValue(self::KEY_ENVIRONMENT);
+    }
+
+    /**
+     * Returns the place order redirect URL.
+     *
+     * @return string
+     */
+    public function getPlaceOrderRedirectUrl() {
+        $redirectUrl = $this->tools->modmeta['tag'] . '/payment/placeorder';
+        return (string) $this->urlInterface->getUrl($redirectUrl);
     }
 
     /**

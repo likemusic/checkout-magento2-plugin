@@ -105,7 +105,7 @@ define(
 
                 // Prepare parameters
                 var ckoTheme = this.php('getEmbeddedTheme');
-                var redirectUrl = Adapter.getRedirectUrl();
+                var redirectUrl = this.php('getPlaceOrderRedirectUrl');
                 var threeds_enabled = this.php('isVerify3DSecure');
                 var paymentForm = document.getElementById('embeddedForm');
 

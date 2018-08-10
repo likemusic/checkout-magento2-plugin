@@ -88,13 +88,6 @@ define(
             /**
              * @returns {string}
              */
-            getRedirectUrl: function() {
-                return Url.build(this.code + '/payment/placeorder');
-            },
-
-            /**
-             * @returns {string}
-             */
             submitForm: function(frm) {
                 // Submit the form
                 $(frm).submit();
