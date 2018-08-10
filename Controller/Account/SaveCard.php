@@ -14,7 +14,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 
-class AddCard extends Action {
+class SaveCard extends Action {
 
     public function __construct(
         Context $context
@@ -26,7 +26,9 @@ class AddCard extends Action {
      * Handles the controller method.
      */
     public function execute() { 
-        $this->_view->loadLayout(); 
-        $this->_view->renderLayout(); 
+       echo "<pre>";
+       var_dump($_REQUEST);
+       echo "</pre>";
+       exit();
     } 
 }

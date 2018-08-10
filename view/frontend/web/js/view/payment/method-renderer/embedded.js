@@ -121,6 +121,9 @@ define(
                     frameActivated: function () {
                         $('#ckoPlaceOrder').attr("disabled", true);
                     },
+                    cardSubmitted: function() {
+                        $('#ckoPlaceOrder').attr("disabled", true);
+                    },
                     cardValidationChanged: function(event) {
                         self.updateButtonState(!(Frames.isCardValid() && Quote.billingAddress() != null));
                     },
