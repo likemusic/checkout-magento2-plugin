@@ -18,6 +18,7 @@ use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Helper\Watchdog;
+use CheckoutCom\Magento2\Model\Service\StoreCardService;
 
 class Verify extends Action {
 
@@ -52,6 +53,11 @@ class Verify extends Action {
     protected $watchdog;
 
     /**
+     * @var StoreCardService
+     */
+    protected $storeCardService;
+
+    /**
      * @var Array
      */
     protected $params = [];
@@ -66,7 +72,8 @@ class Verify extends Action {
         OrderHandlerService $orderHandlerService,
         ManagerInterface $messageManager,
         Tools $tools,
-        Watchdog $watchdog
+        Watchdog $watchdog,
+        StoreCardService $storeCardService
     ) 
     {
         parent::__construct($context);
@@ -77,6 +84,7 @@ class Verify extends Action {
         $this->messageManager           = $messageManager;
         $this->tools                    = $tools;
         $this->watchdog                 = $watchdog; 
+        $this->storeCardService       = $storeCardService;
 
         // Get the request parameters
         $this->params = $this->getRequest()->getParams();        
@@ -90,6 +98,11 @@ class Verify extends Action {
             // Verify the payment token
             $response = json_decode($this->paymentTokenService->verifyToken($this->params['cko-payment-token']));
 
+            echo "<pre>";
+            var_dump($response);
+            echo "</pre>";
+            exit();
+
             // Logging
             $this->watchdog->bark($response);
 
@@ -97,8 +110,9 @@ class Verify extends Action {
             if ($this->tools->chargeIsSuccess($response)) {
                 // Handle the store card case
                 if (isset($response->value) && $response->value == 0) {
-                    // ADD STORE CARD CODE HERE
 
+                    // Store the card
+                    $this->storeCardService->saveCard($response, $this->params['cko-payment-token']);
                 }
                 // Place the order normally
                 else {
