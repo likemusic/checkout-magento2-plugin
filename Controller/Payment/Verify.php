@@ -98,21 +98,18 @@ class Verify extends Action {
             // Verify the payment token
             $response = json_decode($this->paymentTokenService->verifyToken($this->params['cko-payment-token']));
 
-            echo "<pre>";
-            var_dump($response);
-            echo "</pre>";
-            exit();
-
             // Logging
             $this->watchdog->bark($response);
 
             // Process the response
             if ($this->tools->chargeIsSuccess($response)) {
                 // Handle the store card case
-                if (isset($response->value) && $response->value == 0) {
-
+                if (isset($response->udf5) && $response->udf5 == 'isZeroDollarAuthorization') {
                     // Store the card
-                    $this->storeCardService->saveCard($response, $this->params['cko-payment-token']);
+                    $this->storeCardService->saveCard($response, $response->card->id);
+
+                    // Redirect to the cards list
+                    return $this->resultRedirectFactory->create()->setPath('vault/cards/listaction');
                 }
                 // Place the order normally
                 else {

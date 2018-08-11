@@ -128,8 +128,6 @@ class PaymentTokenService {
 
         // Set the request parameters
         $params = [
-            'autoCapTime'   => $this->config->getAutoCaptureTimeInHours(),
-            'autoCapture'   => $this->config->isAutoCapture() ? 'Y' : 'N',
             'chargeMode'    => $this->config->isVerify3DSecure() ? 2 : 1,
             'attemptN3D'    => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
             'cardToken'     => $cardToken
@@ -141,6 +139,8 @@ class PaymentTokenService {
         // Set the entity (quote or order) params if available
         if ($entity) {
             $params['email'] = $entity->getBillingAddress()->getEmail();
+            $params['autoCapture'] = $this->config->isAutoCapture() ? 'Y' : 'N';
+            $params['autoCapTime'] = $this->config->getAutoCaptureTimeInHours();
             $params['customerIp'] = $entity->getRemoteIp();
             $params['customerName'] = $entity->getCustomerName();
             $params['value'] = $entity->getGrandTotal()*100;
@@ -148,9 +148,11 @@ class PaymentTokenService {
         }
         else {
             $params['email'] = $this->customerSession->getCustomer()->getEmail();
+            $params['autoCapture'] = 'Y';
+            $params['autoCapTime'] = 0;
             $params['customerIp'] = $this->remoteAddress->getRemoteAddress();
-            $params['value'] = 0;
             $params['currency'] = 'USD';
+            $params['udf5'] = 'isZeroDollarAuthorization';
         }
        
         // Handle the request

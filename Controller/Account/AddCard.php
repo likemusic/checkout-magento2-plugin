@@ -13,19 +13,31 @@ namespace CheckoutCom\Magento2\Controller\Account;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class AddCard extends Action {
 
+    /**
+     * @var Tools
+     */
+    protected $tools;
+
     public function __construct(
-        Context $context
+        Context $context,
+        Tools $tools
     ) {
+        $this->tools = $tools;
         parent::__construct($context);
     }
 
     /**
      * Handles the controller method.
      */
-    public function execute() { 
+    public function execute() {
+        // Force login
+        $this->tools->checkLoggedIn();
+
+        // Display the page
         $this->_view->loadLayout(); 
         $this->_view->renderLayout(); 
     } 

@@ -144,7 +144,6 @@ class StoreCardService {
      * @return StoreCardService
      */
     public function setCardData() {
-
         // Prepare the card data to save
         $cardData = $this->authorizedResponse->card;
         unset($cardData->customerId);
@@ -177,7 +176,7 @@ class StoreCardService {
         // Check if card exists
         if ($foundPaymentToken) {
             if ($foundPaymentToken->getIsActive()) {
-                $this->messageManager->addNoticeMessage(__('The credit card has been stored already.'));
+                $this->messageManager->addNoticeMessage(__('This card has been stored already.'));
             }
 
             // Activate or reactivate the card
@@ -193,6 +192,8 @@ class StoreCardService {
             $paymentToken->setIsVisible(true);
             $this->paymentTokenRepository->save($paymentToken);
         }
+
+        $this->messageManager->addSuccessMessage(__('The card has been saved successfully.'));
     }
 
     /**

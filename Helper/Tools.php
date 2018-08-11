@@ -13,7 +13,8 @@ namespace CheckoutCom\Magento2\Helper;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\UrlInterface;
 class Tools {
 
     const KEY_MODNAME = 'modname';
@@ -26,12 +27,36 @@ class Tools {
     const KEY_PRIVATE_KEY = 'private_key';
     const KEY_PRIVATE_SHARED_KEY = 'private_shared_key';
 
+    /**
+     * @var Http
+     */
     protected $request;
+
+    /**
+     * @var ScopeConfigInterface
+     */
     protected $scopeConfig;
 
-    public function __construct(Http $request, ScopeConfigInterface $scopeConfig) {
+    /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
+
+    /**
+     * @var UrlInterface
+     */
+    protected $urlInterface;
+
+    public function __construct(
+        Http $request,
+        ScopeConfigInterface $scopeConfig,
+        CustomerSession $customerSession,
+        UrlInterface $urlInterface
+    ) {
         $this->request = $request;
         $this->scopeConfig = $scopeConfig;
+        $this->customerSession = $customerSession;
+        $this->urlInterface = $urlInterface;
         $this->modmeta = $this->getModuleMetadata();
     }
 
@@ -79,5 +104,12 @@ class Tools {
         }
 
         return true;
-    }    
+    }
+
+    public function checkLoggedIn() {
+        if (!$this->customerSession->isLoggedIn()) {
+            $this->customerSession->setAfterAuthUrl($this->urlInterface->getCurrentUrl());
+            $this->customerSession->authenticate();
+        }    
+    }
 }

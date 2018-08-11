@@ -84,7 +84,11 @@ class SaveCard extends Action {
     /**
      * Handles the controller method.
      */
-    public function execute() { 
+    public function execute() {
+        // Force login
+        $this->tools->checkLoggedIn();
+
+        // Process valid requests
         if ($this->requestIsValid()) {
             // Send the charge request and get the response
             $response = json_decode($this->sendChargeRequest());
@@ -97,7 +101,7 @@ class SaveCard extends Action {
                 $redirectUrl = filter_var($response->redirectUrl, FILTER_VALIDATE_URL);
                 return $this->resultRedirectFactory->create()->setUrl($redirectUrl);
             }
-
+            
             // Process the response
             if ($this->tools->chargeIsSuccess($response)) {
                 // Store the card
