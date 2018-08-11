@@ -12,23 +12,125 @@ namespace CheckoutCom\Magento2\Controller\Account;
 
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
+use Magento\Framework\Message\ManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
+use CheckoutCom\Magento2\Helper\Watchdog;
+use CheckoutCom\Magento2\Helper\Tools;
+use CheckoutCom\Magento2\Model\Service\StoreCardService;
 
 class SaveCard extends Action {
 
+    /**
+     * @var Array
+     */
+    protected $params;
+
+    /**
+     * @var PaymentTokenService
+     */
+    protected $paymentTokenService;
+
+    /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
+    /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * @var ManagerInterface
+     */
+    protected $messageManager;
+
+    /**
+     * @var StoreCardService
+     */
+    protected $storeCardService;
+
+    /**
+     * SaveCard constructor.
+     */
     public function __construct(
-        Context $context
+        Context $context,
+        PaymentTokenService $paymentTokenService,
+        Watchdog $watchdog,
+        Tools $tools,
+        Config $config,
+        ManagerInterface $messageManager,
+        StoreCardService $storeCardService
     ) {
         parent::__construct($context);
+
+        $this->paymentTokenService    = $paymentTokenService;
+        $this->watchdog               = $watchdog; 
+        $this->tools                  = $tools;
+        $this->config                 = $config;
+        $this->messageManager         = $messageManager;
+        $this->storeCardService       = $storeCardService;
+
+        // Get the request parameters
+        $this->params = $this->getRequest()->getParams();
     }
 
     /**
      * Handles the controller method.
      */
     public function execute() { 
-       echo "<pre>";
-       var_dump($_REQUEST);
-       echo "</pre>";
-       exit();
+        if ($this->requestIsValid()) {
+            // Send the charge request and get the response
+            $response = json_decode($this->sendChargeRequest());
+
+            // Logging
+            $this->watchdog->bark($response);
+
+            // Check for 3DS redirection
+            if ($this->config->isVerify3DSecure() && isset($response->redirectUrl)) {
+                $redirectUrl = filter_var($response->redirectUrl, FILTER_VALIDATE_URL);
+                return $this->resultRedirectFactory->create()->setUrl($redirectUrl);
+            }
+
+            // Process the response
+            if ($this->tools->chargeIsSuccess($response)) {
+                // Store the card
+                $this->storeCardService->saveCard($response, $this->params['cko-card-token']);
+
+                // Redirect to the card list
+                return $this->resultRedirectFactory->create()->setPath('vault/cards/listaction');
+            }
+            else {
+                $this->messageManager->addErrorMessage(__('The card could not be authorized.'));
+            }
+        }
+        else {
+            $this->messageManager->addErrorMessage(__('The request is invalid.'));
+        }
+
+        return $this->resultRedirectFactory->create()->setPath($this->tools->modmeta['tag'] . '/account/addcard');
     } 
+
+    /**
+     * Checks if the request is valid.
+     */
+    private function requestIsValid() {
+        return isset($this->params['cko-card-token']);
+    }
+
+    /**
+     * Send a token charge request.
+     */
+    private function sendChargeRequest() {
+        // get the token charge response
+        $response = $this->paymentTokenService->sendChargeRequest($this->params['cko-card-token']);
+
+        return $response;
+    }
 }

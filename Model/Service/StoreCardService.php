@@ -10,40 +10,18 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Zend_Http_Client_Exception;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\HTTP\ZendClient;
-use Magento\Payment\Gateway\Http\TransferInterface;
-use Magento\Payment\Gateway\Http\ClientException;
-use Magento\Payment\Model\Method\Logger;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
-use Magento\Framework\App\ResponseFactory;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Customer\Model\Session;
-use CheckoutCom\Magento2\Helper\Watchdog;
+use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
-use CheckoutCom\Magento2\Gateway\Config\Config;
-use CheckoutCom\Magento2\Gateway\Exception\ApiClientException;
-
 class StoreCardService {
-
-    /**
-     * @var Logger
-     */
-    protected $logger;
 
     /**
      * @var VaultTokenFactory
      */
     protected $vaultTokenFactory;
-
-    /**
-     * @var Config
-     */
-    protected $config;
 
     /**
      * @var PaymentTokenRepositoryInterface
@@ -73,74 +51,54 @@ class StoreCardService {
     /**
      * @var array
      */
-    protected $cardData = [];
-
-    /**
-     * @var array
-     */
-    protected $authorizedResponse = [];
-
-    /**
-     * @var ResponseFactory 
-     */
-    protected $responseFactory;
-
-    /**
-     * @var Watchdog
-     */
-    protected $watchdog;
+    protected $cardData;
 
     /**
      * @var ManagerInterface
      */
     protected $messageManager;
-
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
     
     /**
-     * @var Session
+     * @var CustomerSession
      */
     protected $customerSession;
     
     /**
      * StoreCardService constructor.
-     * @param Logger $logger
-     * @param VaultTokenFactory $vaultTokenFactory
-     * @param GatewayConfig $gatewayConfig
-     * @param TransferFactory $transferFactory
-     * @param PaymentTokenRepositoryInterface $paymentTokenRepository
-     * @param PaymentTokenManagementInterface $paymentTokenManagement
-     * @param ResponseFactory $responseFactory
-     * @param Watchdog $watchdog
-     * @param ManagerInterface $messageManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Session $customerSession
      */
     public function __construct(
-        Logger $logger,
         VaultTokenFactory $vaultTokenFactory,
-        Config $config,
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
-        ResponseFactory $responseFactory,
-        Watchdog $watchdog,
         ManagerInterface $messageManager,
-        ScopeConfigInterface $scopeConfig,
-        Session $customerSession
+        CustomerSession $customerSession
     ) {
-        $this->logger                   = $logger;
         $this->vaultTokenFactory        = $vaultTokenFactory;
-        $this->config                   = $config;
         $this->paymentTokenRepository   = $paymentTokenRepository;
         $this->paymentTokenManagement   = $paymentTokenManagement;
-        $this->scopeConfig              = $scopeConfig;
-        $this->responseFactory          = $responseFactory;
         $this->customerSession          = $customerSession;
-        $this->watchdog                 = $watchdog;
         $this->messageManager           = $messageManager;
+    }
+
+    public function saveCard($response, $ckoCardToken) {
+        $this->setResponse($response)
+        ->setCardToken($ckoCardToken)
+        ->setCustomerId()
+        ->setCustomerEmail()
+        ->setCardData()
+        ->save();
+    }
+
+    /**
+     * Sets the gateway response.
+     *
+     * @param object $response
+     * @return StoreCardService
+     */
+    public function setResponse($response) {
+        $this->authorizedResponse = $response;
+
+        return $this;
     }
 
     /**
@@ -161,8 +119,8 @@ class StoreCardService {
      * @param string $customerEmail
      * @return StoreCardService
      */
-    public function setCustomerEmail() {
-        $this->customerEmail = $this->customerSession->getCustomer()->getEmail();
+    public function setCustomerEmail($email = null) {
+        $this->customerEmail = ($email) ? $email : $this->customerSession->getCustomer()->getEmail();
 
         return $this;
     }
@@ -174,7 +132,7 @@ class StoreCardService {
      * @return StoreCardService
      */
     public function setCardToken($cardToken) {
-        $this->cardToken    = $cardToken;
+        $this->cardToken = $cardToken;
 
         return $this;
     }
@@ -188,36 +146,17 @@ class StoreCardService {
     public function setCardData() {
 
         // Prepare the card data to save
-        $cardData = $this->authorizedResponse['card'];
-        unset($cardData['customerId']);
-        unset($cardData['billingDetails']);
-        unset($cardData['bin']);
-        unset($cardData['fingerprint']);
-        unset($cardData['cvvCheck']);
-        unset($cardData['name']);
-        unset($cardData['avsCheck']);
+        $cardData = $this->authorizedResponse->card;
+        unset($cardData->customerId);
+        unset($cardData->billingDetails);
+        unset($cardData->bin);
+        unset($cardData->fingerprint);
+        unset($cardData->cvvCheck);
+        unset($cardData->name);
+        unset($cardData->avsCheck);
 
         // Assign the card data
         $this->cardData = $cardData;
-
-        return $this;
-    }
-
-    /**
-     * Tests the card through gateway.
-     *
-     * @return StoreCardService
-     */
-    public function test() {
-
-        // Perform the authorization
-        $this->authorizeTransaction();
-
-        // Validate the authorization
-        $this->validateAuthorization();
-
-        // Perform the void
-        $this->voidTransaction();
 
         return $this;
     }
@@ -232,7 +171,7 @@ class StoreCardService {
      */
     public function save() {
         // Create the payment token from response
-        $paymentToken = $this->vaultTokenFactory->create($this->cardData, $this->customerId);
+        $paymentToken = $this->vaultTokenFactory->create((array)$this->cardData, $this->customerId);
         $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
 
         // Check if card exists
@@ -249,116 +188,11 @@ class StoreCardService {
 
         // Otherwise save the card
         else {
-            $gatewayToken = $this->authorizedResponse['card']['id'];
+            $gatewayToken = $this->authorizedResponse->card->id;
             $paymentToken->setGatewayToken($gatewayToken);
             $paymentToken->setIsVisible(true);
             $this->paymentTokenRepository->save($paymentToken);
         }
-    }
-
-    /**
-     * Runs the authorization command for the gateway.
-     *
-     * @throws ApiClientException
-     * @throws ClientException
-     * @throws \Exception
-     */
-    private function authorizeTransaction() {
-
-        $requestUri = 'charges/token'; // todo - get this url from http client class
-/*
-        $transfer = $this->transferFactory->create([
-            'autoCapture'   => 'N',
-            'description'   => 'Saving new card',
-            'value'         => (float) $this->scopeConfig->getValue('payment/checkout_com/save_card_check_amount') * 100,
-            'currency'      => $this->scopeConfig->getValue('payment/checkout_com/save_card_check_currency'),
-            'cardToken'     => $this->cardToken,
-            'email'         => $this->customerEmail,
-        ]);
-        
-        $log = [
-            'request'           => $transfer->getBody(),
-            'request_uri'       => $requestUri,
-            'request_headers'   => $transfer->getHeaders(),
-            'request_method'    => 'POST',
-        ];
-
-        try {
-            $response           = $this->getHttpClient($requestUri, $transfer)->request();
-            
-            $result             = json_decode($response->getBody(), true);
-            $log['response']    = $result;
-
-            // Outpout the response in debug mode
-            $this->watchdog->bark($result);
-
-
-            if( array_key_exists('errorCode', $result) ) {
-                throw new ApiClientException($result['message'], $result['errorCode'], $result['eventId']);
-            }
-
-            $this->authorizedResponse = $result;
-        }
-        catch (Zend_Http_Client_Exception $e) {
-            throw new ClientException(__($e->getMessage()));
-        }
-        finally {
-            $this->logger->debug($log);
-        }
-        */
-    }
-
-    /**
-     * Validates the authorization response.
-     *
-     * @throws LocalizedException
-     */
-    private function validateAuthorization() {
-        if( array_key_exists('status', $this->authorizedResponse) AND $this->authorizedResponse['status'] === 'Declined') {
-            throw new LocalizedException(__('The transaction has been declined.'));
-        }
-    }
-
-    /**
-     * Runs the void command for the gateway.
-     *
-     * @throws ApiClientException
-     * @throws ClientException
-     * @throws \Exception
-     */
-    private function voidTransaction() {
-        /*
-        $transactionId  = $this->authorizedResponse['id'];
-        $transfer       = $this->transferFactory->create([
-            'trackId'   => ''
-        ]);
-
-        $chargeUrl = 'charges/' . $transactionId . '/void';
-
-        $log = [
-            'request'           => $transfer->getBody(),
-            'request_uri'       => $chargeUrl,
-            'request_headers'   => $transfer->getHeaders(),
-            'request_method'    => 'POST',
-        ];
-
-        try {
-            $response           = $this->getHttpClient($chargeUrl, $transfer)->request();
-           
-            $result             = json_decode($response->getBody(), true);
-            $log['response']    = $result;
-
-            if( array_key_exists('errorCode', $result) ) {
-                throw new ApiClientException($result['message'], $result['errorCode'], $result['eventId']);
-            }
-        }
-        catch (Zend_Http_Client_Exception $e) {
-            throw new ClientException(__($e->getMessage()));
-        }
-        finally {
-            $this->logger->debug($log);
-        }
-        */
     }
 
     /**
@@ -368,7 +202,10 @@ class StoreCardService {
      * @return PaymentTokenInterface|null
      */
     private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken) {
-        return $this->paymentTokenManagement->getByPublicHash( $paymentToken->getPublicHash(), $paymentToken->getCustomerId() );
+        return $this->paymentTokenManagement->getByPublicHash(
+            $paymentToken->getPublicHash(),
+            $paymentToken->getCustomerId()
+        );
     }
 
 }

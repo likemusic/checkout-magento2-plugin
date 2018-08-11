@@ -70,12 +70,7 @@ class PlaceOrder extends Action {
     /**
      * @var Array
      */
-    protected $params = [];
-
-    /**
-     * @var Order
-     */
-    protected $order = null;
+    protected $params;
 
     /**
      * PlaceOrder constructor.

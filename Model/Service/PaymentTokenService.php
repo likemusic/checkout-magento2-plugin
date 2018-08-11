@@ -10,8 +10,10 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
-use Magento\Checkout\Model\Session;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Http\Client;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -20,9 +22,14 @@ use CheckoutCom\Magento2\Helper\Watchdog;
 class PaymentTokenService {
 
     /**
-     * @var Session
+     * @var CheckoutSession
      */
     protected $checkoutSession;
+
+    /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
 
     /**
      * @var StoreManagerInterface
@@ -45,20 +52,29 @@ class PaymentTokenService {
     protected $watchdog;
 
     /**
+     * @var RemoteAddress
+     */
+    protected $remoteAddress;
+
+    /**
      * PaymentTokenService constructor.
      */
     public function __construct(
-        Session $checkoutSession,
+        CheckoutSession $checkoutSession,
+        CustomerSession $customerSession,
         StoreManagerInterface $storeManager,
         Client $client,
         Config $config,
-        Watchdog $watchdog
+        Watchdog $watchdog,
+        RemoteAddress $remoteAddress
     ) {
         $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->storeManager    = $storeManager;
         $this->client          = $client;
         $this->config          = $config;
         $this->watchdog        = $watchdog;
+        $this->remoteAddress   = $remoteAddress;
     }
 
     /**
@@ -106,7 +122,7 @@ class PaymentTokenService {
         return false;
     }
 
-    public function sendChargeRequest($cardToken, $entity, $trackId = false) {
+    public function sendChargeRequest($cardToken, $entity = false, $trackId = false) {
         // Set the request url
         $url = $this->config->getApiUrl() . 'charges/token';
 
@@ -114,18 +130,28 @@ class PaymentTokenService {
         $params = [
             'autoCapTime'   => $this->config->getAutoCaptureTimeInHours(),
             'autoCapture'   => $this->config->isAutoCapture() ? 'Y' : 'N',
-            'email'         => $entity->getBillingAddress()->getEmail(),
-            'customerIp'    => $entity->getRemoteIp(),
             'chargeMode'    => $this->config->isVerify3DSecure() ? 2 : 1,
             'attemptN3D'    => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
-            'customerName'  => $entity->getCustomerName(),
-            'currency'      => ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode()),
-            'value'         => $entity->getGrandTotal()*100,
             'cardToken'     => $cardToken
         ];
 
         // Set the track id if available
         if ($trackId) $params['trackId'] = $trackId;
+
+        // Set the entity (quote or order) params if available
+        if ($entity) {
+            $params['email'] = $entity->getBillingAddress()->getEmail();
+            $params['customerIp'] = $entity->getRemoteIp();
+            $params['customerName'] = $entity->getCustomerName();
+            $params['value'] = $entity->getGrandTotal()*100;
+            $params['currency'] = ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode());
+        }
+        else {
+            $params['email'] = $this->customerSession->getCustomer()->getEmail();
+            $params['customerIp'] = $this->remoteAddress->getRemoteAddress();
+            $params['value'] = 0;
+            $params['currency'] = 'USD';
+        }
        
         // Handle the request
         $response = $this->client->post($url, $params);

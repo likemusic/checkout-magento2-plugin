@@ -95,13 +95,20 @@ class Verify extends Action {
 
             // Process the response
             if ($this->tools->chargeIsSuccess($response)) {
-                $orderId = $this->orderHandlerService->placeOrder($response);
-                if ($orderId > 0) {
-                    return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
+                // Handle the store card case
+                if (isset($response->value) && $response->value == 0) {
+                    // ADD STORE CARD CODE HERE
+
                 }
+                // Place the order normally
                 else {
-                    $this->messageManager->addErrorMessage(__('The order could not be created. Please contact the site administrator or try again.'));
-                }                
+                    $orderId = $this->orderHandlerService->placeOrder($response);
+                    if ($orderId > 0) {
+                        return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
+                    } else {
+                        $this->messageManager->addErrorMessage(__('The order could not be created. Please contact the site administrator or try again.'));
+                    }
+                }      
             }
             else {
                 $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
