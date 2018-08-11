@@ -42,8 +42,8 @@ define(
             initialize: function() {
                 this._super();
                 this.initObservable();
-                this.vault = new VaultEnabler();
-                this.vault.setPaymentCode(Adapter.getVaultCode());
+                this.vaultEnabler = new VaultEnabler();
+                this.vaultEnabler.setPaymentCode(this.php('getVaultCode'));
             },
 
             initObservable: function() {
@@ -55,8 +55,19 @@ define(
             /**
              * @returns {bool}
              */
-            isVaultEnabled: function () {
-                return this.vault.isVaultEnabled();
+            isVaultEnabled: function() {
+                return this.vaultEnabler.isVaultEnabled();
+            },
+
+            /**
+             * @returns {Object}
+             */
+            getData: function () {
+                var data = this._super();
+
+                this.vaultEnabler.visitAdditionalData(data);
+
+                return data;
             },
 
             /**

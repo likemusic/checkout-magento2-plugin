@@ -29,6 +29,8 @@ class DefaultMethod extends AbstractMethod {
     protected $_canUseCheckout = true;
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
+    protected $_canAuthorizeVault = true;
+    protected $_canCaptureVault = true;
     protected $backendAuthSession;
     protected $cart;
     protected $urlBuilder;

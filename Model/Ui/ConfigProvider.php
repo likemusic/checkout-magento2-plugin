@@ -21,6 +21,7 @@ class ConfigProvider implements ConfigProviderInterface {
 
     const CODE = 'checkout_com';
     const CODE_APPLE_PAY = 'checkout_com_applepay';
+    const CODE_VAULT = 'checkout_com_cc_vault';
 
     /**
      * @var Config

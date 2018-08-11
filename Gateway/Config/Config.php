@@ -174,7 +174,16 @@ class Config {
      * @return string
      */
     public function getVaultTitle() {
-        return (string) $this->getValue('payment/checkout_com_cc_vault/title', false);
+        return (string) $this->getValue('payment/' . $this->tools->modmeta['tag'] . '_cc_vault/title', false);
+    }
+
+    /**
+     * Provides the vault option code.
+     *
+     * @return string
+     */
+    public function getVaultCode() {
+        return (string) $this->tools->modmeta['tag'] . '_cc_vault';
     }
 
     /**
@@ -183,7 +192,7 @@ class Config {
      * @return bool
      */
     public function isCardAutosave() {
-        return (bool) $this->getValue('payment/checkout_com_cc_vault/autosave', false);
+        return (bool) $this->getValue('payment/' . $this->tools->modmeta['tag'] . '_cc_vault/autosave', false);
     }
 
     /**

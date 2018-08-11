@@ -22,14 +22,11 @@
             </argument>
         </arguments>
     </type>
-
-
     <virtualType name="CheckoutCom_Magento2ConfigApplePay" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
             <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE_APPLE_PAY</argument>
         </arguments>
     </virtualType>
-
     <type name="CheckoutCom\Magento2\Block\Info">
         <arguments>
             <argument name="config" xsi:type="object">CheckoutCom_Magento2ConfigApplePay</argument>
@@ -38,7 +35,18 @@
             </argument>
         </arguments>
     </type>
-
-
-    
+    <!-- Configuration for Vault payments -->
+    <virtualType name="CheckoutComCreditCardVaultFacade" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="config" xsi:type="object">CheckoutComVaultPaymentConfig</argument>
+            <argument name="code" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE_VAULT</argument>
+            <argument name="vaultProvider" xsi:type="object">CheckoutCom\Magento2\Model\Methods\DefaultMethod</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="CheckoutComVaultPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE_VAULT</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Configuration for Vault payments -->
 </config>
