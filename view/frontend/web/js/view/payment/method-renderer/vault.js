@@ -57,7 +57,7 @@ define([
          *
          * @returns {String}
          */
-        getToken: function () {
+        getPublicHash: function () {
             return this.publicHash;
         },
 
@@ -70,7 +70,7 @@ define([
 
             // Place the order
             if (AdditionalValidators.validate()) {
-                self.placeOrder();
+                $('#cko-vault-form').submit();
             }
         },
 

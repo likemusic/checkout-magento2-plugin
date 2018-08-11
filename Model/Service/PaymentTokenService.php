@@ -122,16 +122,23 @@ class PaymentTokenService {
         return false;
     }
 
-    public function sendChargeRequest($cardToken, $entity = false, $trackId = false) {
-        // Set the request url
-        $url = $this->config->getApiUrl() . 'charges/token';
-
+    public function sendChargeRequest($token, $entity = false, $trackId = false) {
         // Set the request parameters
         $params = [
             'chargeMode'    => $this->config->isVerify3DSecure() ? 2 : 1,
             'attemptN3D'    => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
-            'cardToken'     => $cardToken
         ];
+
+        // Set cardToken or cardId charge type
+        $str = 'card_tok';
+        if (substr($token, 0, strlen($str)) === $str) {
+            $params['cardToken'] = $token;
+            $url = $this->config->getApiUrl() . 'charges/token';
+        }
+        else {
+            $params['cardId'] = $token;
+            $url = $this->config->getApiUrl() . 'charges/card';
+        }
 
         // Set the track id if available
         if ($trackId) $params['trackId'] = $trackId;

@@ -29,27 +29,27 @@
             <!--/ko-->
         </div>
 
-        <form id="cko-hosted-form" class="form" data-bind="attr: {action: php('getHostedUrl')}" method="post" novalidate="novalidate" style="display: none;">
-            <input name="publicKey" data-bind="attr: {value: php('getPublicKey')}">
-            <input name="cardFormMode" value="cardTokenisation">
-            <input name="paymentMode" data-bind="attr: {value: php('getPaymentMode')}">
-            <input name="chargeMode" data-bind="attr: {value: php('isVerify3DSecure') === true ? 2 : 1}">
-            <input name="isAttemptN3D" data-bind="attr: {value: php('isAttemptN3D')}">
-            <input name="value" data-bind="attr: {value: js('getQuoteValue')}">
-            <input name="currency" data-bind="attr: {value: php('getQuoteCurrency')}">
-            <input name="customerEmail" data-bind="attr: {value: js('getEmailAddress')}">
-            <input name="redirectUrl" data-bind="attr: {value: php('getPlaceOrderRedirectUrl')}">
-            <input name="cancelUrl" data-bind="attr: {value: js('getCancelUrl')}">
-            <input name="contextId" data-bind="attr: {value: js('getEmailAddress')}">
-            <input name="themeColor" data-bind="attr: {value: php('getHostedThemeColor')}">
-            <input name="buttonLabel" data-bind="attr: {value: php('getHostedButtonLabel')}">
-            <input name="title" data-bind="attr: {value: php('getHostedBoxTitle')}">
-            <input name="subtitle" data-bind="attr: {value: php('getHostedBoxSubtitle')}">
+        <form id="cko-hosted-form" class="form" data-bind="attr: {action: php('getHostedUrl')}" method="post" novalidate="novalidate">
+            <input type="hidden" name="publicKey" data-bind="attr: {value: php('getPublicKey')}">
+            <input type="hidden" name="cardFormMode" value="cardTokenisation">
+            <input type="hidden" name="paymentMode" data-bind="attr: {value: php('getPaymentMode')}">
+            <input type="hidden" name="chargeMode" data-bind="attr: {value: php('isVerify3DSecure') === true ? 2 : 1}">
+            <input type="hidden" name="isAttemptN3D" data-bind="attr: {value: php('isAttemptN3D')}">
+            <input type="hidden" name="value" data-bind="attr: {value: js('getQuoteValue')}">
+            <input type="hidden" name="currency" data-bind="attr: {value: php('getQuoteCurrency')}">
+            <input type="hidden" name="customerEmail" data-bind="attr: {value: js('getEmailAddress')}">
+            <input type="hidden" name="redirectUrl" data-bind="attr: {value: php('getPlaceOrderRedirectUrl')}">
+            <input type="hidden" name="cancelUrl" data-bind="attr: {value: js('getCancelUrl')}">
+            <input type="hidden" name="contextId" data-bind="attr: {value: js('getEmailAddress')}">
+            <input type="hidden" name="themeColor" data-bind="attr: {value: php('getHostedThemeColor')}">
+            <input type="hidden" name="buttonLabel" data-bind="attr: {value: php('getHostedButtonLabel')}">
+            <input type="hidden" name="title" data-bind="attr: {value: php('getHostedBoxTitle')}">
+            <input type="hidden" name="subtitle" data-bind="attr: {value: php('getHostedBoxSubtitle')}">
             <!-- ko if: (php('getHostedLogoUrl') !== "none") -->
-                <input name="logoUrl" data-bind="attr: {value: php('getHostedLogoUrl')}">
+                <input type="hidden" name="logoUrl" data-bind="attr: {value: php('getHostedLogoUrl')}">
             <!-- /ko -->
             <!-- ko if: (php('getPaymentMode') === 'localpayments' || php('getPaymentMode') === 'mixed') -->
-                <input name="paymentToken" id="ckoPaymentToken" data-bind="attr: {value: getPaymentToken($element.id)}">            
+                <input type="hidden" name="paymentToken" id="ckoPaymentToken" data-bind="attr: {value: getPaymentToken($element.id)}">            
             <!-- /ko -->
         </form>
 

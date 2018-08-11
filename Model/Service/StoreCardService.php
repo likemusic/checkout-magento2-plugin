@@ -171,11 +171,11 @@ class StoreCardService {
     public function save() {
         // Create the payment token from response
         $paymentToken = $this->vaultTokenFactory->create((array)$this->cardData, $this->customerId);
-        $foundPaymentToken  = $this->foundExistedPaymentToken($paymentToken);
+        $foundPaymentToken  = $this->foundExistingPaymentToken($paymentToken);
 
         // Check if card exists
         if ($foundPaymentToken) {
-            if ($foundPaymentToken->getIsActive()) {
+            if ((int) $foundPaymentToken->getIsActive() == 1) {
                 $this->messageManager->addNoticeMessage(__('This card has been stored already.'));
             }
 
@@ -202,7 +202,7 @@ class StoreCardService {
      * @param PaymentTokenInterface $paymentToken
      * @return PaymentTokenInterface|null
      */
-    private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken) {
+    private function foundExistingPaymentToken(PaymentTokenInterface $paymentToken) {
         return $this->paymentTokenManagement->getByPublicHash(
             $paymentToken->getPublicHash(),
             $paymentToken->getCustomerId()

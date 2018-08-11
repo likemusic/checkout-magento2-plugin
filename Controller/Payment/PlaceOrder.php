@@ -18,6 +18,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Vault\Api\PaymentTokenManagementInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
@@ -63,6 +64,11 @@ class PlaceOrder extends Action {
     protected $messageManager;
 
     /**
+     * @var PaymentTokenManagementInterface
+     */
+    protected $paymentTokenManagement;
+
+    /**
      * @var Watchdog
      */
     protected $watchdog;
@@ -82,6 +88,7 @@ class PlaceOrder extends Action {
         Config $config,
         Tools $tools,
         ManagerInterface $messageManager,
+        PaymentTokenManagementInterface $paymentTokenManagement,
         OrderHandlerService $orderHandlerService,
         PaymentTokenService $paymentTokenService,
         Watchdog $watchdog
@@ -93,6 +100,7 @@ class PlaceOrder extends Action {
         $this->config                 = $config;
         $this->tools                  = $tools;
         $this->messageManager         = $messageManager;
+        $this->paymentTokenManagement = $paymentTokenManagement;
         $this->orderHandlerService    = $orderHandlerService;
         $this->paymentTokenService    = $paymentTokenService;
         $this->watchdog               = $watchdog; 
@@ -146,9 +154,15 @@ class PlaceOrder extends Action {
      * Checks if the request is valid.
      */
     private function requestIsValid() {
+        // Default output result
         $result = false;
 
-        if ($this->config->isHostedIntegration()) {
+        if (isset($this->params['public-hash'])) {
+            $this->params['cko-card-token'] = $this->getSavedCardToken();
+
+            return true;
+        }
+        else if ($this->config->isHostedIntegration()) {
             $result = isset($this->params['cko-public-key'])
             && isset($this->params['cko-card-token'])
             && isset($this->params['cko-payment-token'])
@@ -160,6 +174,30 @@ class PlaceOrder extends Action {
         }
 
         return $result;
+    }
+
+    /**
+     * Get a saved card.
+     */
+    private function getSavedCardToken() {
+        // Get the customer id (currently logged in user)
+        $customerId = $this->customerSession->getCustomer()->getId();
+
+        // Get the cards list
+        $cardList = $this->paymentTokenManagement->getListByCustomerId($customerId);
+
+        // Loop through the cards
+        foreach ($cardList as $card) {
+            if ($card->getPublicHash() == $this->params['public-hash'] 
+                && (int) $card->getIsActive() == 1
+                && (int) $card->getIsVisible() == 1
+            ) {
+
+                return $card->getGatewayToken();
+            }
+        }
+
+        return false;
     }
 
     /**
