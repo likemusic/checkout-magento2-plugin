@@ -9,6 +9,5 @@
  */
 
 use Magento\Framework\Component\ComponentRegistrar;
-use CheckoutCom\Magento2\Helper\Tools;
 
 ComponentRegistrar::register(ComponentRegistrar::MODULE, 'CheckoutCom_Magento2', __DIR__);
