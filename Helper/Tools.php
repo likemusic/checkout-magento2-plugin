@@ -15,6 +15,8 @@ use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\UrlInterface;
+use Magento\Framework\Module\Dir\Reader;
+
 class Tools {
 
     const KEY_MODNAME = 'modname';
@@ -47,19 +49,45 @@ class Tools {
      */
     protected $urlInterface;
 
+    /**
+     * @var Reader
+     */
+    protected $directoryReader;
+
+    /**
+     * Tools constructor.
+     */ 
     public function __construct(
         Http $request,
         ScopeConfigInterface $scopeConfig,
         CustomerSession $customerSession,
-        UrlInterface $urlInterface
+        UrlInterface $urlInterface,
+        Reader $directoryReader
     ) {
-        $this->request = $request;
-        $this->scopeConfig = $scopeConfig;
-        $this->customerSession = $customerSession;
-        $this->urlInterface = $urlInterface;
-        $this->modmeta = $this->getModuleMetadata();
+        $this->request           = $request;
+        $this->scopeConfig       = $scopeConfig;
+        $this->customerSession   = $customerSession;
+        $this->urlInterface      = $urlInterface;
+        $this->modmeta           = $this->getModuleMetadata();
+        $this->directoryReader   = $directoryReader;
     }
 
+    /**
+     * Get the module version from composer.json file.
+     */    
+    public function getModuleVersion() {
+        // Get the module path
+        $module_path = $this->directoryReader->getModuleDir('', 'CheckoutCom_Magento2');
+        // Get the content of composer.json
+        $json = file_get_contents($module_path . '/composer.json');
+        // Decode the data and return
+        $data = json_decode($json);
+        return $data->version;
+    }
+
+    /**
+     * Get some module metadata from the xml configuration.
+     */ 
     private function getModuleMetadata() {
         return [
             'tag'          => $this->scopeConfig->getValue(self::KEY_PARAM_PATH . '/' . self::KEY_MODTAG),
@@ -70,22 +98,37 @@ class Tools {
         ];
     }
 
+    /**
+     * Format a given amount.
+     */ 
     public function formatAmount($amount) {
         return number_format($amount/100, 2);
     }
 
+    /**
+     * Check private public key validity.
+     */ 
     public function publicKeyIsValid(string $key) {
         return $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_PUBLIC_KEY) == $key;
     }
 
+    /**
+     * Check private key validity.
+     */ 
     public function privateKeyIsValid(string $key) {
         return $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_PRIVATE_KEY) == $key;
     }
 
+    /**
+     * Check private shared key validity.
+     */ 
     public function privateSharedKeyIsValid(string $key) {
         return $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_PRIVATE_SHARED_KEY) == $key;
     }
 
+    /**
+     * Check if charge is successful.
+     */ 
     public function chargeIsSuccess($response) {
         if (isset($response->responseCode)) {
             $responseCode = (int) $response->responseCode;
@@ -98,6 +141,9 @@ class Tools {
         return false;
     }
 
+    /**
+     * Check if a quote is valid.
+     */      
     public function quoteIsValid($quote) {
         if (!$quote || !$quote->getItemsCount()) {
             return false;
@@ -106,6 +152,9 @@ class Tools {
         return true;
     }
 
+    /**
+     * Force authentication if the user is not logged in.
+     */    
     public function checkLoggedIn() {
         if (!$this->customerSession->isLoggedIn()) {
             $this->customerSession->setAfterAuthUrl($this->urlInterface->getCurrentUrl());
