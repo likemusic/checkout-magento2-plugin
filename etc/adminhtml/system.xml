@@ -9,17 +9,6 @@
                     <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset\Logo</frontend_model>
                 </group>
 
-                <group id="apple_pay_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="1">
-                    <attribute type="activity_path">payment/checkout_com/active</attribute>
-                    <label>Apple Pay Settings</label>
-
-                    <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Enable Apple Pay</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_apple_pay/active</config_path>
-                    </field>
-                </group>
-
                 <group id="base_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="10">
                     <label>Base Settings</label>
                     <attribute type="activity_path">payment/checkout_com/active</attribute>
@@ -200,7 +189,7 @@
                     </field>          
                 </group>
 
-                <group id="order_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="4">
+                <group id="order_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="30">
                     <label>Order Settings</label>
 
                     <field id="order_creation" translate="label" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -266,7 +255,7 @@
                     </field>
                 </group>
   
-                <group id="currency_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="5">
+                <group id="currency_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="40">
                     <label>Currency Settings</label>
                     <field id="payment_currency" translate="label" sortOrder="0" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Payment Currency</label>
@@ -292,7 +281,7 @@
                    </field>
                 </group>
 
-                <group id="country_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="6">
+                <group id="country_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="50">
                     <label>Country Settings</label>
 
                     <field id="allowspecific" translate="label" sortOrder="0" type="allowspecific" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -306,29 +295,7 @@
                     </field>
                 </group>
 
-                <group id="account_keys" translate="label" showInDefault="1" showInWebsite="1" sortOrder="7">
-                    <label>Account keys</label>
-                    <field id="public_key" translate="label" sortOrder="0" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Public Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/public_key</config_path>
-                    </field>
-
-                    <field id="secret_key" translate="label" sortOrder="10" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Secret Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/secret_key</config_path>
-                    </field>
-
-                    <field id="private_shared_key" translate="label" sortOrder="20" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Private Shared Key</label>
-                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                        <config_path>payment/checkout_com/private_shared_key</config_path>
-                        <comment>Used as an authorization key to the functionality called Webhook.</comment>
-                    </field>
-                </group>
-
-                <group id="logging_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="8">
+                <group id="logging_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="60">
                     <label>Logging Settings</label>
 
                     <field id="php_logging" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -353,7 +320,29 @@
                     </field>
                 </group>
 
-                <group id="callback_urls" translate="label" showInDefault="1" showInWebsite="1" sortOrder="8">
+                <group id="account_keys" translate="label" showInDefault="1" showInWebsite="1" sortOrder="70">
+                    <label>Account keys</label>
+                    <field id="public_key" translate="label" sortOrder="0" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Public Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>payment/checkout_com/public_key</config_path>
+                    </field>
+
+                    <field id="secret_key" translate="label" sortOrder="10" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Secret Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>payment/checkout_com/secret_key</config_path>
+                    </field>
+
+                    <field id="private_shared_key" translate="label" sortOrder="20" type="obscure" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Private Shared Key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                        <config_path>payment/checkout_com/private_shared_key</config_path>
+                        <comment>Used as an authorization key to the functionality called Webhook.</comment>
+                    </field>
+                </group>
+
+                <group id="callback_urls" translate="label" showInDefault="1" showInWebsite="1" sortOrder="80">
                     <label>Callbacks URLs</label>
 
                     <field id="webhook_url" translate="label" sortOrder="0" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -372,7 +361,7 @@
                     </field>
                 </group>
 
-                <group id="descriptor_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="9">
+                <group id="descriptor_settings" translate="label" showInDefault="1" showInWebsite="1" sortOrder="90">
                     <label>Dynamic Descriptor</label>
 
                     <field id="descriptor_enable" translate="label comment" type="select" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -396,6 +385,17 @@
                         <depends>
                             <field id="descriptor_enable">1</field>
                         </depends>
+                    </field>
+                </group>
+
+                <group id="apple_pay_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="100">
+                    <attribute type="activity_path">payment/checkout_com/active</attribute>
+                    <label>Apple Pay Settings</label>
+
+                    <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Apple Pay</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_apple_pay/active</config_path>
                     </field>
                 </group>
 
