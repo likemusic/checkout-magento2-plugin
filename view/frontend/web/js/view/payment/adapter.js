@@ -108,6 +108,14 @@ define([
         isDebugOn: function() {
             return JSON.parse(this.getPaymentConfig()['isJsLogging']);
         },
+
+        /**
+         * Sets a cookie flag for the save card feature
+         */
+        updateSaveCardCookie: function() {
+            var checkboxId = '#' + this.getCode() + '_enable_vault';
+            $.cookie('saveUserCard', $(checkboxId).is(":checked"));
+        },
     
         /**
          * Log messages to console

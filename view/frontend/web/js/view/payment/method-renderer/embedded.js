@@ -22,9 +22,10 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Vault/js/view/payment/vault-enabler',
         'Magento_Checkout/js/action/redirect-on-success',
-        'framesjs'
+        'framesjs',
+        'jquery/jquery.cookie'
     ],
-    function($, Component, Adapter, PlaceOrderAction, Quote, Url, FullScreenLoader, AdditionalValidators, VaultEnabler, RedirectOnSuccessAction, FramesJs) {
+    function($, Component, Adapter, PlaceOrderAction, Quote, Url, FullScreenLoader, AdditionalValidators, VaultEnabler, RedirectOnSuccessAction) {
         'use strict';
 
         window.checkoutConfig.reloadOnBillingAddress = true;

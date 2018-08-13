@@ -19,12 +19,15 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Helper\Tools;
+use CheckoutCom\Magento2\Model\Service\StoreCardService;
+
 
 class PlaceOrder extends Action {
 
@@ -74,6 +77,16 @@ class PlaceOrder extends Action {
     protected $watchdog;
 
     /**
+     * @var CookieManagerInterface
+     */
+    protected $cookieManager;
+
+    /**
+     * @var StoreCardService
+     */
+    protected $storeCardService;
+    
+    /**
      * @var Array
      */
     protected $params;
@@ -91,7 +104,9 @@ class PlaceOrder extends Action {
         PaymentTokenManagementInterface $paymentTokenManagement,
         OrderHandlerService $orderHandlerService,
         PaymentTokenService $paymentTokenService,
-        Watchdog $watchdog
+        Watchdog $watchdog,
+        CookieManagerInterface $cookieManager,
+        StoreCardService $storeCardService
     ) {
         parent::__construct($context);
 
@@ -104,6 +119,8 @@ class PlaceOrder extends Action {
         $this->orderHandlerService    = $orderHandlerService;
         $this->paymentTokenService    = $paymentTokenService;
         $this->watchdog               = $watchdog; 
+        $this->cookieManager          = $cookieManager;
+        $this->storeCardService       = $storeCardService;
 
         // Get the request parameters
         $this->params = $this->getRequest()->getParams();
@@ -128,6 +145,15 @@ class PlaceOrder extends Action {
 
             // Process the response
             else if ($this->tools->chargeIsSuccess($response)) {
+                // Handle the store card from payment method case
+                if ((bool) $this->cookieManager->getCookie('saveUserCard') === true) {
+                    // Store the card
+                    $this->storeCardService->saveCard($response, $response->card->id);
+
+                    // Delete the cookie
+                    $this->cookieManager->deleteCookie('saveUserCard');
+                }
+
                 // Place the order
                 $orderId = $this->orderHandlerService->placeOrder($response);
 

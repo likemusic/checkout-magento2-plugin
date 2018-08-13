@@ -13,6 +13,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
@@ -58,6 +59,11 @@ class Verify extends Action {
     protected $storeCardService;
 
     /**
+     * @var CookieManagerInterface
+     */
+    protected $cookieManager;
+
+    /**
      * @var Array
      */
     protected $params = [];
@@ -73,7 +79,8 @@ class Verify extends Action {
         ManagerInterface $messageManager,
         Tools $tools,
         Watchdog $watchdog,
-        StoreCardService $storeCardService
+        StoreCardService $storeCardService,
+        CookieManagerInterface $cookieManager
     ) 
     {
         parent::__construct($context);
@@ -84,7 +91,8 @@ class Verify extends Action {
         $this->messageManager           = $messageManager;
         $this->tools                    = $tools;
         $this->watchdog                 = $watchdog; 
-        $this->storeCardService       = $storeCardService;
+        $this->storeCardService         = $storeCardService;
+        $this->cookieManager            = $cookieManager;
 
         // Get the request parameters
         $this->params = $this->getRequest()->getParams();        
@@ -103,7 +111,7 @@ class Verify extends Action {
 
             // Process the response
             if ($this->tools->chargeIsSuccess($response)) {
-                // Handle the store card case
+                // Handle the store card from account case
                 if (isset($response->udf5) && $response->udf5 == 'isZeroDollarAuthorization') {
                     // Store the card
                     $this->storeCardService->saveCard($response, $response->card->id);
@@ -113,6 +121,15 @@ class Verify extends Action {
                 }
                 // Place the order normally
                 else {
+                    // Handle the store card from payment method case
+                    if ((bool) $this->cookieManager->getCookie('saveUserCard') === true) {
+                        // Store the card
+                        $this->storeCardService->saveCard($response, $response->card->id);
+
+                        // Delete the cookie
+                        $this->cookieManager->deleteCookie('saveUserCard');
+                    }
+
                     $orderId = $this->orderHandlerService->placeOrder($response);
                     if ($orderId > 0) {
                         return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');

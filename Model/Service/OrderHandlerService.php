@@ -188,7 +188,7 @@ class OrderHandlerService {
             }
 
             // Save the quote
-            $quote->collectTotals ();
+            $quote->collectTotals();
             $quote->save();
 
             // Create the order
