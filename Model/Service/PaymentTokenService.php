@@ -14,6 +14,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
+use Magento\Customer\Api\Data\GroupInterface;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Http\Client;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -153,6 +154,8 @@ class PaymentTokenService {
             $params['value'] = $entity->getGrandTotal()*100;
             $params['currency'] = ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode());
         }
+
+        // No order or quote entity, so it's a zero dollar authorization
         else {
             $params['email'] = $this->customerSession->getCustomer()->getEmail();
             $params['autoCapture'] = 'Y';
@@ -161,7 +164,7 @@ class PaymentTokenService {
             $params['currency'] = 'USD';
             $params['udf5'] = 'isZeroDollarAuthorization';
         }
-       
+
         // Handle the request
         $response = $this->client->post($url, $params);
 

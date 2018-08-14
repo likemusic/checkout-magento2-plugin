@@ -134,6 +134,12 @@ class PlaceOrder extends Action {
             // Get the charge response
             $response = json_decode($this->sendChargeRequest());
 
+
+            echo "<pre>";
+            var_dump($response);
+            echo "</pre>";
+            exit();
+
             // Logging
             $this->watchdog->bark($response);
 
