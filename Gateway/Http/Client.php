@@ -79,14 +79,12 @@ class Client {
 
     private function buildMetaData() {
         return [
-            'metadata' => [
-                'magento_name'      => $this->metadata->getName(),
-                'magento_edition'   => $this->metadata->getEdition(),
-                'magento_version'   => $this->metadata->getVersion(),
-                'setup_version'     => $this->moduleList->getOne('CheckoutCom_Magento2')['setup_version'],
-                'module_version'    => $this->tools->getModuleVersion(),
-                'store_id'          => $this->storeManager->getStore()->getId(),
-            ],
+            'magento_name'      => $this->metadata->getName(),
+            'magento_edition'   => $this->metadata->getEdition(),
+            'magento_version'   => $this->metadata->getVersion(),
+            'setup_version'     => $this->moduleList->getOne('CheckoutCom_Magento2')['setup_version'],
+            'module_version'    => $this->tools->getModuleVersion(),
+            'store_id'          => $this->storeManager->getStore()->getId()
         ];
     }
 
