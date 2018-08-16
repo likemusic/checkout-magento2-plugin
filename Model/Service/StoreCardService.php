@@ -182,18 +182,24 @@ class StoreCardService {
             // Activate or reactivate the card
             $foundPaymentToken->setIsActive(true);
             $foundPaymentToken->setIsVisible(true);
+
+            // Save the payment token
             $this->paymentTokenRepository->save($foundPaymentToken);
         }
 
         // Otherwise save the card
         else {
+            // Prepare the card id
             $gatewayToken = $this->authorizedResponse->card->id;
             $paymentToken->setGatewayToken($gatewayToken);
             $paymentToken->setIsVisible(true);
-            $this->paymentTokenRepository->save($paymentToken);
-        }
 
-        $this->messageManager->addSuccessMessage(__('The card has been saved successfully.'));
+            // Save the card id
+            $this->paymentTokenRepository->save($paymentToken);
+
+            // Display the success message
+            $this->messageManager->addSuccessMessage(__('The card has been saved successfully.'));
+        }
     }
 
     /**
