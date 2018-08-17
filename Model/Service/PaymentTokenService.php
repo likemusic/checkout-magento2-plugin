@@ -15,6 +15,8 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Customer\Api\Data\GroupInterface;
+use Magento\Framework\Stdlib\CookieManagerInterface;
+
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Http\Client;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -58,6 +60,11 @@ class PaymentTokenService {
     protected $remoteAddress;
 
     /**
+     * @var CookieManagerInterface
+     */
+    protected $cookieManager;
+
+    /**
      * PaymentTokenService constructor.
      */
     public function __construct(
@@ -67,7 +74,8 @@ class PaymentTokenService {
         Client $client,
         Config $config,
         Watchdog $watchdog,
-        RemoteAddress $remoteAddress
+        RemoteAddress $remoteAddress,
+        CookieManagerInterface $cookieManager
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
@@ -76,6 +84,7 @@ class PaymentTokenService {
         $this->config          = $config;
         $this->watchdog        = $watchdog;
         $this->remoteAddress   = $remoteAddress;
+        $this->cookieManager   = $cookieManager;
     }
 
     /**
@@ -146,7 +155,7 @@ class PaymentTokenService {
 
         // Set the entity (quote or order) params if available
         if ($entity) {
-            $params['email'] = $entity->getBillingAddress()->getEmail();
+            $params['email'] = ($entity->getBillingAddress()->getEmail()) ? : $this->findCustomerEmail() ;
             $params['autoCapture'] = $this->config->isAutoCapture() ? 'Y' : 'N';
             $params['autoCapTime'] = $this->config->getAutoCaptureTimeInHours();
             $params['customerIp'] = $entity->getRemoteIp();
@@ -157,7 +166,7 @@ class PaymentTokenService {
 
         // No order or quote entity, so it's a zero dollar authorization
         else {
-            $params['email'] = $this->customerSession->getCustomer()->getEmail();
+            $params['email'] = $this->findCustomerEmail();
             $params['autoCapture'] = 'Y';
             $params['autoCapTime'] = 0;
             $params['customerIp'] = $this->remoteAddress->getRemoteAddress();
@@ -173,6 +182,17 @@ class PaymentTokenService {
 
         // Return the response
         return $response;
+    }
+
+    public function findCustomerEmail() {
+        if (!$this->customerSession->getCustomer()->getEmail()) {
+            $email = $this->cookieManager->getCookie('ckoUserEmail');
+            $this->cookieManager->deleteCookie('ckoUserEmail');
+
+            return $email;
+        }
+      
+        return null;
     }
 
     public function verifyToken($paymentToken) {

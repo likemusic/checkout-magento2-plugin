@@ -182,7 +182,7 @@ class OrderHandlerService {
             if ($quote->getCustomerEmail() === null && $this->customerSession->isLoggedIn() === false)
             {
                 $quote->setCustomerId(null)
-                ->setCustomerEmail($this->data['email'])
+                ->setCustomerEmail($this->data->email)
                 ->setCustomerIsGuest(true)
                 ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
             }
