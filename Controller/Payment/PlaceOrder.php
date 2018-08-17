@@ -146,12 +146,12 @@ class PlaceOrder extends Action {
             // Process the response
             else if ($this->tools->chargeIsSuccess($response)) {
                 // Handle the store card from payment method case
-                if ((bool) $this->cookieManager->getCookie('saveUserCard') === true) {
+                if ((bool) $this->cookieManager->getCookie('ckoSaveUserCard') === true) {
                     // Store the card
                     $this->storeCardService->saveCard($response, $response->card->id);
 
                     // Delete the cookie
-                    $this->cookieManager->deleteCookie('saveUserCard');
+                    $this->cookieManager->deleteCookie('ckoSaveUserCard');
                 }
 
                 // Place the order

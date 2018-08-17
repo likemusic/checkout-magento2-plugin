@@ -42,6 +42,7 @@ define(
                 this.initObservable();
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.php('getVaultCode'));
+                Adapter.setCustomerData();
             },
 
             initObservable: function() {

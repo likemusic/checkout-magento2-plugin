@@ -13,6 +13,7 @@ define([
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/checkout-data',
     'mage/url',
+    'jquery/jquery.cookie'
 ], function($, GlobalMessageList, Quote, CheckoutData, Url) {
     'use strict';
 
@@ -114,9 +115,16 @@ define([
          */
         updateSaveCardCookie: function() {
             var checkboxId = '#' + this.getCode() + '_enable_vault';
-            $.cookie('saveUserCard', $(checkboxId).is(":checked"));
+            $.cookie('ckoSaveUserCard', $(checkboxId).is(":checked"));
         },
     
+        /**
+         * Set some cookie values
+         */
+        setCustomerData: function() {
+            $.cookie('ckoUserEmail', this.getEmailAddress());
+        },
+
         /**
          * Log messages to console
          *

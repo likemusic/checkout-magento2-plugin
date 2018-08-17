@@ -214,5 +214,4 @@ class StoreCardService {
             $paymentToken->getCustomerId()
         );
     }
-
 }

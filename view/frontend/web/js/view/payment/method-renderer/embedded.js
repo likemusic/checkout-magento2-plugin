@@ -22,8 +22,7 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Vault/js/view/payment/vault-enabler',
         'Magento_Checkout/js/action/redirect-on-success',
-        'framesjs',
-        'jquery/jquery.cookie'
+        'framesjs'
     ],
     function($, Component, Adapter, PlaceOrderAction, Quote, Url, FullScreenLoader, AdditionalValidators, VaultEnabler, RedirectOnSuccessAction) {
         'use strict';
@@ -45,6 +44,7 @@ define(
                 this.initObservable();
                 this.vaultEnabler = new VaultEnabler();
                 this.vaultEnabler.setPaymentCode(this.php('getVaultCode'));
+                Adapter.setCustomerData();
             },
 
             initObservable: function() {
