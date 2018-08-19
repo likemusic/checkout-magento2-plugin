@@ -33,7 +33,7 @@ class InvoiceHandlerService {
     protected $invoiceRepository;
 
     /**
-     * @var Array
+     * @var Order
      */
     protected $order;
  
@@ -82,5 +82,8 @@ class InvoiceHandlerService {
 
         // Save the invoice
         $this->invoiceRepository->save($invoice);
+
+        // Return the invoice
+        return $invoice;
     }
 }

@@ -26,6 +26,8 @@ use CheckoutCom\Magento2\Model\Service\StoreCardService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use CheckoutCom\Magento2\Model\Service\InvoiceHandlerService;
+use CheckoutCom\Magento2\Model\Service\ShipmentHandlerService;
+
 class WebhookCallbackService {
 
     /**
@@ -79,6 +81,11 @@ class WebhookCallbackService {
     protected $invoiceService;
 
     /**
+     * @var ShipmentHandlerService
+     */
+    protected $shipmentService;
+
+    /**
      * CallbackService constructor.
      */
     public function __construct(
@@ -91,7 +98,8 @@ class WebhookCallbackService {
         OrderSender $orderSender,
         OrderHandlerService $orderService,
         TransactionHandlerService $transactionService,    
-        InvoiceHandlerService $invoiceService        
+        InvoiceHandlerService $invoiceService,
+        ShipmentHandlerService $shipmentService    
     ) {
         $this->orderFactory        = $orderFactory;
         $this->orderRepository     = $orderRepository;
@@ -103,6 +111,7 @@ class WebhookCallbackService {
         $this->orderService        = $orderService;
         $this->transactionService  = $transactionService;
         $this->invoiceService      = $invoiceService;
+        $this->shipmentService     = $shipmentService;
     }
 
     /**
@@ -173,7 +182,10 @@ class WebhookCallbackService {
                 );
 
                 // Create the invoice
-                $this->invoiceService->processInvoice($order, $amount);
+                $invoice = $this->invoiceService->processInvoice($order, $amount);
+
+                // Create the shipment]
+                $this->shipmentService->processShipment($order, $invoice);
 
                 // Add authorization comment
                 $order = $this->addCaptureComment($order);
