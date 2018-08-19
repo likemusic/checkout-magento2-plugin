@@ -12,17 +12,17 @@ namespace CheckoutCom\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use CheckoutCom\Magento2\Model\Service\OrderService;
+use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class OrderCancelObserver implements ObserverInterface {
 
     /**
-     * @var OrderService
+     * @var OrderHandlerService
      */
     protected $orderService;
 
-    public function __construct(OrderService $orderService) {
+    public function __construct(OrderHandlerService $orderService) {
         $this->orderService = $orderService;    
     }
 
