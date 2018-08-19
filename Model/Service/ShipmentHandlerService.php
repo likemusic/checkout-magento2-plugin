@@ -10,6 +10,8 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Sales\Model\Order\ShipmentFactory;
+use Magento\Framework\DB\TransactionFactory;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -27,6 +29,18 @@ class ShipmentHandlerService {
     protected $config;
 
     /**
+     *
+     * @var ShipmentFactory
+     */
+    protected $shipmentFactory;
+
+    /**
+     *
+     * @var TransactionFactory
+     */
+    protected $transactionFactory;
+
+    /**
      * @var Order
      */
     protected $order;
@@ -41,10 +55,14 @@ class ShipmentHandlerService {
      */
     public function __construct(
         Tools $tools,
-        Config $config
+        Config $config,
+        ShipmentFactory $shipmentFactory,
+        TransactionFactory $transactionFactory
     ) {
         $this->tools                 = $tools;
         $this->config                = $config;
+        $this->shipmentFactory       = $shipmentFactory;
+        $this->transactionFactory    = $transactionFactory;
     }
 
     public function processShipment($order, $invoice) {
