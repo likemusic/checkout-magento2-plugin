@@ -198,4 +198,38 @@ class OrderHandlerService {
             return (int) $orderId;
         }
     }
+
+    public function cancelTransactionToRemote(Order $order) {
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/canceltest.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info($order->getId());
+
+        // Get the transaction data
+        $transactionData = $this->_getTransactionsData($order);
+
+        // Prepare url prefix
+        $url = 'charges/';
+
+        //  Process the request
+        if ($transactionData) {
+            // Check if transaction is capture or authorization
+            if ($transactionData['txnType'] == 'capture') {
+                $url .= $transactionData['txnId'] . '/refund';
+            }
+            else if ($transactionData['txnType'] == 'authorization') {
+                $url .= $transactionData['txnId'] . '/void';
+            }
+
+            // Launch the query
+            $method = 'POST';
+            $transfer = $this->transferFactory->create([
+                'trackId'   => $order->getIncrementId()
+            ]);
+
+            // Handle the request
+            $this->_handleRequest($url, $method, $transfer);
+        }
+    }
 }

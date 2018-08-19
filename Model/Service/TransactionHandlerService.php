@@ -12,9 +12,12 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
-use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order\Payment\Transaction\Repository;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\FilterBuilder;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 use CheckoutCom\Magento2\Helper\Tools;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class TransactionHandlerService {
 
@@ -31,13 +34,42 @@ class TransactionHandlerService {
     protected $tools;
 
     /**
-     * TransactionHandlerService constructor.
-     * @param BuilderInterface $transactionBuilder
-     * @param Tools $tools
+     * @var Config
      */
-    public function __construct(BuilderInterface $transactionBuilder, Tools $tools) {
-        $this->transactionBuilder = $transactionBuilder;
-        $this->tools     = $tools;
+    protected $config;
+
+    /**
+     * @var Repository
+     */
+    private $transactionRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+
+    /**
+     * @var FilterBuilder
+     */
+    private $filterBuilder;
+
+    /**
+     * TransactionHandlerService constructor.
+     */
+    public function __construct(
+        BuilderInterface $transactionBuilder,
+        Tools $tools,
+        Config $config,
+        Repository $transactionRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        FilterBuilder $filterBuilder
+    ) {
+        $this->transactionBuilder    = $transactionBuilder;
+        $this->tools                 = $tools;
+        $this->config                = $config;
+        $this->transactionRepository = $transactionRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->filterBuilder         = $filterBuilder;
     }
 
     public function createTransaction($order, $paymentData, $mode = null) {
@@ -47,8 +79,18 @@ class TransactionHandlerService {
         // Prepare the payment object
         $payment = $order->getPayment();
         $payment->setMethod($this->tools->modmeta['tag']);
+
+        // Handle the transaction states
+        if ($mode == 'capture') {
+            $payment->setIsTransactionClosed(1);
+            $this->closeAuthorizedTransactions($order);
+        }
+        else {
+            $payment->setIsTransactionClosed(0);
+        }
+        
+        // Set the transaction ids
         $payment->setLastTransId($paymentData['transactionReference']);
-        $payment->setIsTransactionClosed(0);
         $payment->setParentTransactionId(null);
         $payment->setTransactionId($paymentData['transactionReference']);
 
@@ -68,5 +110,37 @@ class TransactionHandlerService {
         $payment->save();
 
         return $order;
+    }
+
+    public function closeAuthorizedTransactions($order) {
+        // Get the list of transactions
+        $transactions = $this->getTransactions($order);
+
+        // Update the auth transaction status if exists
+        if (count($transactions) > 0) {
+            foreach ($transactions as $transaction) {
+                if ($transaction->getTxnType() == 'authorization' && (int) $transaction->getIsClosed() == 0) {
+                    $transaction->close();
+                }
+            }
+        }
+    }
+
+    public function getTransactions($order) {
+        // Payment filter
+        $filters[] = $this->filterBuilder->setField('payment_id')
+        ->setValue($order->getPayment()->getId())
+        ->create();
+
+        // Order filter
+        $filters[] = $this->filterBuilder->setField('order_id')
+        ->setValue($order->getId())
+        ->create();
+
+        // Build the search criteria
+        $searchCriteria = $this->searchCriteriaBuilder->addFilters($filters)
+        ->create();
+        
+        return $this->transactionRepository->getList($searchCriteria)->getItems();
     }
 }
