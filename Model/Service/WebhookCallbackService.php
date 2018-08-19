@@ -16,9 +16,6 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\OrderFactory;
-use Magento\Sales\Model\Service\InvoiceService;
-use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Customer\Model\CustomerFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -28,7 +25,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
-
+use CheckoutCom\Magento2\Model\Service\InvoiceHandlerService;
 class WebhookCallbackService {
 
     /**
@@ -45,16 +42,6 @@ class WebhookCallbackService {
      * @var Config
      */
     protected $Config;
-
-    /**
-     * @var InvoiceService
-     */
-    protected $invoiceService;
-
-    /**
-     * @var InvoiceRepositoryInterface
-     */
-    protected $invoiceRepository;
 
     /**
      * @var StoreCardService
@@ -87,32 +74,35 @@ class WebhookCallbackService {
     protected $transactionService;
 
     /**
+     * @var InvoiceHandlerService
+     */
+    protected $invoiceService;
+
+    /**
      * CallbackService constructor.
      */
     public function __construct(
         OrderFactory $orderFactory,
         OrderRepositoryInterface $orderRepository,
         Config $config,
-        InvoiceService $invoiceService,
-        InvoiceRepositoryInterface $invoiceRepository,
         StoreCardService $storeCardService,
         CustomerFactory $customerFactory,
         StoreManagerInterface $storeManager,
         OrderSender $orderSender,
         OrderHandlerService $orderService,
-        TransactionHandlerService $transactionService        
+        TransactionHandlerService $transactionService,    
+        InvoiceHandlerService $invoiceService        
     ) {
         $this->orderFactory        = $orderFactory;
         $this->orderRepository     = $orderRepository;
         $this->config              = $config;
-        $this->invoiceService      = $invoiceService;
-        $this->invoiceRepository   = $invoiceRepository;
         $this->storeCardService    = $storeCardService;
         $this->customerFactory     = $customerFactory;
         $this->storeManager        = $storeManager;
         $this->orderSender         = $orderSender;
         $this->orderService        = $orderService;
         $this->transactionService  = $transactionService;
+        $this->invoiceService      = $invoiceService;
     }
 
     /**
@@ -176,19 +166,14 @@ class WebhookCallbackService {
                 // Update order status
                 $order->setStatus($this->config->getOrderStatusCaptured());
 
+                // Prepare the amount
+                $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
+                    $this->gatewayResponse['message']['value'],
+                    $this->gatewayResponse['message']['currency']
+                );
+
                 // Create the invoice
-                if ($order->canInvoice() && ($this->config->getAutoGenerateInvoice())) {
-                    $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
-                        $this->gatewayResponse['message']['value'],
-                        $this->gatewayResponse['message']['currency']
-                    );
-                    $invoice = $this->invoiceService->prepareInvoice($order);
-                    $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
-                    $invoice->setState(Invoice::STATE_PAID);
-                    $invoice->setBaseGrandTotal($amount);
-                    $invoice->register();
-                    $this->invoiceRepository->save($invoice);
-                }
+                $this->invoiceService->processInvoice($order, $amount);
 
                 // Add authorization comment
                 $order = $this->addCaptureComment($order);

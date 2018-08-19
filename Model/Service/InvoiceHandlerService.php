@@ -13,14 +13,14 @@ namespace CheckoutCom\Magento2\Model\Service;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
-use CheckoutCom\Magento2\Gateway\Config\Config as GatewayConfig;
+use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class InvoiceHandlerService {
 
     /**
-     * @var GatewayConfig
+     * @var Config
      */
-    protected $gatewayConfig;
+    protected $config;
 
     /**
      * @var InvoiceService
@@ -33,39 +33,51 @@ class InvoiceHandlerService {
     protected $invoiceRepository;
 
     /**
+     * @var Array
+     */
+    protected $order;
+ 
+    /**
+     * @var Float
+     */
+    protected $amount;
+
+    /**
      * InvoiceHandlerService constructor.
-     * @param GatewayConfig $gatewayConfig
+     * @param Config $config
      * @param InvoiceService $invoiceService
      * @param InvoiceRepositoryInterface $invoiceRepository
     */
     public function __construct(
-        GatewayConfig $gatewayConfig,
+        Config $config,
         InvoiceService $invoiceService,
         InvoiceRepositoryInterface $invoiceRepository        
     ) {
-        $this->gatewayConfig      = $gatewayConfig;
+        $this->config             = $config;
         $this->invoiceService     = $invoiceService;
         $this->invoiceRepository  = $invoiceRepository;
     }
 
-    public function processInvoice($order) {
-        if ($this->shouldInvoice($order))  $this->createInvoice($order);
+    public function processInvoice($order, $amount) {
+        // Assign the required values
+        $this->order = $order; 
+        $this->amount = $amount; 
+
+        // Trigger the invoice creation
+        if ($this->shouldInvoice())  $this->createInvoice();
     }
 
-    public function shouldInvoice($order) {
-        return $order->canInvoice() 
-        && ($this->gatewayConfig->getAutoGenerateInvoice())
-        && (
-            $this->gatewayConfig->getInvoiceCreationMode() == 'capture' && $this->gatewayConfig->isAutocapture() ||
-            $this->gatewayConfig->getInvoiceCreationMode() == 'authorization' && !$this->gatewayConfig->isAutocapture()
-        );
+    public function shouldInvoice() {
+        return $this->order->canInvoice() 
+        && ($this->config->getAutoGenerateInvoice());
     }
 
-    public function createInvoice($order) {
+    public function createInvoice() {
         // Prepare the invoice
-        $invoice = $this->invoiceService->prepareInvoice($order);
+        $invoice = $this->invoiceService->prepareInvoice($this->order);
         $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
-        $invoice->setBaseGrandTotal($order->getGrandTotal());
+        $invoice->setState(Invoice::STATE_PAID);
+        $invoice->setBaseGrandTotal($this->amount);
         $invoice->register();
 
         // Save the invoice
