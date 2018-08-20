@@ -144,7 +144,7 @@ class OrderHandlerService {
         $this->quoteFactory          = $quoteFactory;
     }
 
-    public function placeOrder($data) {
+    public function placeOrderAfterAuth($data) {
         // Assign the gateway response
         $this->data = $data;
 

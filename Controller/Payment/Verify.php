@@ -130,7 +130,7 @@ class Verify extends Action {
                         $this->cookieManager->deleteCookie('ckoSaveUserCard');
                     }
 
-                    $orderId = $this->orderHandlerService->placeOrder($response);
+                    $orderId = $this->orderHandlerService->placeOrderAfterAuth($response);
                     if ($orderId > 0) {
                         return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
                     } else {

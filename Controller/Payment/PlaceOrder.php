@@ -155,7 +155,7 @@ class PlaceOrder extends Action {
                 }
 
                 // Place the order
-                $orderId = $this->orderHandlerService->placeOrder($response);
+                $orderId = $this->orderHandlerService->placeOrderAfterAuth($response);
 
                 // If the order has been placed successfully
                 if ($orderId > 0) {
