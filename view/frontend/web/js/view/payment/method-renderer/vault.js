@@ -12,8 +12,9 @@ define([
     'Magento_Vault/js/view/payment/method-renderer/vault',
     'Magento_Checkout/js/action/place-order',
     'CheckoutCom_Magento2/js/view/payment/adapter',
-    'Magento_Checkout/js/model/payment/additional-validators'
-], function ($, VaultComponent, placeOrderAction, Adapter, AdditionalValidators) {
+    'Magento_Checkout/js/model/payment/additional-validators',
+    'Magento_Checkout/js/model/full-screen-loader'
+], function ($, VaultComponent, placeOrderAction, Adapter, AdditionalValidators, FullScreenLoader) {
     'use strict';
 
     return VaultComponent.extend({
@@ -65,12 +66,18 @@ define([
          * @returns {string}
          */
         beforePlaceOrder: function() {
+            // Start the loader
+            FullScreenLoader.startLoader();
+
             // Get self
             var self = this;
 
             // Place the order
             if (AdditionalValidators.validate()) {
                 $('#cko-vault-form').submit();
+            }
+            else  {
+                FullScreenLoader.stopLoader();
             }
         },
 

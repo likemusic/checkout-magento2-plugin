@@ -90,6 +90,9 @@ define(
              * @returns {string}
              */
             beforePlaceOrder: function() {
+                // Start the loader
+                FullScreenLoader.startLoader();
+
                 // Get self
                 var self = this;
 
@@ -99,6 +102,12 @@ define(
                         // Submit frames form
                         Frames.submitCard();
                     }
+                    else  {
+                        FullScreenLoader.stopLoader();
+                    }
+                }
+                else {
+                    FullScreenLoader.stopLoader();
                 }
             },
 

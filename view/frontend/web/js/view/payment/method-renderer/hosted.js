@@ -115,6 +115,9 @@ define(
              * @returns {string}
              */
             beforePlaceOrder: function() {
+                // Start the loader
+                FullScreenLoader.startLoader();
+
                 // Get self
                 var self = this;
 
@@ -122,6 +125,9 @@ define(
                 if (AdditionalValidators.validate()) {                      
                     // Proceed with submission
                     self.submitForm(self.targetForm);
+                }
+                else  {
+                    FullScreenLoader.stopLoader();
                 }
             }
         });
