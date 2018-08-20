@@ -154,15 +154,17 @@ class PlaceOrder extends Action {
                     $this->cookieManager->deleteCookie('ckoSaveUserCard');
                 }
 
-                // Place the order
-                $orderId = $this->orderHandlerService->placeOrderAfterAuth($response);
+                // After authorization order placement
+                if ($this->config->getOrderCreation() == 'after_auth') {
+                    // Place the order
+                    $orderId = $this->orderHandlerService->placeOrderAfterAuth($response);
 
-                // If the order has been placed successfully
-                if ($orderId > 0) {
-                    return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
-                }
-                else {
-                    $this->messageManager->addErrorMessage(__('The order could not be created. Please contact the site administrator or try again.'));
+                    // If the order has been placed successfully
+                    if ($orderId > 0) {
+                        return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
+                    } else {
+                        $this->messageManager->addErrorMessage(__('The order could not be created. Please contact the site administrator or try again.'));
+                    }
                 }
             }
             else {
