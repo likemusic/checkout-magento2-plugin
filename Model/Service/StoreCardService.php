@@ -16,6 +16,8 @@ use Magento\Vault\Api\PaymentTokenRepositoryInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use CheckoutCom\Magento2\Model\Factory\VaultTokenFactory;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+
 class StoreCardService {
 
     /**
@@ -62,7 +64,12 @@ class StoreCardService {
      * @var CustomerSession
      */
     protected $customerSession;
-    
+
+    /**
+     * @var Config
+     */
+    protected $config;
+
     /**
      * StoreCardService constructor.
      */
@@ -71,13 +78,15 @@ class StoreCardService {
         PaymentTokenRepositoryInterface $paymentTokenRepository,
         PaymentTokenManagementInterface $paymentTokenManagement,
         ManagerInterface $messageManager,
-        CustomerSession $customerSession
+        CustomerSession $customerSession,
+        Config $config
     ) {
         $this->vaultTokenFactory        = $vaultTokenFactory;
         $this->paymentTokenRepository   = $paymentTokenRepository;
         $this->paymentTokenManagement   = $paymentTokenManagement;
         $this->customerSession          = $customerSession;
         $this->messageManager           = $messageManager;
+        $this->config                   = $config;
     }
 
     public function saveCard($response, $ckoCardToken) {
@@ -175,7 +184,7 @@ class StoreCardService {
 
         // Check if card exists
         if ($foundPaymentToken) {
-            if ((int) $foundPaymentToken->getIsActive() == 1) {
+            if ((int) $foundPaymentToken->getIsActive() == 1 && $this->config->isCardAutosave() === false) {
                 $this->messageManager->addNoticeMessage(__('This card has been stored already.'));
             }
 
@@ -197,8 +206,10 @@ class StoreCardService {
             // Save the card id
             $this->paymentTokenRepository->save($paymentToken);
 
-            // Display the success message
-            $this->messageManager->addSuccessMessage(__('The card has been saved successfully.'));
+            // Display the success message if needed
+            if ($this->config->isCardAutosave() === false) {
+                $this->messageManager->addSuccessMessage(__('The card has been saved successfully.'));
+            }
         }
     }
 
