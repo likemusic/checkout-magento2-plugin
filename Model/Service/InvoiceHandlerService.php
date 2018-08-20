@@ -13,6 +13,7 @@ namespace CheckoutCom\Magento2\Model\Service;
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Framework\DB\Transaction;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 
 class InvoiceHandlerService {
@@ -33,6 +34,11 @@ class InvoiceHandlerService {
     protected $invoiceRepository;
 
     /**
+     * @var Transaction
+     */
+    protected $transaction;
+
+    /**
      * @var Order
      */
     protected $order;
@@ -47,15 +53,18 @@ class InvoiceHandlerService {
      * @param Config $config
      * @param InvoiceService $invoiceService
      * @param InvoiceRepositoryInterface $invoiceRepository
-    */
+     * @param Transaction $transaction
+     */
     public function __construct(
         Config $config,
         InvoiceService $invoiceService,
-        InvoiceRepositoryInterface $invoiceRepository        
+        InvoiceRepositoryInterface $invoiceRepository,
+        Transaction $transaction      
     ) {
         $this->config             = $config;
         $this->invoiceService     = $invoiceService;
         $this->invoiceRepository  = $invoiceRepository;
+        $this->transaction        = $transaction;
     }
 
     public function processInvoice($order, $amount) {
@@ -79,6 +88,18 @@ class InvoiceHandlerService {
         $invoice->setState(Invoice::STATE_PAID);
         $invoice->setBaseGrandTotal($this->amount);
         $invoice->register();
+        $invoice->getOrder()->setIsInProcess(true);
+
+        // Create the transaction
+        $transactionSave = $this->transaction
+        ->addObject($invoice)
+        ->addObject($this->order);
+        $transactionSave->save();
+
+        // Update the order
+        $this->order->setTotalPaid($this->order->getTotalPaid() - $invoice->getGrandTotal());
+        $this->order->setBaseTotalPaid($this->order->getBaseTotalPaid() - $invoice->getBaseGrandTotal());
+        $this->order->save();  
 
         // Save the invoice
         $this->invoiceRepository->save($invoice);

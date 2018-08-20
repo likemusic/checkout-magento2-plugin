@@ -173,9 +173,6 @@ class WebhookCallbackService {
                     $this->gatewayResponse['message']['currency']
                 );
 
-                // Create the shipment]
-                $this->shipmentService->processShipment($order);
-
                 // Create the invoice
                 $invoice = $this->invoiceService->processInvoice($order, $amount);
 
