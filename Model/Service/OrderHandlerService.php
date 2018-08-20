@@ -200,12 +200,6 @@ class OrderHandlerService {
     }
 
     public function cancelTransactionToRemote(Order $order) {
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/canceltest.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($order->getId());
-
         // Get the transaction data
         $transactionData = $this->_getTransactionsData($order);
 
