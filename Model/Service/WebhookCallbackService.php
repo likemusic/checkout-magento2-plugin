@@ -167,14 +167,17 @@ class WebhookCallbackService {
                 // Update order status
                 $order->setStatus($this->config->getOrderStatusCaptured());
 
-                // Prepare the amount
-                $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
-                    $this->gatewayResponse['message']['value'],
-                    $this->gatewayResponse['message']['currency']
-                );
+                // Generate invoice if needed
+                if ($this->config->getAutoGenerateInvoice() === true) {
+                    // Prepare the amount
+                    $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
+                        $this->gatewayResponse['message']['value'],
+                        $this->gatewayResponse['message']['currency']
+                    );
 
-                // Create the invoice
-                $invoice = $this->invoiceService->processInvoice($order, $amount);
+                    // Create the invoice
+                    $invoice = $this->invoiceService->processInvoice($order, $amount);
+                }
 
                 // Add authorization comment
                 $order = $this->addCaptureComment($order);
