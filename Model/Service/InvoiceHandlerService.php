@@ -89,6 +89,7 @@ class InvoiceHandlerService {
         $invoice->setBaseGrandTotal($this->amount);
         $invoice->register();
         $invoice->getOrder()->setIsInProcess(true);
+        $invoice->pay();
 
         // Create the transaction
         $transactionSave = $this->transaction
@@ -96,10 +97,10 @@ class InvoiceHandlerService {
         ->addObject($this->order);
         $transactionSave->save();
 
-        // Update the order
-        $this->order->setTotalPaid($this->order->getTotalPaid() - $invoice->getGrandTotal());
-        $this->order->setBaseTotalPaid($this->order->getBaseTotalPaid() - $invoice->getBaseGrandTotal());
-        $this->order->save();  
+        // Update the order total paid
+        $this->order->setTotalPaid($this->order->getTotalPaid());
+        $this->order->setBaseTotalPaid($this->order->getBaseTotalPaid());
+        $this->order->save();
 
         // Save the invoice
         $this->invoiceRepository->save($invoice);
