@@ -10,17 +10,10 @@
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use Magento\Framework\DataObject;
+use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Payment\Model\Method\AbstractMethod;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Payment\Model\InfoInterface;
-use Magento\Framework\Registry;
-use Magento\Framework\Api\ExtensionAttributesFactory;
-use Magento\Framework\Api\AttributeValueFactory;
-use Magento\Payment\Helper\Data;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Payment\Model\Method\Logger;
-use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Data\Collection\AbstractDb;
+use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class DefaultMethod extends AbstractMethod {
 
@@ -38,61 +31,102 @@ class DefaultMethod extends AbstractMethod {
     protected $_canRefundInvoicePartial = true;
     protected $_canAuthorizeVault = true;
     protected $_canCaptureVault = true;
+    protected $backendAuthSession;
+    protected $cart;
+    protected $urlBuilder;
+    protected $_objectManager;
+    protected $invoiceSender;
+    protected $transactionFactory;
+    protected $customerSession;
+    protected $checkoutSession;
+    protected $checkoutData;
+    protected $quoteRepository;
+    protected $quoteManagement;
+    protected $orderSender;
+    protected $sessionQuote;
 
-    /**
-     * DefaultMethod constructor.
-     */
     public function __construct(
-        Context $context,
-        Registry $registry,
-        ExtensionAttributesFactory $extensionFactory,
-        AttributeValueFactory $customAttributeFactory,
-        Data $paymentData,
-        ScopeConfigInterface $scopeConfig,
-        Logger $logger,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        array $data = [],
-        DirectoryHelper $directory = null
+        \Magento\Framework\Model\Context $context,
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
+        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
+        \Magento\Payment\Helper\Data $paymentData,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Framework\UrlInterface $urlBuilder,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+        \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
+        \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Checkout\Helper\Data $checkoutData,
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Quote\Api\CartManagementInterface $quoteManagement,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        \Magento\Backend\Model\Session\Quote $sessionQuote,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        array $data = []
     ) {
         parent::__construct(
             $context,
             $registry,
             $extensionFactory,
             $customAttributeFactory,
+            $paymentData,
+            $scopeConfig,
+            $logger,
             $resource,
             $resourceCollection,
             $data
         );
+        $this->urlBuilder = $urlBuilder;
+        $this->backendAuthSession = $backendAuthSession;
+        $this->cart = $cart;
+        $this->_objectManager = $objectManager;
+        $this->invoiceSender = $invoiceSender;
+        $this->transactionFactory = $transactionFactory;
+        $this->customerSession = $customerSession;
+        $this->checkoutSession = $checkoutSession;
+        $this->checkoutData = $checkoutData;
+        $this->quoteRepository = $quoteRepository;
+        $this->quoteManagement = $quoteManagement;
+        $this->orderSender = $orderSender;
+        $this->sessionQuote = $sessionQuote;
     }
 
     /**
      * Check whether method is available
+     *
+     * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
+     * @return bool
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         return parent::isAvailable($quote) && null !== $quote;
     }
 
     /**
      * Check whether method is enabled in config
+     *
+     * @param \Magento\Quote\Model\Quote|null $quote
+     * @return bool
      */
     public function isAvailableInConfig($quote = null)
     {
         return parent::isAvailable($quote);
     }
 
-    /**
-     * Perform refund operations
-     */
-    public function refund(InfoInterface $payment, $amount)
+    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
 
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/ccc.log');
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/cancelphp.log');
         $logger = new \Zend\Log\Logger();
         $logger->addWriter($writer);
-        $logger->info(print_r($amount,1));
+        $logger->info($amount);
 
         return $this;
     }
