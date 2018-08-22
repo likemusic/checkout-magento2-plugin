@@ -14,6 +14,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
+use CheckoutCom\Magento2\Model\Service\HubHandlerService;
 
 class OrderCancelObserver implements ObserverInterface {
 
@@ -22,8 +23,20 @@ class OrderCancelObserver implements ObserverInterface {
      */
     protected $orderService;
 
-    public function __construct(OrderHandlerService $orderService) {
-        $this->orderService = $orderService;    
+    /**
+     * @var HubHandlerService
+     */
+    protected $hubService;
+
+    /**
+     * OrderCancelObserver constructor.
+     */
+    public function __construct(
+        OrderHandlerService $orderService,
+        HubHandlerService $hubService
+    ) {
+        $this->orderService  = $orderService;    
+        $this->hubService    = $hubService;   
     }
 
     /**
@@ -33,19 +46,13 @@ class OrderCancelObserver implements ObserverInterface {
      * @return void
      */
     public function execute(Observer $observer) {
-
         // Get the order
         $order = $observer->getEvent()->getOrder();
 
-        // Get the payment method
-        $paymentMethod = $order->getPayment()->getMethod();
-
-        // Test the current method used
-        if ($paymentMethod == ConfigProvider::CODE || $paymentMethod == ConfigProvider::CC_VAULT_CODE || $paymentMethod == ConfigProvider::THREE_DS_CODE) {
-
-            // Update the hub API for cancelled order
-            $this->orderService->cancelTransactionToRemote($order);    
-        }
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/' . $observer->getEvent()->getName() . '.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info($observer->getEvent()->getName());
 
         return $this;
     }
