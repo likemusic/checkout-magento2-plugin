@@ -13,22 +13,22 @@ namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset;
 use Magento\Backend\Block\Template;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Data\Form\Element\Renderer\RendererInterface;
-use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class Logo extends Template implements RendererInterface {
 
     /**
-     * @var Config
+     * @var Tools
      */
-    protected $config;
+    protected $tools;
 
     /**
      * Logo constructor
      */
     public function __construct(
-        Config $config
+        Tools $tools
     ) {
-        $this->config = $config;
+        $this->tools = $tools;
     }
 
     /**
@@ -39,8 +39,8 @@ class Logo extends Template implements RendererInterface {
      */
     public function render(AbstractElement $element) {
         $pattern    = '<div id="checkout_com_adminhtml_logo"><a href="%s" target="_blank"><img src="%s" alt="Checkout.com Logo"></a></div>';
-        $url        = 'https://checkout.com';
-        $src        = $this->config->getLogoUrl() ;
+        $url        = $this->tools->modmeta['modurl'];
+        $src        = $this->tools->modmeta['modlogo'];
 
         return sprintf($pattern, $url, $src);
     }
