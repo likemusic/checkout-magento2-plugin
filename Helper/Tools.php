@@ -11,6 +11,7 @@
 namespace CheckoutCom\Magento2\Helper;
 
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\UrlInterface;
@@ -28,6 +29,11 @@ class Tools {
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_PRIVATE_KEY = 'private_key';
     const KEY_PRIVATE_SHARED_KEY = 'private_shared_key';
+
+    /**
+     * @var Http
+     */
+    protected $request;
 
     /**
      * @var ScopeConfigInterface
@@ -53,11 +59,13 @@ class Tools {
      * Tools constructor.
      */ 
     public function __construct(
+        Http $request,
         ScopeConfigInterface $scopeConfig,
         CustomerSession $customerSession,
         UrlInterface $urlInterface,
         Reader $directoryReader
     ) {
+        $this->request           = $request;
         $this->scopeConfig       = $scopeConfig;
         $this->customerSession   = $customerSession;
         $this->urlInterface      = $urlInterface;
@@ -155,12 +163,4 @@ class Tools {
             $this->customerSession->authenticate();
         }    
     }
-
-    /**
-     * Returns a prepared post response.
-     */    
-    public function getPostResponse($url, $params) {
-
-    }
-
 }
