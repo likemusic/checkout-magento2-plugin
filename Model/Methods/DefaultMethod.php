@@ -32,6 +32,8 @@ class DefaultMethod extends AbstractMethod {
     protected $_canAuthorizeVault = true;
     protected $_canCaptureVault = true;
     protected $backendAuthSession;
+    protected $transactionService;
+    protected $hubService;
     protected $cart;
     protected $urlBuilder;
     protected $_objectManager;
@@ -54,6 +56,8 @@ class DefaultMethod extends AbstractMethod {
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Backend\Model\Auth\Session $backendAuthSession,
+        \CheckoutCom\Magento2\Model\Service\TransactionHandlerService $transactionService,
+        \CheckoutCom\Magento2\Model\Service\HubHandlerService $hubService,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Framework\UrlInterface $urlBuilder,
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -95,6 +99,8 @@ class DefaultMethod extends AbstractMethod {
         $this->quoteManagement = $quoteManagement;
         $this->orderSender = $orderSender;
         $this->sessionQuote = $sessionQuote;
+        $this->transactionService = $transactionService;
+        $this->hubService = $hubService;
     }
 
     /**
@@ -119,14 +125,50 @@ class DefaultMethod extends AbstractMethod {
         return parent::isAvailable($quote);
     }
 
+    /**
+     * Void a transaction
+     */
+    public function void(\Magento\Payment\Model\InfoInterface $payment)
+    {
+        // Get the order
+        $order = $payment->getOrder();
+
+        // Get the transactions
+        $transactions = $this->transactionService->getTransactions($order);
+
+        // Process the transactions to void
+        foreach ($transactions as $transaction) {
+            if ($transaction->getTxnType() == 'authorization') {
+                $this->hubService->voidRemoteTransaction(
+                    $transaction->getTxnId(),
+                    $amount
+                );
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Refund a transaction
+     */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
+        // Get the order
+        $order = $payment->getOrder();
 
+        // Get the transactions
+        $transactions = $this->transactionService->getTransactions($order);
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/cancelphp.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($amount);
+        // Process the transactions to void
+        foreach ($transactions as $transaction) {
+            if ($transaction->getTxnType() == 'capture') {
+                $this->hubService->refundRemoteTransaction(
+                    $transaction->getTxnId(),
+                    $amount
+                );
+            }
+        }
 
         return $this;
     }

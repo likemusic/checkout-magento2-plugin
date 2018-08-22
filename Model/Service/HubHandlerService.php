@@ -11,6 +11,7 @@
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Gateway\Http\Client;
 
 class HubHandlerService {
 
@@ -20,16 +21,44 @@ class HubHandlerService {
     protected $config;
 
     /**
+     * @var Client
+     */
+    protected $client;
+
+    /**
      * HubHandlerService constructor.
      */
     public function __construct(
-        Config $config
+        Config $config,
+        Client $client
     ) {
-        $this->config                = $config;
+        $this->config     = $config;
+        $this->client     = $client;
     }
 
-    public function cancelTransactionToRemote(Order $order) {
+    public function voidRemoteTransaction($transactionId, $amount) {
+        // Prepare the request URL
+        $url = $this->config->getApiUrl() . 'charges/' . $transactionId . '/void';
 
-        
+        // Prepare the request parameters
+        $params = [
+            'value' => $value,
+            'currency' => $currencyCode,
+            'trackId' => $quote->reserveOrderId()->save()->getReservedOrderId()
+        ];     
+
+        // Send the request
+        $response = $this->client->post($url, $params);
+
+        // Format the response
+        $response = isset($response) ? (array) json_decode($response) : null;
+
+        // Logging
+        $this->watchdog->bark($response);
+    }
+
+    public function refundRemoteTransaction($transactionId, $amount) {
+        // Prepare the request URL
+        $url = $this->config->getApiUrl() . 'charges/' . $transactionId . '/refund';
     }
 }
