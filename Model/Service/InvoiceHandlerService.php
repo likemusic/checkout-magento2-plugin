@@ -12,7 +12,6 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Framework\DB\Transaction;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 
@@ -27,11 +26,6 @@ class InvoiceHandlerService {
      * @var InvoiceService
      */
     protected $invoiceService;
-
-    /**
-     * @var InvoiceRepositoryInterface
-     */
-    protected $invoiceRepository;
 
     /**
      * @var Transaction
@@ -52,18 +46,15 @@ class InvoiceHandlerService {
      * InvoiceHandlerService constructor.
      * @param Config $config
      * @param InvoiceService $invoiceService
-     * @param InvoiceRepositoryInterface $invoiceRepository
      * @param Transaction $transaction
      */
     public function __construct(
         Config $config,
         InvoiceService $invoiceService,
-        InvoiceRepositoryInterface $invoiceRepository,
         Transaction $transaction      
     ) {
         $this->config             = $config;
         $this->invoiceService     = $invoiceService;
-        $this->invoiceRepository  = $invoiceRepository;
         $this->transaction        = $transaction;
     }
 
@@ -89,20 +80,17 @@ class InvoiceHandlerService {
         $invoice->setBaseGrandTotal($this->amount);
         $invoice->register();
         $invoice->getOrder()->setIsInProcess(true);
-        $invoice->pay();
+        $invoice->capture()->save();
 
         // Create the transaction
         $transactionSave = $this->transaction
         ->addObject($invoice)
-        ->addObject($this->order);
+        ->addObject($invoice->getOrder());
         $transactionSave->save();
 
         // Update the order total paid
         $this->order->setTotalPaid($this->order->getTotalPaid());
         $this->order->setBaseTotalPaid($this->order->getBaseTotalPaid());
         $this->order->save();
-
-        // Save the invoice
-        $this->invoiceRepository->save($invoice);
     }
 }
