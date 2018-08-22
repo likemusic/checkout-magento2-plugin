@@ -1,6 +1,21 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
 	<event name="order_cancel_after">
-        <observer name="update_hub_order_cancel" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
-    </event>    
+        <observer name="update_hub_order_cancel1" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
+    </event>
+	<event name="sales_order_invoice_cancel">
+        <observer name="update_hub_order_cancel2" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
+    </event>  
+	<event name="sales_order_payment_cancel_invoice">
+        <observer name="update_hub_order_cancel3" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
+    </event> 
+	<event name="sales_order_payment_cancel_creditmemo">
+        <observer name="update_hub_order_cancel4" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
+    </event> 
+	<event name="sales_order_payment_cancel">
+        <observer name="update_hub_order_cancel5" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
+    </event>  
+	<event name="sales_order_creditmemo_cancel">
+        <observer name="update_hub_order_cancel6" instance="CheckoutCom\Magento2\Observer\OrderCancelObserver" />
+    </event>  
 </config>
