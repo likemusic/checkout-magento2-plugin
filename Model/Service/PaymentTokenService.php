@@ -145,7 +145,7 @@ class PaymentTokenService {
             $params['autoCapTime'] = $this->config->getAutoCaptureTimeInHours();
             $params['customerIp'] = $entity->getRemoteIp();
             $params['customerName'] = $entity->getCustomerName();
-            $params['value'] = $this->tools->toGatewayFormat($entity->getGrandTotal());
+            $params['value'] = $entity->getGrandTotal()*100;
             $params['currency'] = ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode());
         }
 

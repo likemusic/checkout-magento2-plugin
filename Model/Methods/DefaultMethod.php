@@ -140,7 +140,7 @@ class DefaultMethod extends AbstractMethod {
         foreach ($transactions as $transaction) {
             if ($transaction->getTxnType() == 'authorization') {
                 $this->hubService->voidRemoteTransaction(
-                    $transaction,
+                    $transaction->getTxnId(),
                     $amount
                 );
             }
@@ -164,7 +164,7 @@ class DefaultMethod extends AbstractMethod {
         foreach ($transactions as $transaction) {
             if ($transaction->getTxnType() == 'capture') {
                 $this->hubService->refundRemoteTransaction(
-                    $transaction,
+                    $transaction->getTxnId(),
                     $amount
                 );
             }

@@ -36,31 +36,27 @@ class HubHandlerService {
         $this->client     = $client;
     }
 
-    public function voidRemoteTransaction(Transaction $transaction, $amount) {
+    public function voidRemoteTransaction($transactionId, $amount) {
         // Prepare the request URL
-        $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/void';
+        $url = $this->config->getApiUrl() . 'charges/' . $transactionId . '/void';
 
         // Prepare the request parameters
         $params = [
-            'value' => $this->tools->toGatewayFormat($value),
-            'trackId' => $transaction->getOrderId(),
+            'value' => $value,
+            'currency' => $currencyCode,
+            'trackId' => $quote->reserveOrderId()->save()->getReservedOrderId()
         ];     
 
         // Handle the request
         $response = $this->tools->getPostResponse($url, $params);
+
+        // Logging
+        $this->watchdog->bark($response);
+
     }
 
-    public function refundRemoteTransaction(Transaction $transaction, $amount) {
+    public function refundRemoteTransaction($transactionId, $amount) {
         // Prepare the request URL
-        $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/refund';
-
-        // Prepare the request parameters
-        $params = [
-            'value' => $this->tools->toGatewayFormat($value),
-            'trackId' => $transaction->getOrderId(),
-        ];     
-
-        // Handle the request
-        $response = $this->tools->getPostResponse($url, $params);
+        $url = $this->config->getApiUrl() . 'charges/' . $transactionId . '/refund';
     }
 }
