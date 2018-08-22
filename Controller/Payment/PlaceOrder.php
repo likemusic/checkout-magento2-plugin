@@ -132,7 +132,10 @@ class PlaceOrder extends Action {
     public function execute() {
         if ($this->requestIsValid()) {
             // Get the charge response
-            $response = $this->sendChargeRequest();
+            $response = json_decode($this->sendChargeRequest());
+
+            // Logging
+            $this->watchdog->bark($response);
 
             // Check for 3DS redirection
             if ($this->config->isVerify3DSecure() && isset($response->redirectUrl)) {

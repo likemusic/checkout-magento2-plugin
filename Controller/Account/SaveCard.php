@@ -91,7 +91,10 @@ class SaveCard extends Action {
         // Process valid requests
         if ($this->requestIsValid()) {
             // Send the charge request and get the response
-            $response = $this->sendChargeRequest();
+            $response = json_decode($this->sendChargeRequest());
+
+            // Logging
+            $this->watchdog->bark($response);
 
             // Check for 3DS redirection
             if ($this->config->isVerify3DSecure() && isset($response->redirectUrl)) {

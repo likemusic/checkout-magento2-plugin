@@ -104,7 +104,10 @@ class Verify extends Action {
     public function execute() {
         if ($this->requestIsValid()) {
             // Verify the payment token
-            $response = $this->paymentTokenService->verifyToken($this->params['cko-payment-token']);
+            $response = json_decode($this->paymentTokenService->verifyToken($this->params['cko-payment-token']));
+
+            // Logging
+            $this->watchdog->bark($response);
 
             // Process the response
             if ($this->tools->chargeIsSuccess($response)) {

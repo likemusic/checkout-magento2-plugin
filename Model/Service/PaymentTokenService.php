@@ -16,9 +16,11 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Framework\Stdlib\CookieManagerInterface;
+
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
+use CheckoutCom\Magento2\Gateway\Http\Client;
 use CheckoutCom\Magento2\Gateway\Config\Config;
-use CheckoutCom\Magento2\Helper\Tools;
+use CheckoutCom\Magento2\Helper\Watchdog;
 
 class PaymentTokenService {
 
@@ -38,9 +40,19 @@ class PaymentTokenService {
     protected $storeManager;
 
     /**
+     * @var Client
+     */
+    protected $client;
+
+    /**
      * @var Config
      */
     protected $config;
+
+    /**
+     * @var Watchdog
+     */
+    protected $watchdog;
 
     /**
      * @var RemoteAddress
@@ -53,29 +65,26 @@ class PaymentTokenService {
     protected $cookieManager;
 
     /**
-     * @var Tools
-     */
-    protected $tools;
-
-    /**
      * PaymentTokenService constructor.
      */
     public function __construct(
         CheckoutSession $checkoutSession,
         CustomerSession $customerSession,
         StoreManagerInterface $storeManager,
+        Client $client,
         Config $config,
+        Watchdog $watchdog,
         RemoteAddress $remoteAddress,
-        CookieManagerInterface $cookieManager,
-        Tools $tools
+        CookieManagerInterface $cookieManager
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
         $this->storeManager    = $storeManager;
+        $this->client          = $client;
         $this->config          = $config;
+        $this->watchdog        = $watchdog;
         $this->remoteAddress   = $remoteAddress;
         $this->cookieManager   = $cookieManager;
-        $this->tools           = $tools;
     }
 
     /**
@@ -106,7 +115,13 @@ class PaymentTokenService {
             ];
 
             // Send the request
-            $response = $this->tools->getPostResponse($url, $params);
+            $response = $this->client->post($url, $params);
+
+            // Format the response
+            $response = isset($response) ? (array) json_decode($response) : null;
+
+            // Logging
+            $this->watchdog->bark($response);
 
             // Extract the payment token
             if (isset($response['id'])){
@@ -160,7 +175,10 @@ class PaymentTokenService {
         }
 
         // Handle the request
-        $response = $this->tools->getPostResponse($url, $params);
+        $response = $this->client->post($url, $params);
+
+        // Logging
+        $this->watchdog->bark($response);
 
         // Return the response
         return $response;
@@ -181,8 +199,11 @@ class PaymentTokenService {
         // Build the payment token verification URL
         $url = $this->config->getApiUrl() . '/charges/' . $paymentToken;
 
-        // Handle the request
-        $response = $this->tools->getGetResponse($url);
+        // Send the request and get the response
+        $response = $this->client->get($url);
+
+        // Logging
+        $this->watchdog->bark($response);
 
         return $response;
     }

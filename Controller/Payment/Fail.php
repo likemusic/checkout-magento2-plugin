@@ -57,7 +57,7 @@ class Fail extends Action {
     public function execute() {
         if ($this->requestIsValid()) {
             // Verify the token and get the payment response
-            $response = $this->paymentTokenService->verifyToken($this->params['cko-payment-token']);
+            $response = json_decode($this->paymentTokenService->verifyToken($this->params['cko-payment-token']));
 
             // Test the result
             if (!$this->tools->chargeIsSuccess($response)) {
