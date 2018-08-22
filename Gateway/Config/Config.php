@@ -407,7 +407,7 @@ class Config {
      * @return bool
      */
     public function getQuoteValue() {
-        return $this->checkoutSession->getQuote()->getGrandTotal()*100;
+        return $this->tools->toGatewayFormat($this->checkoutSession->getQuote()->getGrandTotal());
     }
 
     /**

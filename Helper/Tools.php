@@ -116,6 +116,13 @@ class Tools {
     }
 
     /**
+     * Format a given amount for a gateway request.
+     */ 
+    public function toGatewayFormat($amount) {
+        return $amount*100;
+    }
+
+    /**
      * Check private public key validity.
      */ 
     public function publicKeyIsValid(string $key) {
