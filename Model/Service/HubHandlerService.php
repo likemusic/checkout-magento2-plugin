@@ -47,14 +47,12 @@ class HubHandlerService {
             'trackId' => $quote->reserveOrderId()->save()->getReservedOrderId()
         ];     
 
-        // Send the request
-        $response = $this->client->post($url, $params);
-
-        // Format the response
-        $response = isset($response) ? (array) json_decode($response) : null;
+        // Handle the request
+        $response = $this->tools->getPostResponse($url, $params);
 
         // Logging
         $this->watchdog->bark($response);
+
     }
 
     public function refundRemoteTransaction($transactionId, $amount) {
