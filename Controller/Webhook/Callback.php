@@ -35,15 +35,26 @@ class Callback extends Action {
     protected $tools;
 
     /**
+     * @var Watchdog
+     */
+    protected $watchdog;
+
+    /**
      * Callback constructor.
      * @param Context $context
      * @param WebhookCallbackService $callbackService
      * @param Tools $tools
      */
-    public function __construct(Context $context, WebhookCallbackService $callbackService, Tools $tools) {
+    public function __construct(
+        Context $context,
+        WebhookCallbackService $callbackService,
+        Tools $tools,
+        Watchdog $watchdog
+    ) {
         parent::__construct($context);
         $this->callbackService = $callbackService;
-        $this->tools = $tools;
+        $this->tools           = $tools;
+        $this->watchdog        = $watchdog;
     }
 
     /**

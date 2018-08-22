@@ -118,4 +118,16 @@ class DefaultMethod extends AbstractMethod {
     {
         return parent::isAvailable($quote);
     }
+
+    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+
+
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/cancelphp.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info($amount);
+
+        return $this;
+    }
 }
