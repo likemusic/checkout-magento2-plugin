@@ -139,10 +139,7 @@ class DefaultMethod extends AbstractMethod {
         // Process the transactions to void
         foreach ($transactions as $transaction) {
             if ($transaction->getTxnType() == 'authorization') {
-                $this->hubService->voidRemoteTransaction(
-                    $transaction->getTxnId(),
-                    $amount
-                );
+                $this->hubService->voidRemoteTransaction($transaction, 222);
             }
         }
 
