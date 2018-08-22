@@ -39,8 +39,8 @@ class Logo extends Template implements RendererInterface {
      */
     public function render(AbstractElement $element) {
         $pattern    = '<div id="checkout_com_adminhtml_logo"><a href="%s" target="_blank"><img src="%s" alt="Checkout.com Logo"></a></div>';
-        $url        = $this->tools->modmeta['modurl'];
-        $src        = $this->tools->modmeta['modlogo'];
+        $url        = $this->tools->modmeta['url'];
+        $src        = $this->tools->modmeta['logo'];
 
         return sprintf($pattern, $url, $src);
     }
