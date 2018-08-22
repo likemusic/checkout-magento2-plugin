@@ -13,7 +13,6 @@ namespace CheckoutCom\Magento2\Model\Service;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Customer\Api\Data\GroupInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -52,7 +51,7 @@ class OrderHandlerService {
     /**
      * @var Config
      */
-    protected $Config;
+    protected $config;
 
     /**
      * @var CustomerSession
