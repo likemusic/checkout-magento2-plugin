@@ -24,6 +24,7 @@ class Tools {
     const KEY_MODTAG_APPLE_PAY = 'modtagapplepay';
     const KEY_MODLABEL = 'modlabel';
     const KEY_MODURL = 'modurl';
+    const KEY_MODLOGO = 'modlogo';
     const KEY_PARAM_PATH = 'conf/param';
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_PRIVATE_KEY = 'private_key';
@@ -95,6 +96,7 @@ class Tools {
             'name'         => $this->scopeConfig->getValue(self::KEY_PARAM_PATH . '/' . self::KEY_MODNAME),
             'label'        => $this->scopeConfig->getValue(self::KEY_PARAM_PATH . '/' . self::KEY_MODLABEL),
             'url'          => $this->scopeConfig->getValue(self::KEY_PARAM_PATH . '/' . self::KEY_MODURL),
+            'logo'         => $this->scopeConfig->getValue(self::KEY_PARAM_PATH . '/' . self::KEY_MODLOGO),
         ];
     }
 
