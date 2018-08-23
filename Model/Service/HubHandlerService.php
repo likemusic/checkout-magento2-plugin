@@ -10,7 +10,9 @@
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use Magento\Sales\Model\Order;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Gateway\Http\Client;
@@ -21,6 +23,11 @@ class HubHandlerService {
      * @var OrderRepositoryInterface
      */
     protected $orderRepository;
+
+    /**
+     * @var OrderManagementInterface
+     */
+    protected $orderManagement;
 
     /**
      * @var Config
@@ -42,11 +49,13 @@ class HubHandlerService {
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
+        OrderManagementInterface $orderManagement,
         Config $config,
         Tools $tools,
         Client $client
     ) {
         $this->orderRepository    = $orderRepository;
+        $this->orderManagement    = $orderManagement;
         $this->config             = $config;
         $this->tools              = $tools;
         $this->client             = $client;
@@ -73,17 +82,18 @@ class HubHandlerService {
 
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
-            $order->setStatus($this->config->getOrderStatusVoided());
-            
+            // Cancel the order
+            $this->orderManagement->cancel($transaction->getOrderId());
+
             return true;
         }
        
         return false;
     }
 
-    public function refundRemoteTransaction($transactionId, $amount) {
+    public function refundRemoteTransaction($transaction, $amount) {
         // Prepare the request URL
-        $url = $this->config->getApiUrl() . 'charges/' . $transactionId . '/refund';
+        $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/refund';
 
         // Get the order
         $order = $this->orderRepository->get($transaction->getOrderId());
@@ -102,7 +112,7 @@ class HubHandlerService {
 
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
-            $order->setStatus($this->config->getOrderStatusRefunded());
+            $this->orderManagement->cancel($transaction->getOrderId());
 
             return true;
         }
