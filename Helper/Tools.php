@@ -15,8 +15,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Module\Dir\Reader;
-use CheckoutCom\Magento2\Gateway\Http\Client;
-use CheckoutCom\Magento2\Helper\Watchdog;
 
 class Tools {
 
@@ -52,33 +50,19 @@ class Tools {
     protected $directoryReader;
 
     /**
-     * @var Client
-     */
-    protected $client;
-
-     /**
-     * @var Watchdog
-     */
-    protected $watchdog;
-
-    /**
      * Tools constructor.
      */ 
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         CustomerSession $customerSession,
         UrlInterface $urlInterface,
-        Reader $directoryReader,
-        Client $client,
-        Watchdog $watchdog
+        Reader $directoryReader
     ) {
         $this->scopeConfig       = $scopeConfig;
         $this->customerSession   = $customerSession;
         $this->urlInterface      = $urlInterface;
         $this->modmeta           = $this->getModuleMetadata();
         $this->directoryReader   = $directoryReader;
-        $this->client            = $client;
-        $this->watchdog          = $watchdog;
     }
 
     /**
@@ -172,37 +156,5 @@ class Tools {
             $this->customerSession->setAfterAuthUrl($this->urlInterface->getCurrentUrl());
             $this->customerSession->authenticate();
         }    
-    }
-
-    /**
-     * Returns a prepared post response.
-     */    
-    public function getPostResponse($url, $params) {
-        // Send the request
-        $response = $this->client->post($url, $params);
-
-        // Format the response
-        $response = isset($response) ? (array) json_decode($response) : null;
-
-        // Logging
-        //$this->watchdog->bark($response);
-        
-        return $response;
-    }
-
-    /**
-     * Returns a prepared get response.
-     */    
-    public function getGetResponse($url) {
-        // Send the request
-        $response = $this->client->get($url);
-
-         // Format the response
-        $response = isset($response) ? (array) json_decode($response) : null;
-
-         // Logging
-        $this->watchdog->bark($response);
-
-        return $response;
     }
 }
