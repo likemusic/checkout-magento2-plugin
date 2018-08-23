@@ -12,6 +12,7 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Api\OrderRepositoryInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Gateway\Http\Client;
 
 class HubHandlerService {
@@ -27,6 +28,11 @@ class HubHandlerService {
     protected $config;
 
     /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
      * @var Client
      */
     protected $client;
@@ -37,10 +43,12 @@ class HubHandlerService {
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         Config $config,
+        Tools $tools,
         Client $client
     ) {
         $this->orderRepository    = $orderRepository;
         $this->config             = $config;
+        $this->tools              = $tools;
         $this->client             = $client;
     }
 
@@ -53,27 +61,21 @@ class HubHandlerService {
         ->get($transaction->getOrderId())
         ->getIncrementId();
 
-
         // Prepare the request parameters
         $params = [
-            'value' => $amount,
+            'value' => $this->tools->formatAmount($amount),
             'trackId' => $trackId
         ]; 
 
         // Send the request
-        $response = $this->client->post($url, $params);
+        $response = $this->client->getPostResponse($url, $params);
 
-        // Format the response
-        $response = isset($response) ? (array) json_decode($response) : null;
-
-
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/response.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($response, 1));
-
-        // Logging
-        //$this->watchdog->bark($response);
+        // Process the response
+        if ($this->tools->isChargeSuccess($response)) {
+            return true;
+        }
+       
+        return false;
     }
 
     public function refundRemoteTransaction($transactionId, $amount) {

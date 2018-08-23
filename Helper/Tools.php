@@ -77,7 +77,7 @@ class Tools {
 
         // Decode the data and return
         $data = json_decode($json);
-        
+
         return $data->version;
     }
 
@@ -96,10 +96,10 @@ class Tools {
     }
 
     /**
-     * Format a given amount.
+     * Format a given amount for the gateway request.
      */ 
     public function formatAmount($amount) {
-        return number_format($amount/100, 2);
+        return $amount*100;
     }
 
     /**
@@ -129,6 +129,21 @@ class Tools {
     public function chargeIsSuccess($response) {
         if (isset($response->responseCode)) {
             $responseCode = (int) $response->responseCode;
+            if ($responseCode == 10000 || $responseCode == 10100)
+            {
+                return true;
+            }            
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if charge is successful.
+     */ 
+    public function isChargeSuccess($response) {
+        if (isset($response['responseCode'])) {
+            $responseCode = (int) $response['responseCode'];
             if ($responseCode == 10000 || $responseCode == 10100)
             {
                 return true;

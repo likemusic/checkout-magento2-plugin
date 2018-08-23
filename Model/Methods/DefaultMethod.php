@@ -139,7 +139,16 @@ class DefaultMethod extends AbstractMethod {
         // Process the transactions to void
         foreach ($transactions as $transaction) {
             if ($transaction->getTxnType() == 'authorization') {
-                $this->hubService->voidRemoteTransaction($transaction, 222);
+                // Perform the remote action
+                $result = $this->hubService->voidRemoteTransaction(
+                    $transaction,
+                    $order->getGrandTotal()
+                );
+                
+                // Process the result
+                if (!$result) {
+                    throw new \Magento\Framework\Exception\LocalizedException(__('The transaction could not be voided.')); 
+                }
             }
         }
 

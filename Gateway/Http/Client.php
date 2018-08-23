@@ -71,6 +71,38 @@ class Client {
         $this->addHeaders();
     }
 
+    /**
+     * Returns a prepared post response.
+     */    
+    public function getPostResponse($url, $params) {
+        // Send the request
+        $response = $this->post($url, $params);
+
+        // Format the response
+        $response = isset($response) ? (array) json_decode($response) : null;
+
+        // Logging
+        //$this->watchdog->bark($response);
+
+        return $response;
+    }
+
+    /**
+     * Returns a prepared get response.
+     */    
+    public function getGetResponse($url) {
+        // Send the request
+        $response = $this->get($url);
+
+        // Format the response
+        $response = isset($response) ? (array) json_decode($response) : null;
+
+        // Logging
+        //$this->watchdog->bark($response);
+
+        return $response;
+    }
+
     private function addHeaders() {
         $this->curl->addHeader('Authorization', $this->config->getSecretKey());
         $this->curl->addHeader('Content-Type', 'application/json');
@@ -98,7 +130,7 @@ class Client {
         // Return the response
         return $this->curl->getBody();
     }
-   
+ 
     public function get($url) {
         // Send the CURL GET request
         $this->curl->get($url);
@@ -106,4 +138,6 @@ class Client {
         // Return the response
         return $this->curl->getBody();     
     }
+
+
 }
