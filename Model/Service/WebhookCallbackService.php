@@ -259,7 +259,7 @@ class WebhookCallbackService {
             // Create the new order from quote
             if (count($quoteCollection) == 1) {
                 $orderId = $this->orderService->createNewOrder($quoteCollection[0]);
-                $order   = $this->orderFactory->create()->loadByAttribute('id', $orderId);
+                $order   = $this->orderFactory->create()->loadByAttribute('order_id', $orderId);
             }
         }
         
