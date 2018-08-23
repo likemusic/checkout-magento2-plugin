@@ -11,7 +11,6 @@
 namespace CheckoutCom\Magento2\Helper;
 
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\UrlInterface;
@@ -29,11 +28,6 @@ class Tools {
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_PRIVATE_KEY = 'private_key';
     const KEY_PRIVATE_SHARED_KEY = 'private_shared_key';
-
-    /**
-     * @var Http
-     */
-    protected $request;
 
     /**
      * @var ScopeConfigInterface
@@ -59,13 +53,11 @@ class Tools {
      * Tools constructor.
      */ 
     public function __construct(
-        Http $request,
         ScopeConfigInterface $scopeConfig,
         CustomerSession $customerSession,
         UrlInterface $urlInterface,
         Reader $directoryReader
     ) {
-        $this->request           = $request;
         $this->scopeConfig       = $scopeConfig;
         $this->customerSession   = $customerSession;
         $this->urlInterface      = $urlInterface;
@@ -79,10 +71,13 @@ class Tools {
     public function getModuleVersion() {
         // Get the module path
         $module_path = $this->directoryReader->getModuleDir('', 'CheckoutCom_Magento2');
+
         // Get the content of composer.json
         $json = file_get_contents($module_path . '/composer.json');
+
         // Decode the data and return
         $data = json_decode($json);
+        
         return $data->version;
     }
 
