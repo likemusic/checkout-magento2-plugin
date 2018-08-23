@@ -56,10 +56,11 @@ class HubHandlerService {
         // Prepare the request URL
         $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/void';
 
+        // Get the order
+        $order = $this->orderRepository->get($transaction->getOrderId());
+
         // Get the track id
-        $trackId = $this->orderRepository
-        ->get($transaction->getOrderId())
-        ->getIncrementId();
+        $trackId = $order->getIncrementId();
 
         // Prepare the request parameters
         $params = [
@@ -72,6 +73,8 @@ class HubHandlerService {
 
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
+            $order->setStatus($this->config->getOrderStatusVoided());
+            
             return true;
         }
        
@@ -82,10 +85,11 @@ class HubHandlerService {
         // Prepare the request URL
         $url = $this->config->getApiUrl() . 'charges/' . $transactionId . '/refund';
 
+        // Get the order
+        $order = $this->orderRepository->get($transaction->getOrderId());
+
         // Get the track id
-        $trackId = $this->orderRepository
-        ->get($transaction->getOrderId())
-        ->getIncrementId();
+        $trackId = $order->getIncrementId();
 
         // Prepare the request parameters
         $params = [
@@ -98,6 +102,8 @@ class HubHandlerService {
 
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
+            $order->setStatus($this->config->getOrderStatusRefunded());
+
             return true;
         }
        

@@ -231,21 +231,28 @@
                         <comment>Select the status that should be used for orders with successful payment capture.</comment>
                     </field>
 
-                    <field id="order_status_refunded" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="order_status_voided" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Void order status</label>
+                        <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
+                        <config_path>payment/checkout_com/order_status_voided</config_path>
+                        <comment>Select the status that should be used for orders with successful payment void.</comment>
+                    </field>
+
+                    <field id="order_status_refunded" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Refund order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
                         <config_path>payment/checkout_com/order_status_refunded</config_path>
-                        <comment>Select the status that should be used for new orders with successful payment refund.</comment>
+                        <comment>Select the status that should be used for orders with successful payment refund.</comment>
                     </field>
 
-                    <field id="order_status_flagged" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="order_status_flagged" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Flagged order status</label>
                         <source_model>CheckoutCom\Magento2\Model\Adminhtml\Source\OrderStatus</source_model>
                         <config_path>payment/checkout_com/order_status_flagged</config_path>
                         <comment>Select the status that should be used for flagged orders.</comment>
                     </field>
 
-                    <field id="auto_generate_invoice" translate="label comment" sortOrder="70" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="auto_generate_invoice" translate="label comment" sortOrder="80" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Automatically generate invoice</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com/auto_generate_invoice</config_path>
