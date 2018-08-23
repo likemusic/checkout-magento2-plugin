@@ -81,5 +81,26 @@ class HubHandlerService {
     public function refundRemoteTransaction($transactionId, $amount) {
         // Prepare the request URL
         $url = $this->config->getApiUrl() . 'charges/' . $transactionId . '/refund';
+
+        // Get the track id
+        $trackId = $this->orderRepository
+        ->get($transaction->getOrderId())
+        ->getIncrementId();
+
+        // Prepare the request parameters
+        $params = [
+            'value' => $this->tools->formatAmount($amount),
+            'trackId' => $trackId
+        ]; 
+
+        // Send the request
+        $response = $this->client->getPostResponse($url, $params);
+
+        // Process the response
+        if ($this->tools->isChargeSuccess($response)) {
+            return true;
+        }
+       
+        return false;
     }
 }

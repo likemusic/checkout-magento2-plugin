@@ -109,8 +109,7 @@ class DefaultMethod extends AbstractMethod {
      * @param \Magento\Quote\Api\Data\CartInterface|\Magento\Quote\Model\Quote|null $quote
      * @return bool
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
-    {
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null) {
         return parent::isAvailable($quote) && null !== $quote;
     }
 
@@ -120,16 +119,14 @@ class DefaultMethod extends AbstractMethod {
      * @param \Magento\Quote\Model\Quote|null $quote
      * @return bool
      */
-    public function isAvailableInConfig($quote = null)
-    {
+    public function isAvailableInConfig($quote = null) {
         return parent::isAvailable($quote);
     }
 
     /**
      * Void a transaction
      */
-    public function void(\Magento\Payment\Model\InfoInterface $payment)
-    {
+    public function void(\Magento\Payment\Model\InfoInterface $payment) {
         // Get the order
         $order = $payment->getOrder();
 
@@ -158,8 +155,7 @@ class DefaultMethod extends AbstractMethod {
     /**
      * Refund a transaction
      */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
+    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount) {
         // Get the order
         $order = $payment->getOrder();
 
@@ -169,10 +165,16 @@ class DefaultMethod extends AbstractMethod {
         // Process the transactions to void
         foreach ($transactions as $transaction) {
             if ($transaction->getTxnType() == 'capture') {
-                $this->hubService->refundRemoteTransaction(
-                    $transaction->getTxnId(),
+                // Perform the remote action
+                $result = $this->hubService->refundRemoteTransaction(
+                    $transaction,
                     $amount
                 );
+                
+                // Process the result
+                if (!$result) {
+                    throw new \Magento\Framework\Exception\LocalizedException(__('The transaction could not be refunded.')); 
+                }
             }
         }
 
