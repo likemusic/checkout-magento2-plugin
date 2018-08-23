@@ -72,6 +72,9 @@ class TransactionHandlerService {
         $this->filterBuilder         = $filterBuilder;
     }
 
+    /**
+     * Create a transaction for an order.
+     */
     public function createTransaction($order, $paymentData, $mode = null) {
         // Prepare the transaction mode
         $transactionMode = ($mode == 'authorization' || !$mode) ? Transaction::TYPE_AUTH : Transaction::TYPE_CAPTURE;
@@ -112,6 +115,9 @@ class TransactionHandlerService {
         return $order;
     }
 
+    /**
+     * Close all authorized transactions for an order.
+     */
     public function closeAuthorizedTransactions($order) {
         // Get the list of transactions
         $transactions = $this->getTransactions($order);
@@ -126,6 +132,53 @@ class TransactionHandlerService {
         }
     }
 
+    /**
+     * Get all authorized transactions for an order.
+     */
+    public function getAuthorizedTransactions($order) {
+        // Get the list of transactions
+        $transactions = $this->getTransactions($order);
+
+        // Find authorized transactions
+        if (count($transactions) > 0) {
+            $result = [];
+            foreach ($transactions as $transaction) {
+                if ($transaction->getTxnType() == 'authorization') {
+                    $result[] = $transaction;
+                }
+            }
+
+            return $result;
+        }
+
+        return [];
+    }
+
+    /**
+     * Get all captured transactions for an order.
+     */
+    public function getCapturedTransactions($order) {
+        // Get the list of transactions
+        $transactions = $this->getTransactions($order);
+
+        // Find captured transactions
+        if (count($transactions) > 0) {
+            $result = [];
+            foreach ($transactions as $transaction) {
+                if ($transaction->getTxnType() == 'capture') {
+                    $result[] = $transaction;
+                }
+            }
+
+            return $result;
+        }
+
+        return [];
+    }
+
+    /**
+     * Get all transactions for an order.
+     */
     public function getTransactions($order) {
         // Payment filter
         $filters[] = $this->filterBuilder->setField('payment_id')
