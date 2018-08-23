@@ -71,8 +71,10 @@ class Tools {
     public function getModuleVersion() {
         // Get the module path
         $module_path = $this->directoryReader->getModuleDir('', 'CheckoutCom_Magento2');
+        
         // Get the content of composer.json
         $json = file_get_contents($module_path . '/composer.json');
+        
         // Decode the data and return
         $data = json_decode($json);
         return $data->version;
