@@ -19,6 +19,7 @@ use Magento\Sales\Model\OrderFactory;
 use Magento\Customer\Model\CustomerFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
 use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -80,6 +81,11 @@ class WebhookCallbackService {
     protected $invoiceService;
 
     /**
+     * @var CollectionFactory
+     */
+    protected $quoteCollectionFactory;
+
+    /**
      * CallbackService constructor.
      */
     public function __construct(
@@ -92,18 +98,20 @@ class WebhookCallbackService {
         OrderSender $orderSender,
         OrderHandlerService $orderService,
         TransactionHandlerService $transactionService,    
-        InvoiceHandlerService $invoiceService
+        InvoiceHandlerService $invoiceService,
+        CollectionFactory $quoteCollectionFactory
     ) {
-        $this->orderFactory        = $orderFactory;
-        $this->orderRepository     = $orderRepository;
-        $this->config              = $config;
-        $this->storeCardService    = $storeCardService;
-        $this->customerFactory     = $customerFactory;
-        $this->storeManager        = $storeManager;
-        $this->orderSender         = $orderSender;
-        $this->orderService        = $orderService;
-        $this->transactionService  = $transactionService;
-        $this->invoiceService      = $invoiceService;
+        $this->orderFactory            = $orderFactory;
+        $this->orderRepository         = $orderRepository;
+        $this->config                  = $config;
+        $this->storeCardService        = $storeCardService;
+        $this->customerFactory         = $customerFactory;
+        $this->storeManager            = $storeManager;
+        $this->orderSender             = $orderSender;
+        $this->orderService            = $orderService;
+        $this->transactionService      = $transactionService;
+        $this->invoiceService          = $invoiceService;
+        $this->quoteCollectionFactory  = $quoteCollectionFactory;
     }
 
     /**
@@ -238,12 +246,24 @@ class WebhookCallbackService {
      * @throws DomainException
      */
     private function getAssociatedOrder() {
-        $orderId    = $this->gatewayResponse['message']['trackId'];
-        $order      = $this->orderFactory->create()->loadByIncrementId($orderId);
+        // Prepare variables
+        $trackId    = $this->gatewayResponse['message']['trackId'];
+        $order      = $this->orderFactory->create()->loadByIncrementId($trackId);
 
-        if (!$order->isEmpty()) return $order;
-
-        return null;
+        // If the order doesn't exist yet, create from quote
+        if ($order->isEmpty()) {
+            // Get the quote from track id
+            $quoteCollection = $this->quoteCollectionFactory->create()
+            ->addFieldToFilter('reserved_order_id', $trackId);
+            
+            // Create the new order from quote
+            if (count($quoteCollection) == 1) {
+                $orderId = $this->orderService->createNewOrder($quoteCollection[0]);
+                $order   = $this->orderFactory->create()->loadByAttribute('id', $orderId);
+            }
+        }
+        
+        return $order;
     }
 
     /**

@@ -84,6 +84,8 @@ class HubHandlerService {
         if ($this->tools->isChargeSuccess($response)) {
             // Cancel the order
             $this->orderManagement->cancel($transaction->getOrderId());
+            $order->setStatus($this->config->getOrderStatusVoided());
+            $this->orderRepository->save($order);
 
             return true;
         }
@@ -93,7 +95,7 @@ class HubHandlerService {
 
     public function refundRemoteTransaction($transaction, $amount) {
         // Prepare the request URL
-        $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/refund';
+        $url = $this->config->getApiUrl() . 'charges/' . $transaction->getParentTxnId() . '/refund';
 
         // Get the order
         $order = $this->orderRepository->get($transaction->getOrderId());
@@ -113,6 +115,8 @@ class HubHandlerService {
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
             $this->orderManagement->cancel($transaction->getOrderId());
+            $order->setStatus($this->config->getOrderStatusRefunded());
+            $this->orderRepository->save($order);
 
             return true;
         }
