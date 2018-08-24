@@ -62,12 +62,12 @@
                 <debug>1</debug>
                 <sort_order>1</sort_order>
             </checkout_com_applepay>
-            <checkout_com_cc_vault>
+            <checkout_com_vault>
                 <model>CheckoutComCreditCardVaultFacade</model>
                 <title>Stored Cards (Checkout.com)</title>
                 <autosave>1</autosave>
                 <hide_card_storage>0</hide_card_storage>
-            </checkout_com_cc_vault>
+            </checkout_com_vault>
         </payment>
         <conf>
             <param>

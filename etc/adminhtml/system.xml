@@ -108,39 +108,39 @@
                         <config_path>payment/checkout_com/debug</config_path>
                     </field>
 
-                    <field id="checkout_com_cc_vault_active" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="checkout_com_vault_active" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Vault Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_cc_vault/active</config_path>
+                        <config_path>payment/checkout_com_vault/active</config_path>
                         <requires>
                             <field id="active"/>
                         </requires>
                     </field>
 
-                    <field id="checkout_com_cc_vault_title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="checkout_com_vault_title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Vault Title</label>
-                        <config_path>payment/checkout_com_cc_vault/title</config_path>
+                        <config_path>payment/checkout_com_vault/title</config_path>
                         <depends>
-                            <field id="checkout_com_cc_vault_active">1</field>
+                            <field id="checkout_com_vault_active">1</field>
                         </depends>
                     </field>
 
-                   <field id="checkout_com_cc_vault_autosave" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                   <field id="checkout_com_vault_autosave" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Save cards automatically</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_cc_vault/autosave</config_path>
+                        <config_path>payment/checkout_com_vault/autosave</config_path>
                         <depends>
-                            <field id="checkout_com_cc_vault_active">1</field>
+                            <field id="checkout_com_vault_active">1</field>
                         </depends>
                         <comment>
                             If set to "No", customers will be asked during checkout if the card used for payment should be stored. If set to "Yes", the card will be saved automatically without requesting agreement.
                         </comment>
                     </field>
 
-                    <field id="checkout_com_cc_vault_hide_storage" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="checkout_com_vault_hide_storage" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Hide card storage</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_cc_vault/hide_card_storage</config_path>
+                        <config_path>payment/checkout_com_vault/hide_card_storage</config_path>
                         <comment>
                             If set to "Yes", customers will not be able to access the stored payment methods links from the account.
                         </comment>
