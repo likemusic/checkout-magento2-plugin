@@ -144,62 +144,58 @@ class WebhookCallbackService {
             
             // Perform authorize complementary actions
             else if ($eventName == 'charge.succeeded') {
-                if (count($this->transactionService->getAuthorizedTransactions($order)) == 0) {
-                    // Update order status
-                    $order->setStatus($this->config->getOrderStatusAuthorized());
+                // Update order status
+                $order->setStatus($this->config->getOrderStatusAuthorized());
 
-                    // Send the email
-                    $this->orderSender->send($order);
-                    $order->setEmailSent(1);
+                // Send the email
+                $this->orderSender->send($order);
+                $order->setEmailSent(1);
 
-                    // Comments override
-                    if ($overrideComments) {
-                        // Delete comments history
-                        foreach ($order->getAllStatusHistory() as $orderComment) {
-                            $orderComment->delete();
-                        } 
-                    }
-
-                    // Add authorization comment
-                    $order = $this->addAuthorizationComment($order);
-
-                    // Create the authorization transaction
-                    $order = $this->transactionService->createTransaction(
-                        $order,
-                        array('transactionReference' => $this->gatewayResponse['message']['id']),
-                        'authorization'
-                    );
+                // Comments override
+                if ($overrideComments) {
+                    // Delete comments history
+                    foreach ($order->getAllStatusHistory() as $orderComment) {
+                        $orderComment->delete();
+                    } 
                 }
+
+                // Add authorization comment
+                $order = $this->addAuthorizationComment($order);
+
+                // Create the authorization transaction
+                $order = $this->transactionService->createTransaction(
+                    $order,
+                    array('transactionReference' => $this->gatewayResponse['message']['id']),
+                    'authorization'
+                );
             }
 
             // Perform capture complementary actions
             else if ($eventName == 'charge.captured') {
-                if (count($this->transactionService->getCapturedTransactions($order)) == 0) {
-                    // Update order status
-                    $order->setStatus($this->config->getOrderStatusCaptured());
+                // Update order status
+                $order->setStatus($this->config->getOrderStatusCaptured());
 
-                    // Generate invoice if needed
-                    if ($this->config->getAutoGenerateInvoice() === true) {
-                        // Prepare the amount
-                        $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
-                            $this->gatewayResponse['message']['value'],
-                            $this->gatewayResponse['message']['currency']
-                        );
-
-                        // Create the invoice
-                        $invoice = $this->invoiceService->processInvoice($order, $amount);
-                    }
-
-                    // Add capture comment
-                    $order = $this->addCaptureComment($order);
-
-                    // Create the capture transaction
-                    $order = $this->transactionService->createTransaction(
-                        $order,
-                        array('transactionReference' => $this->gatewayResponse['message']['id']),
-                        'capture'
+                // Generate invoice if needed
+                if ($this->config->getAutoGenerateInvoice() === true) {
+                    // Prepare the amount
+                    $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
+                        $this->gatewayResponse['message']['value'],
+                        $this->gatewayResponse['message']['currency']
                     );
-                } 
+
+                    // Create the invoice
+                    $invoice = $this->invoiceService->processInvoice($order, $amount);
+                }
+
+                // Add capture comment
+                $order = $this->addCaptureComment($order);
+
+                // Create the capture transaction
+                $order = $this->transactionService->createTransaction(
+                    $order,
+                    array('transactionReference' => $this->gatewayResponse['message']['id']),
+                    'capture'
+                );
             }
 
             // Save the order
