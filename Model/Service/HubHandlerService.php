@@ -84,8 +84,6 @@ class HubHandlerService {
         if ($this->tools->isChargeSuccess($response)) {
             // Cancel the order
             $this->orderManagement->cancel($transaction->getOrderId());
-            $order->setStatus($this->config->getOrderStatusVoided());
-            $this->orderRepository->save($order);
 
             return true;
         }
@@ -115,8 +113,6 @@ class HubHandlerService {
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
             $this->orderManagement->cancel($transaction->getOrderId());
-            $order->setStatus($this->config->getOrderStatusRefunded());
-            $this->orderRepository->save($order);
 
             return true;
         }
