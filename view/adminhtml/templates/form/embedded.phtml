@@ -1,6 +1,6 @@
 <div id="cko-payment-container">
     <div id="cko-form-holder" data-mage-init='{"loader": {}}'>
-        <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/account/savecard'); ?>"></form>
+        <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/payment/placeorderajax'); ?>"></form>
     </div>
 
     <?php if (!$block->isAutoCapture()): ?>
@@ -20,9 +20,9 @@
     </div>
 </div>
 <script type="text/javascript">
-    require(['jquery', 'domReady!', 'framesjs'], function ($) {
+    require(['jquery', 'mage/url', 'domReady!', 'framesjs'], function ($, Url) {
         // Start the loader
-        $('.loading-mask').show();
+        //$('.loading-mask').show();
 
         // Prepare the elements
         var buttonId = '#cko-send-card';
@@ -47,18 +47,41 @@
             cardValidationChanged: function(event) {
                 $(buttonId).attr("disabled", !Frames.isCardValid());
             },
-            cardTokenised: function(event) {                        
+            cardTokenised: function(event) {  
+                // Send the request
+                ajaxRequest = $.ajax({
+                    url: '<?= $block->getUrl('checkout_com/payment/placeorderajax'); ?>',
+                    type: "post",
+                    data: {form_key: window.FORM_KEY}
+                });                
+                
+                // Callback handler on success
+                ajaxRequest.done(function (response, textStatus, jqXHR) {
+                    if (response.error) alert(response.message);
+                    console.log(response);
+                });
+
+                // Callback handler on failure
+                ajaxRequest.fail(function (jqXHR, textStatus, errorThrown) {
+                    // Todo - improve error handling
+                });
+
+                // Callback handler always
+                ajaxRequest.always(function () {
+
+                });
+
                 // Add the card token to the form
-                Frames.addCardToken(paymentForm, event.data.cardToken);
+                //Frames.addCardToken(paymentForm, event.data.cardToken);
 
                 // Submit the payment form
-                paymentForm.submit();
+                //paymentForm.submit();
             },
         });  
 
         // Handle the submit event
         $(buttonId).on('click touch', function (event) {
-            $('.loading-mask').show();
+            //$('.loading-mask').show();
             event.preventDefault();
             Frames.submitCard();
         });

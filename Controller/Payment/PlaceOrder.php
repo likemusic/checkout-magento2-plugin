@@ -28,7 +28,6 @@ use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Model\Service\StoreCardService;
 
-
 class PlaceOrder extends Action {
 
     /**

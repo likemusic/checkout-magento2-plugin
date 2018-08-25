@@ -1,6 +1,6 @@
 
 <div id="cko-form-holder" data-mage-init='{"loader": {}}'>
-    <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/account/savecard'); ?>"></form>
+    <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/payment/placeorderajax'); ?>"></form>
 </div>
 <button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>">
     <?= $block->escapeHtml(__('Save the card')) ?>
