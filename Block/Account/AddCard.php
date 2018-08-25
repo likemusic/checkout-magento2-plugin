@@ -35,8 +35,4 @@ class AddCard extends Template {
         $this->tools = $tools;
         parent::__construct($context, $data);
     }
-
-    protected function _prepareLayout() {
-        return parent::_prepareLayout();
-    }
 }
