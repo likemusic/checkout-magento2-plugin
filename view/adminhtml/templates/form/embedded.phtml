@@ -4,11 +4,11 @@
     </div>
 
     <?php if (!$block->isAutoCapture()): ?>
-        <button id="cko-save-authorize" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Authorize')) ?>">
+        <button id="cko-send-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Authorize')) ?>">
             <?= $block->escapeHtml(__('Authorize')) ?>
         </button>
     <?php else: ?>
-        <button id="cko-save-capture" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Capture')) ?>">
+        <button id="cko-send-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Capture')) ?>">
             <?= $block->escapeHtml(__('Capture')) ?>
         </button>
     <?php endif; ?>
@@ -25,7 +25,7 @@
         $('.loading-mask').show();
 
         // Prepare the elements
-        var buttonId = '#cko-save-card';
+        var buttonId = '#cko-send-card';
         var ckoContainerSelectorId = '#cko-form-holder';
         var ckoPublicKey = 'pk_test_243e08e3-b941-4d12-a198-ac11565781fc';
         var paymentForm = document.getElementById('embeddedForm');
