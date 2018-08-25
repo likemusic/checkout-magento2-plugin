@@ -38,16 +38,25 @@ class Embedded extends \Magento\Payment\Block\Form\Cc {
      */
     protected $_template = 'CheckoutCom_Magento2::form/embedded.phtml';
 
+    /**
+     * Embedded constructor.
+     */
     public function __construct(Context $context, ModelConfig $modelConfig, Config $config, Tools $tools) {
         $this->config = $config;
         $this->tools = $tools;
         parent::__construct($context, $modelConfig);
     }
 
+    /**
+     * Check if MOTO auto capture is enabled.
+     */
     public function isAutoCapture() {
         return $this->config->isMotoAutoCapture();
     }
 
+    /**
+     * Provide the MOTO auto capture time.
+     */
     public function getAutoCaptureTime() {
         return $this->config->getMotoAutoCaptureTime();
     }

@@ -15,11 +15,15 @@ use Magento\Framework\Event\Observer;
 
 class OrderSaveBefore implements ObserverInterface { 
  
-    protected $connector;
-
+    /**
+     * OrderSaveBefore constructor.
+     */
     public function __construct() { 
     }
  
+    /**
+     * Observer execute function.
+     */
     public function execute(Observer $observer) { 
         $order = $observer->getEvent()->getOrder();
         $customerId = $order->getCustomerId();

@@ -27,6 +27,9 @@ class AddCard extends Template {
      */
     public $tools;
 
+    /**
+     * AddCard constructor.
+     */
     public function __construct(Context $context, Config $config, Tools $tools, array $data = []) {
         $this->config = $config;
         $this->tools = $tools;
