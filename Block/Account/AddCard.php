@@ -33,8 +33,7 @@ class AddCard extends Template {
         parent::__construct($context, $data);
     }
 
-    protected function _prepareLayout()
-    {
+    protected function _prepareLayout() {
         return parent::_prepareLayout();
     }
 }
