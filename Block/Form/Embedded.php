@@ -33,6 +33,9 @@ class Embedded extends \Magento\Payment\Block\Form\Cc {
      */
     public $tools;
 
+    /**
+     * @var String
+     */
     protected $_template = 'CheckoutCom_Magento2::form/embedded.phtml';
 
     public function __construct(Context $context, ModelConfig $modelConfig, Config $config, Tools $tools) {
