@@ -10,4 +10,4 @@ use Magento\Payment\Block\ConfigurableInfo;
 
 class Embedded extends \Magento\Payment\Block\Form\Cc {
     protected $_template = 'CheckoutCom_Magento2::form/embedded.phtml';
- }
+}

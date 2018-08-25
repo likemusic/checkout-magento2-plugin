@@ -125,58 +125,38 @@ class AdminMethod extends AbstractMethod {
     }
 
     /**
-     * Void a transaction
+     * Authorize payment abstract method
+     *
+     * @param \Magento\Framework\DataObject|InfoInterface $payment
+     * @param float $amount
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function void(\Magento\Payment\Model\InfoInterface $payment) {
-        // Get the order
-        $order = $payment->getOrder();
-
-        // Get the transactions
-        $transactions = $this->transactionService->getTransactions($order);
-
-        // Process the transactions to void
-        foreach ($transactions as $transaction) {
-            if ($transaction->getTxnType() == 'authorization') {
-                // Perform the remote action
-                $result = $this->hubService->voidRemoteTransaction(
-                    $transaction,
-                    $order->getGrandTotal()
-                );
-                
-                // Process the result
-                if (!$result) {
-                    throw new \Magento\Framework\Exception\LocalizedException(__('The transaction could not be voided.')); 
-                }
-            }
+    public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        if (!$this->canAuthorize()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The authorize action is not available.'));
         }
 
         return $this;
     }
 
     /**
-     * Refund a transaction
+     * Capture payment abstract method
+     *
+     * @param \Magento\Framework\DataObject|InfoInterface $payment
+     * @param float $amount
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @api
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount) {
-        // Get the order
-        $order = $payment->getOrder();
-
-        // Get the transactions
-        $transactions = $this->transactionService->getTransactions($order);
-
-        // Process the transactions to void
-        foreach ($transactions as $transaction) {
-            if ($transaction->getTxnType() == 'capture') {
-                // Perform the remote action
-                $result = $this->hubService->refundRemoteTransaction(
-                    $transaction,
-                    $amount
-                );
-                
-                // Process the result
-                if (!$result) {
-                    throw new \Magento\Framework\Exception\LocalizedException(__('The transaction could not be refunded.')); 
-                }
-            }
+    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        if (!$this->canCapture()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The capture action is not available.'));
         }
 
         return $this;
