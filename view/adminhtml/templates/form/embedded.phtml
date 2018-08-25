@@ -65,9 +65,11 @@
 
         // Handle the payment option click event
         var eventSource = $('#order-billing_method_form input[type="radio"]');
+        var eventTarget = $('#p_method_checkout_com_admin');
         var targetWidget = $('#cko-payment-container');
+        (eventTarget.is(':checked')) ? targetWidget.show() : targetWidget.hide();
         eventSource.on('click touch', function (event) {
-            if ($('#p_method_checkout_com_admin').is(':checked')) {
+            if (eventTarget.is(':checked')) {
                 targetWidget.show();
             }
             else {

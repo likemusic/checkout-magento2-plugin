@@ -10,30 +10,41 @@
 
 namespace CheckoutCom\Magento2\Observer\Backend;
 
+use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\Event\ObserverInterface; 
 use Magento\Framework\Event\Observer;
 
 class OrderSaveBefore implements ObserverInterface { 
  
     /**
+     * @var Session
+     */
+    protected $backendAuthSession;
+
+    /**
      * OrderSaveBefore constructor.
      */
-    public function __construct() { 
+    public function __construct(Session $backendAuthSession) { 
+        $this->backendAuthSession = $backendAuthSession;
     }
  
     /**
      * Observer execute function.
      */
     public function execute(Observer $observer) { 
-        $order = $observer->getEvent()->getOrder();
-        $customerId = $order->getCustomerId();
- 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orderSave.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info($customerId);
-    
-        throw new \Magento\Framework\Exception\LocalizedException(__('Hey stop clam.'));
+        if ($this->backendAuthSession->isLoggedIn()) {
+            // Get the order
+            $order = $observer->getEvent()->getOrder();
 
+            // Get the customer id
+            $customerId = $order->getCustomerId();
+ 
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orderSave.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info($customerId);
+
+            throw new \Magento\Framework\Exception\LocalizedException(__('Hey stop clam.'));
+        }
     }
 }
