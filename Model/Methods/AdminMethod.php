@@ -136,8 +136,9 @@ class AdminMethod extends AbstractMethod {
      */
     public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
+        // Initial check
         if (!$this->canAuthorize()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The authorize action is not available.'));
+            throw new \Magento\Framework\Exception\LocalizedException(__('The authorize action is not available for this order.'));
         }
 
         return $this;
@@ -155,8 +156,9 @@ class AdminMethod extends AbstractMethod {
      */
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
+        // Initial check
         if (!$this->canCapture()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('The capture action is not available.'));
+            throw new \Magento\Framework\Exception\LocalizedException(__('The capture action is not available for this order.'));
         }
 
         return $this;

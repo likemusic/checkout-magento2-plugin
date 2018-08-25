@@ -127,6 +127,11 @@ class DefaultMethod extends AbstractMethod {
      * Void a transaction
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment) {
+        // Initial check
+        if (!$this->canVoid()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The void action is not available for this order.'));
+        }
+
         // Get the order
         $order = $payment->getOrder();
 
@@ -156,6 +161,11 @@ class DefaultMethod extends AbstractMethod {
      * Refund a transaction
      */
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount) {
+        // Initial check
+        if (!$this->canRefund()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The refund action is not available for this order.'));
+        }
+
         // Get the order
         $order = $payment->getOrder();
 
