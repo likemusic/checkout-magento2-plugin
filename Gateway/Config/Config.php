@@ -66,6 +66,8 @@ class Config {
     const KEY_JS_LOGGING = 'js_logging';
     const KEY_PHP_LOGGING = 'php_logging';
     const KEY_GATEWAY_LOGGING = 'gateway_logging';
+    const KEY_MOTO_AUTO_CAPTURE = 'moto_auto_capture';
+    const KEY_MOTO_AUTO_CAPTURE_TIME = 'moto_auto_capture_time';
 
     /**
      * @var array
@@ -173,7 +175,10 @@ class Config {
      * @return string
      */
     public function getVaultTitle() {
-        return (string) $this->getValue('payment/' . $this->tools->modmeta['tag'] . '_cc_vault/title', false);
+        return (string) $this->getValue(
+            'payment/' . $this->tools->modmeta['tag'] . '_cc_vault/title',
+            false
+        );
     }
 
     /**
@@ -191,7 +196,10 @@ class Config {
      * @return bool
      */
     public function isCardAutosave() {
-        return (bool) $this->getValue('payment/' . $this->tools->modmeta['tag'] . '_cc_vault/autosave', false);
+        return (bool) $this->getValue(
+            'payment/' . $this->tools->modmeta['tag'] . '_cc_vault/autosave',
+            false
+        );
     }
 
     /**
@@ -595,10 +603,31 @@ class Config {
      *
      * @return int
      */
-    public function getAutoCaptureTimeInHours() {
+    public function getAutoCaptureTime() {
         return $this->getValue(self::KEY_AUTO_CAPTURE_TIME);
     }
 
+    /**
+     * Determines if auto capture option is enabled for MOTO payment.
+     *
+     * @return bool
+     */
+    public function isMotoAutoCapture() {
+        return (bool) $this->getValue(
+            'payment/' . $this->tools->modmeta['tag'] . '_admin/' . self::KEY_MOTO_AUTO_CAPTURE,
+            false
+        );
+    }
+
+    /**
+     * Returns the number of hours, after which the capture method should be invoked.
+     *
+     * @return int
+     */
+    public function getMotoAutoCaptureTime() {
+        return $this->getValue(self::KEY_MOTO_AUTO_CAPTURE_TIME);
+    }
+    
     /**
      * Check if the descriptor is enabled.
      *

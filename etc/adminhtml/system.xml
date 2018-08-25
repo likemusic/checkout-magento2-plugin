@@ -108,39 +108,39 @@
                         <config_path>payment/checkout_com/debug</config_path>
                     </field>
 
-                    <field id="checkout_com_vault_active" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="checkout_com_cc_vault_active" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Vault Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_vault/active</config_path>
+                        <config_path>payment/checkout_com_cc_vault/active</config_path>
                         <requires>
                             <field id="active"/>
                         </requires>
                     </field>
 
-                    <field id="checkout_com_vault_title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="checkout_com_cc_vault_title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Vault Title</label>
-                        <config_path>payment/checkout_com_vault/title</config_path>
+                        <config_path>payment/checkout_com_cc_vault/title</config_path>
                         <depends>
-                            <field id="checkout_com_vault_active">1</field>
+                            <field id="checkout_com_cc_vault_active">1</field>
                         </depends>
                     </field>
 
-                   <field id="checkout_com_vault_autosave" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                   <field id="checkout_com_cc_vault_autosave" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Save cards automatically</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_vault/autosave</config_path>
+                        <config_path>payment/checkout_com_cc_vault/autosave</config_path>
                         <depends>
-                            <field id="checkout_com_vault_active">1</field>
+                            <field id="checkout_com_cc_vault_active">1</field>
                         </depends>
                         <comment>
                             If set to "No", customers will be asked during checkout if the card used for payment should be stored. If set to "Yes", the card will be saved automatically without requesting agreement.
                         </comment>
                     </field>
 
-                    <field id="checkout_com_vault_hide_storage" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="checkout_com_cc_vault_hide_storage" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Hide card storage</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_vault/hide_card_storage</config_path>
+                        <config_path>payment/checkout_com_cc_vault/hide_card_storage</config_path>
                         <comment>
                             If set to "Yes", customers will not be able to access the stored payment methods links from the account.
                         </comment>
@@ -382,16 +382,42 @@
                 </group>
 
                 <group id="apple_pay_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="100">
-                    <attribute type="activity_path">payment/checkout_com/active</attribute>
+                    <attribute type="activity_path">payment/checkout_com_applepay/active</attribute>
                     <label>Apple Pay Settings</label>
-
                     <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable Apple Pay</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/checkout_com_apple_pay/active</config_path>
                     </field>
                 </group>
+    
+                <group id="moto_settings" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="110">
+                    <attribute type="activity_path">payment/checkout_com_admin/active</attribute>
+                    <label>MOTO Settings</label>
+                    <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable MOTO Payment</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_admin/active</config_path>
+                    </field>
+                    
+                    <field id="moto_auto_capture" translate="label" sortOrder="80" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Auto Capture</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkout_com_admin/moto_auto_capture</config_path>
+                    </field>
 
+                    <field id="moto_auto_capture_time" translate="label comment" sortOrder="90" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Auto Capture Time</label>
+                        <config_path>payment/checkout_com_admin/moto_auto_capture_time</config_path>
+                        <validate>validate-required</validate>
+                        <depends>
+                            <field id="moto_auto_capture">1</field>
+                        </depends>
+                        <comment>
+                            If Payment Action is "Authorize and Capture", Auto Capture Time will define the number of hours (0-168) between the charge authorisation and automatic capture. Set value to 0 to authorise and capture a charge at the same time.
+                        </comment>
+                    </field>   
+                </group>
             </group>
         </section>
     </system>

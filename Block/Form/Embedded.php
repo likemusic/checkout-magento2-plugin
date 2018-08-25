@@ -41,6 +41,14 @@ class Embedded extends \Magento\Payment\Block\Form\Cc {
         parent::__construct($context, $modelConfig);
     }
 
+    public function isAutoCapture() {
+        return $this->config->isMotoAutoCapture();
+    }
+
+    public function getAutoCaptureTime() {
+        return $this->config->getMotoAutoCaptureTime();
+    }
+
     protected function _prepareLayout()
     {
         return parent::_prepareLayout();

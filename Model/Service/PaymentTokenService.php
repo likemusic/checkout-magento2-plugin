@@ -157,7 +157,7 @@ class PaymentTokenService {
         if ($entity) {
             $params['email'] = ($entity->getBillingAddress()->getEmail()) ? : $this->findCustomerEmail() ;
             $params['autoCapture'] = $this->config->isAutoCapture() ? 'Y' : 'N';
-            $params['autoCapTime'] = $this->config->getAutoCaptureTimeInHours();
+            $params['autoCapTime'] = $this->config->getAutoCaptureTime();
             $params['customerIp'] = $entity->getRemoteIp();
             $params['customerName'] = $entity->getCustomerName();
             $params['value'] = $entity->getGrandTotal()*100;

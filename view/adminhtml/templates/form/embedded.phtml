@@ -1,11 +1,16 @@
 <div id="cko-form-holder" data-mage-init='{"loader": {}}'>
-
-<div id="cko-form-holder" data-mage-init='{"loader": {}}'>
     <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/account/savecard'); ?>"></form>
 </div>
-<button id="cko-save-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>">
-    <?= $block->escapeHtml(__('Save the card')) ?>
-</button>
+
+<?php if (!$block->isAutoCapture()): ?>
+    <button id="cko-save-authorize" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Authorize')) ?>">
+        <?= $block->escapeHtml(__('Authorize')) ?>
+    </button>
+<?php else: ?>
+    <button id="cko-save-capture" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Capture')) ?>">
+        <?= $block->escapeHtml(__('Capture')) ?>
+    </button>
+<?php endif; ?>
 
 <div class="loading-mask" data-role="loader">
     <div class="loader">
