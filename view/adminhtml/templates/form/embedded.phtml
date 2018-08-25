@@ -52,7 +52,10 @@
                 ajaxRequest = $.ajax({
                     url: '<?= $block->getUrl('checkout_com/payment/placeorderajax'); ?>',
                     type: "post",
-                    data: {form_key: window.FORM_KEY}
+                    data: {
+                        form_key: window.FORM_KEY,
+                        "cko-card-token": event.data.cardToken
+                    }
                 });                
                 
                 // Callback handler on success
