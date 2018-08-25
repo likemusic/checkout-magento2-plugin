@@ -1,23 +1,24 @@
-<div id="cko-form-holder" data-mage-init='{"loader": {}}'>
-    <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/account/savecard'); ?>"></form>
-</div>
+<div id="cko-payment-container">
+    <div id="cko-form-holder" data-mage-init='{"loader": {}}'>
+        <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/account/savecard'); ?>"></form>
+    </div>
 
-<?php if (!$block->isAutoCapture()): ?>
-    <button id="cko-save-authorize" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Authorize')) ?>">
-        <?= $block->escapeHtml(__('Authorize')) ?>
-    </button>
-<?php else: ?>
-    <button id="cko-save-capture" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Capture')) ?>">
-        <?= $block->escapeHtml(__('Capture')) ?>
-    </button>
-<?php endif; ?>
+    <?php if (!$block->isAutoCapture()): ?>
+        <button id="cko-save-authorize" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Authorize')) ?>">
+            <?= $block->escapeHtml(__('Authorize')) ?>
+        </button>
+    <?php else: ?>
+        <button id="cko-save-capture" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Capture')) ?>">
+            <?= $block->escapeHtml(__('Capture')) ?>
+        </button>
+    <?php endif; ?>
 
-<div class="loading-mask" data-role="loader">
-    <div class="loader">
-         <img src="<?= $block->getViewFileUrl('images/loader-1.gif'); ?>">
+    <div class="loading-mask" data-role="loader">
+        <div class="loader">
+            <img src="<?= $block->getViewFileUrl('images/loader-1.gif'); ?>">
+        </div>
     </div>
 </div>
-
 <script type="text/javascript">
     require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Start the loader
@@ -60,6 +61,18 @@
             $('.loading-mask').show();
             event.preventDefault();
             Frames.submitCard();
+        });
+
+        // Handle the payment option click event
+        var eventSource = $('#order-billing_method_form input[type="radio"]');
+        var targetWidget = $('#cko-payment-container');
+        eventSource.on('click touch', function (event) {
+            if ($('#p_method_checkout_com_admin').is(':checked')) {
+                targetWidget.show();
+            }
+            else {
+                targetWidget.hide();
+            }
         });
 
         // Stop the loader
