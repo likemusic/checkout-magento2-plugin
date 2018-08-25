@@ -142,7 +142,7 @@ class PaymentTokenService {
     /**
      * Send a charge request.
      */
-    public function sendChargeRequest($token, $entity = false, $trackId = false) {
+    public function sendChargeRequest($token, $entity = false, $trackId = false, $data = false) {
         // Set the request parameters
         $params = [
             'chargeMode'    => $this->getChargeMode(),
@@ -165,7 +165,7 @@ class PaymentTokenService {
 
         // Set the entity (quote or order) params if available
         if ($entity) {
-            $params['email'] = ($entity->getBillingAddress()->getEmail()) ? : $this->findCustomerEmail() ;
+            $params['email'] = ($entity->getBillingAddress()->getEmail()) ? : $this->findCustomerEmail();
             $params['autoCapture'] = $this->config->isAutoCapture() ? 'Y' : 'N';
             $params['autoCapTime'] = $this->config->getAutoCaptureTime();
             $params['customerIp'] = $entity->getRemoteIp();
@@ -173,7 +173,16 @@ class PaymentTokenService {
             $params['value'] = $entity->getGrandTotal()*100;
             $params['currency'] = ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode());
         }
+        // If it's a backend order
+        else if ($this->backendAuthSession->isLoggedIn() && $data) {
+            $params['email'] = $data['email'];
+            $params['currency'] = $data['currency'];
+            $params['value'] = $data['value'];
+            $params['autoCapture'] = $this->config->isMotoAutoCapture() ? 'Y' : 'N';
+            $params['autoCapTime'] = $this->config->getMotoAutoCaptureTime();
+            $params['customerIp'] = $this->remoteAddress->getRemoteAddress();
 
+        }
         // No order or quote entity, so it's a zero dollar authorization
         else {
             $params['email'] = $this->findCustomerEmail();
@@ -195,7 +204,7 @@ class PaymentTokenService {
     }
 
     /**
-     * Find a customer email.
+     * Get the charge mode.
      */
     public function getChargeMode() {
         // No 3DS for backend charges

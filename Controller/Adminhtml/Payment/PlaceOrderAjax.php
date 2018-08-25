@@ -175,8 +175,14 @@ class PlaceOrderAjax extends Action {
      * Send a token charge request.
      */
     private function sendChargeRequest() {
+        // Prepare the charge data
+        $data = [];
+        $data['email'] = 'test@test.com'; // todo - get from edit form
+        $data['value'] = 1000; // todo - get from edit form
+        $data['currency'] = 'USD'; // todo - get from edit form
+
         // get the token charge response
-        $response = $this->paymentTokenService->sendChargeRequest($this->params['cko-card-token']);
+        $response = $this->paymentTokenService->sendChargeRequest($this->params['cko-card-token'], false, false, $data);
 
         return $response;
     }
