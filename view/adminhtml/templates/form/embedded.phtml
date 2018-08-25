@@ -27,7 +27,7 @@
         // Prepare the elements
         var buttonId = '#cko-send-card';
         var ckoContainerSelectorId = '#cko-form-holder';
-        var ckoPublicKey = '<?= $block->getViewFileUrl('images/loader-1.gif'); ?>';
+        var ckoPublicKey = '<?= $block->config->getPublicKey(); ?>';
         var paymentForm = document.getElementById('embeddedForm');
         var ckoTheme = '';
         var ckoDebugMode = false;
