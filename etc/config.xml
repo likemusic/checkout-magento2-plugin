@@ -55,11 +55,17 @@
                 <save_card_check_amount>1.00</save_card_check_amount>
                 <save_card_check_currency>USD</save_card_check_currency>
             </checkout_com>            
+            <checkout_com_admin>
+                <title>Credit Card (Checkout.com MOTO)</title>
+                <active>1</active>
+                <model>CheckoutCom\Magento2\Model\Methods\AdminMethod</model>
+                <debug>0</debug>
+            </checkout_com_admin>
             <checkout_com_applepay>
                 <title>Credit Card (Checkout.com Apple Pay)</title>
                 <active>1</active>
                 <model>CheckoutCom\Magento2\Model\Methods\ApplePayMethod</model>
-                <debug>1</debug>
+                <debug>0</debug>
                 <sort_order>1</sort_order>
             </checkout_com_applepay>
             <checkout_com_vault>

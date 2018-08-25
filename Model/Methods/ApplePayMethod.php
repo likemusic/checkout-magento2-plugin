@@ -25,7 +25,7 @@ class ApplePayMethod extends AbstractMethod {
     protected $_canCancel = true;
     protected $_canCapturePartial = true;
     protected $_canVoid = true;
-    protected $_canUseInternal = true;
+    protected $_canUseInternal = false;
     protected $_canUseCheckout = true;
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;

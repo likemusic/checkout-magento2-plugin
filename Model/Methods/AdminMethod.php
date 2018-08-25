@@ -15,9 +15,10 @@ use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Payment\Model\Method\AbstractMethod;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
-class DefaultMethod extends AbstractMethod {
+class AdminMethod extends AbstractMethod {
 
-    protected $_code = ConfigProvider::CODE;
+    protected $_code = ConfigProvider::CODE_ADMIN;
+    protected $_formBlockType = \CheckoutCom\Magento2\Block\Form\Embedded::class;
     protected $_isInitializeNeeded = true;
     protected $_isGateway = true;
     protected $_canAuthorize = true;
@@ -25,12 +26,12 @@ class DefaultMethod extends AbstractMethod {
     protected $_canCancel = true;
     protected $_canCapturePartial = true;
     protected $_canVoid = true;
-    protected $_canUseInternal = false;
-    protected $_canUseCheckout = true;
+    protected $_canUseInternal = true;
+    protected $_canUseCheckout = false;
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
-    protected $_canAuthorizeVault = true;
-    protected $_canCaptureVault = true;
+    protected $_canAuthorizeVault = false;
+    protected $_canCaptureVault = false;
     protected $backendAuthSession;
     protected $transactionService;
     protected $hubService;

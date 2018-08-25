@@ -8,7 +8,7 @@
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 
-    <!-- Configuration reader -->
+    <!-- Configuration for Default payment method -->
     <virtualType name="CheckoutCom_Magento2Config" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
             <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE</argument>
@@ -22,6 +22,9 @@
             </argument>
         </arguments>
     </type>
+    <!-- END Configuration for Default payments -->
+
+    <!-- Configuration for default Apple Pay method -->
     <virtualType name="CheckoutCom_Magento2ConfigApplePay" type="Magento\Payment\Gateway\Config\Config">
         <arguments>
             <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE_APPLE_PAY</argument>
@@ -35,7 +38,25 @@
             </argument>
         </arguments>
     </type>
-    <!-- Configuration for Vault payments -->
+    <!-- END Configuration for Apple Pay payments -->
+
+    <!-- Configuration for default Admin method -->
+    <virtualType name="CheckoutCom_Magento2ConfigAdmin" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">CheckoutCom\Magento2\Model\Ui\ConfigProvider::CODE_ADMIN</argument>
+        </arguments>
+    </virtualType>
+    <type name="CheckoutCom\Magento2\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">CheckoutCom_Magento2ConfigAdmin</argument>
+            <argument name="data" xsi:type="array">
+                <item xsi:type="string" name="is_secure_mode">1</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- END Configuration for Admin payments -->
+    
+    <!-- Configuration for Vault payment method -->
     <virtualType name="CheckoutComCreditCardVaultFacade" type="Magento\Vault\Model\Method\Vault">
         <arguments>
             <argument name="config" xsi:type="object">CheckoutComVaultPaymentConfig</argument>
