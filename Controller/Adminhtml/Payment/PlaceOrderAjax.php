@@ -151,8 +151,8 @@ class PlaceOrderAjax extends Action {
         // Process the request
         if ($this->requestIsValid()) {
             // Get the charge response
-            //$response = $this->sendChargeRequest();
-            $response = ['success' => $this->params['cko-card-token']];
+            $response = $this->sendChargeRequest();
+            //$response = ['success' => $this->params['cko-card-token']];
 
             // Process the response
             if ($this->tools->chargeIsSuccess($response)) {

@@ -16,7 +16,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Framework\Stdlib\CookieManagerInterface;
-
+use Magento\Backend\Model\Auth\Session as BackendSession;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Http\Client;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -65,6 +65,11 @@ class PaymentTokenService {
     protected $cookieManager;
 
     /**
+     * @var BackendSession
+     */
+    protected $backendAuthSession;
+
+    /**
      * PaymentTokenService constructor.
      */
     public function __construct(
@@ -75,16 +80,18 @@ class PaymentTokenService {
         Config $config,
         Watchdog $watchdog,
         RemoteAddress $remoteAddress,
-        CookieManagerInterface $cookieManager
+        CookieManagerInterface $cookieManager,
+        BackendSession $backendAuthSession
     ) {
-        $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
-        $this->storeManager    = $storeManager;
-        $this->client          = $client;
-        $this->config          = $config;
-        $this->watchdog        = $watchdog;
-        $this->remoteAddress   = $remoteAddress;
-        $this->cookieManager   = $cookieManager;
+        $this->checkoutSession     = $checkoutSession;
+        $this->customerSession     = $customerSession;
+        $this->storeManager        = $storeManager;
+        $this->client              = $client;
+        $this->config              = $config;
+        $this->watchdog            = $watchdog;
+        $this->remoteAddress       = $remoteAddress;
+        $this->cookieManager       = $cookieManager;
+        $this->backendAuthSession  = $backendAuthSession;
     }
 
     /**
@@ -132,10 +139,13 @@ class PaymentTokenService {
         return false;
     }
 
+    /**
+     * Send a charge request.
+     */
     public function sendChargeRequest($token, $entity = false, $trackId = false) {
         // Set the request parameters
         $params = [
-            'chargeMode'    => $this->config->isVerify3DSecure() ? 2 : 1,
+            'chargeMode'    => $this->getChargeMode(),
             'attemptN3D'    => filter_var($this->config->isAttemptN3D(), FILTER_VALIDATE_BOOLEAN),
         ];
 
@@ -184,6 +194,22 @@ class PaymentTokenService {
         return $response;
     }
 
+    /**
+     * Find a customer email.
+     */
+    public function getChargeMode() {
+        // No 3DS for backend charges
+        if ($this->backendAuthSession->isLoggedIn()) {
+            return 1;
+        }
+
+        // Otherwise, send the default 3DS Setting
+        return $this->config->isVerify3DSecure() ? 2 : 1;
+    }
+
+    /**
+     * Find a customer email.
+     */
     public function findCustomerEmail() {
         if (!$this->customerSession->getCustomer()->getEmail()) {
             $email = $this->cookieManager->getCookie('ckoUserEmail');
@@ -195,6 +221,9 @@ class PaymentTokenService {
         return null;
     }
 
+    /**
+     * Verify a payment token.
+     */
     public function verifyToken($paymentToken) {
         // Build the payment token verification URL
         $url = $this->config->getApiUrl() . '/charges/' . $paymentToken;
