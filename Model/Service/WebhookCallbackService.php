@@ -20,6 +20,8 @@ use Magento\Customer\Model\CustomerFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
+use Magento\Framework\Controller\Result\JsonFactory;
+
 use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -86,6 +88,11 @@ class WebhookCallbackService {
     protected $quoteCollectionFactory;
 
     /**
+     * @var JsonFactory
+     */
+    protected $resultJsonFactory;
+
+    /**
      * CallbackService constructor.
      */
     public function __construct(
@@ -99,7 +106,8 @@ class WebhookCallbackService {
         OrderHandlerService $orderService,
         TransactionHandlerService $transactionService,    
         InvoiceHandlerService $invoiceService,
-        CollectionFactory $quoteCollectionFactory
+        CollectionFactory $quoteCollectionFactory,
+        JsonFactory $resultJsonFactory
     ) {
         $this->orderFactory            = $orderFactory;
         $this->orderRepository         = $orderRepository;
@@ -112,6 +120,7 @@ class WebhookCallbackService {
         $this->transactionService      = $transactionService;
         $this->invoiceService          = $invoiceService;
         $this->quoteCollectionFactory  = $quoteCollectionFactory;
+        $this->resultJsonFactory       = $resultJsonFactory;
     }
 
     /**
@@ -125,81 +134,86 @@ class WebhookCallbackService {
         $this->gatewayResponse = $response;
 
         // Extract the response info
-        $eventName    = $this->getEventName();
-        $amount         = $this->getAmount();
+        $eventName = $this->getEventName();
+        $amount = $this->getAmount();
 
-        // Get the order and payment information
-        $order          = $this->getAssociatedOrder();
-        $payment        = $order->getPayment();
+        // Get the order
+        $order = $this->getAssociatedOrder();
+        if ($order) {
+            // Get the payment information
+            $payment = $order->getPayment();
 
-        // Get override comments setting from config
-        $overrideComments = $this->config->overrideOrderComments();
+            // Get override comments setting from config
+            $overrideComments = $this->config->overrideOrderComments();
 
-        // Process the payment
-        if ($payment instanceof Payment) {
-            // Test the command name
-            if ($eventName == 'charge.refunded' || $eventName == 'charge.voided') {
-                //$this->orderService->cancelTransactionFromRemote($order);
-            }
-            
-            // Perform authorize complementary actions
-            else if ($eventName == 'charge.succeeded') {
-                // Update order status
-                $order->setStatus($this->config->getOrderStatusAuthorized());
-
-                // Send the email
-                $this->orderSender->send($order);
-                $order->setEmailSent(1);
-
-                // Comments override
-                if ($overrideComments) {
-                    // Delete comments history
-                    foreach ($order->getAllStatusHistory() as $orderComment) {
-                        $orderComment->delete();
-                    } 
+            // Process the payment
+            if ($payment instanceof Payment) {
+                // Test the command name
+                if ($eventName == 'charge.refunded' || $eventName == 'charge.voided') {
+                    //$this->orderService->cancelTransactionFromRemote($order);
                 }
+            
+                // Perform authorize complementary actions
+                elseif ($eventName == 'charge.succeeded') {
+                    // Update order status
+                    $order->setStatus($this->config->getOrderStatusAuthorized());
 
-                // Add authorization comment
-                $order = $this->addAuthorizationComment($order);
+                    // Send the email
+                    $this->orderSender->send($order);
+                    $order->setEmailSent(1);
 
-                // Create the authorization transaction
-                $order = $this->transactionService->createTransaction(
+                    // Comments override
+                    if ($overrideComments) {
+                        // Delete comments history
+                        foreach ($order->getAllStatusHistory() as $orderComment) {
+                            $orderComment->delete();
+                        }
+                    }
+
+                    // Add authorization comment
+                    $order = $this->addAuthorizationComment($order);
+
+                    // Create the authorization transaction
+                    $order = $this->transactionService->createTransaction(
                     $order,
                     array('transactionReference' => $this->gatewayResponse['message']['id']),
                     'authorization'
                 );
-            }
+                }
 
-            // Perform capture complementary actions
-            else if ($eventName == 'charge.captured') {
-                // Update order status
-                $order->setStatus($this->config->getOrderStatusCaptured());
+                // Perform capture complementary actions
+                elseif ($eventName == 'charge.captured') {
+                    // Update order status
+                    $order->setStatus($this->config->getOrderStatusCaptured());
 
-                // Generate invoice if needed
-                if ($this->config->getAutoGenerateInvoice() === true) {
-                    // Prepare the amount
-                    $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
+                    // Generate invoice if needed
+                    if ($this->config->getAutoGenerateInvoice() === true) {
+                        // Prepare the amount
+                        $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
                         $this->gatewayResponse['message']['value'],
                         $this->gatewayResponse['message']['currency']
                     );
 
-                    // Create the invoice
-                    $invoice = $this->invoiceService->processInvoice($order, $amount);
-                }
+                        // Create the invoice
+                        $invoice = $this->invoiceService->processInvoice($order, $amount);
+                    }
 
-                // Add capture comment
-                $order = $this->addCaptureComment($order);
+                    // Add capture comment
+                    $order = $this->addCaptureComment($order);
 
-                // Create the capture transaction
-                $order = $this->transactionService->createTransaction(
+                    // Create the capture transaction
+                    $order = $this->transactionService->createTransaction(
                     $order,
                     array('transactionReference' => $this->gatewayResponse['message']['id']),
                     'capture'
                 );
+                }
+
+                // Save the order
+                $this->orderRepository->save($order);
             }
 
-            // Save the order
-            $this->orderRepository->save($order);
+            return $this->resultJsonFactory->create()->setData([$eventName => "OK"]);
         }
     }
 
@@ -247,8 +261,14 @@ class WebhookCallbackService {
      */
     private function getAssociatedOrder() {
         // Prepare variables
-        $trackId    = $this->gatewayResponse['message']['trackId'];
-        $order      = $this->orderFactory->create()->loadByIncrementId($trackId);
+        if (isset($this->gatewayResponse['message']['trackId'])) {
+            $trackId    = $this->gatewayResponse['message']['trackId'];
+            $order      = $this->orderFactory->create()->loadByIncrementId($trackId);
+
+            return !$order->isEmpty() ? $order : null;
+        }
+
+        return null;
 
         // If the order doesn't exist yet, create from quote
         // todo - test this use case
@@ -264,8 +284,6 @@ class WebhookCallbackService {
                 $order   = $this->orderFactory->create()->loadByAttribute('order_id', $orderId);
             }
         }*/
-        
-        return !$order->isEmpty() ? $order : null;
     }
 
     /**
