@@ -82,6 +82,7 @@ class Client {
         $response = isset($response) ? (array) json_decode($response) : null;
 
         // Logging
+        // todo - log response
         //$this->watchdog->bark($response);
 
         return $response;
@@ -98,6 +99,7 @@ class Client {
         $response = isset($response) ? (array) json_decode($response) : null;
 
         // Logging
+        // todo - log response
         //$this->watchdog->bark($response);
 
         return $response;

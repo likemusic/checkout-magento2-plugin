@@ -93,7 +93,7 @@ class HubHandlerService {
 
     public function refundRemoteTransaction($transaction, $amount) {
         // Prepare the request URL
-        $url = $this->config->getApiUrl() . 'charges/' . $transaction->getParentTxnId() . '/refund';
+        $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/refund';
 
         // Get the order
         $order = $this->orderRepository->get($transaction->getOrderId());
