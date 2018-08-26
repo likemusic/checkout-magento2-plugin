@@ -173,7 +173,7 @@ class DefaultMethod extends AbstractMethod {
         // Get the transactions
         $transactions = $this->transactionService->getTransactions($order);
 
-        // Process the transactions to void
+        // Process the transactions to refund
         foreach ($transactions as $transaction) {
             if ($transaction->getTxnType() == Transaction::TYPE_CAPTURE) {
                 // Perform the remote action

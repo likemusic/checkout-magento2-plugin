@@ -111,6 +111,7 @@ class HubHandlerService {
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
             // Create the transaction
+            // todo - replace auto generated refund transaction or remove this
             $order = $this->transactionService->createTransaction(
                 $order,
                 array('transactionReference' => $response['id']),

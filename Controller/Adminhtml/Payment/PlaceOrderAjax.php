@@ -168,6 +168,7 @@ class PlaceOrderAjax extends Action {
      */
     private function requestIsValid() {
         return $this->backendAuthSession->isLoggedIn() 
+        && isset($this->params['cko-card-token'])
         && $this->getRequest()->isAjax();
     }
 
