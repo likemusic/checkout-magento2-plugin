@@ -75,13 +75,12 @@ class InvoiceHandlerService {
     public function createInvoice() {
         // Prepare the invoice
         $invoice = $this->invoiceService->prepareInvoice($this->order);
-        $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+        $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
         $invoice->setState(Invoice::STATE_PAID);
         $invoice->setBaseGrandTotal($this->amount);
+        $invoice->setTransactionId($invoice->getOrder()->getPayment()->getLastTransId());
         $invoice->register();
-        $invoice->getOrder()->setIsInProcess(true);
-        $invoice->capture()->save();
-
+        
         // Create the transaction
         $transactionSave = $this->transaction
         ->addObject($invoice)

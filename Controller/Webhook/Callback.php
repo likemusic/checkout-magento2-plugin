@@ -52,9 +52,9 @@ class Callback extends Action {
         Watchdog $watchdog
     ) {
         parent::__construct($context);
-        $this->callbackService = $callbackService;
-        $this->tools           = $tools;
-        $this->watchdog        = $watchdog;
+        $this->callbackService    = $callbackService;
+        $this->tools              = $tools;
+        $this->watchdog           = $watchdog;
     }
 
     /**
@@ -95,7 +95,8 @@ class Callback extends Action {
 
         // Prepare the data
         try {
-            $this->callbackService->run($data);
+            $result = $this->callbackService->run($data);
+            $response->setData($result);
             $response->setHttpResponseCode(WebResponse::HTTP_OK);
         }
         catch(LocalizedException $e) {

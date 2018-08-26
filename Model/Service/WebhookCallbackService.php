@@ -20,8 +20,6 @@ use Magento\Customer\Model\CustomerFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
-use Magento\Framework\Controller\Result\JsonFactory;
-
 use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -88,11 +86,6 @@ class WebhookCallbackService {
     protected $quoteCollectionFactory;
 
     /**
-     * @var JsonFactory
-     */
-    protected $resultJsonFactory;
-
-    /**
      * CallbackService constructor.
      */
     public function __construct(
@@ -106,8 +99,7 @@ class WebhookCallbackService {
         OrderHandlerService $orderService,
         TransactionHandlerService $transactionService,    
         InvoiceHandlerService $invoiceService,
-        CollectionFactory $quoteCollectionFactory,
-        JsonFactory $resultJsonFactory
+        CollectionFactory $quoteCollectionFactory
     ) {
         $this->orderFactory            = $orderFactory;
         $this->orderRepository         = $orderRepository;
@@ -120,7 +112,6 @@ class WebhookCallbackService {
         $this->transactionService      = $transactionService;
         $this->invoiceService          = $invoiceService;
         $this->quoteCollectionFactory  = $quoteCollectionFactory;
-        $this->resultJsonFactory       = $resultJsonFactory;
     }
 
     /**
@@ -175,10 +166,10 @@ class WebhookCallbackService {
 
                     // Create the authorization transaction
                     $order = $this->transactionService->createTransaction(
-                    $order,
-                    array('transactionReference' => $this->gatewayResponse['message']['id']),
-                    'authorization'
-                );
+                        $order,
+                        array('transactionReference' => $this->gatewayResponse['message']['id']),
+                        'authorization'
+                    );
                 }
 
                 // Perform capture complementary actions
@@ -186,34 +177,34 @@ class WebhookCallbackService {
                     // Update order status
                     $order->setStatus($this->config->getOrderStatusCaptured());
 
-                    // Generate invoice if needed
-                    if ($this->config->getAutoGenerateInvoice() === true) {
-                        // Prepare the amount
-                        $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
-                        $this->gatewayResponse['message']['value'],
-                        $this->gatewayResponse['message']['currency']
-                    );
-
-                        // Create the invoice
-                        $invoice = $this->invoiceService->processInvoice($order, $amount);
-                    }
-
                     // Add capture comment
                     $order = $this->addCaptureComment($order);
 
                     // Create the capture transaction
                     $order = $this->transactionService->createTransaction(
-                    $order,
-                    array('transactionReference' => $this->gatewayResponse['message']['id']),
-                    'capture'
-                );
+                        $order,
+                        array('transactionReference' => $this->gatewayResponse['message']['id']),
+                        'capture'
+                    );
+                    
+                    // Generate invoice if needed
+                    if ($this->config->getAutoGenerateInvoice() === true) {
+                        // Prepare the amount
+                        $amount = ChargeAmountAdapter::getStoreAmountOfCurrency(
+                            $this->gatewayResponse['message']['value'],
+                            $this->gatewayResponse['message']['currency']
+                        );
+
+                        // Create the invoice
+                        $invoice = $this->invoiceService->processInvoice($order, $amount);
+                    }
                 }
 
                 // Save the order
                 $this->orderRepository->save($order);
             }
 
-            return $this->resultJsonFactory->create()->setData([$eventName => "OK"]);
+            return $eventName;
         }
     }
 
