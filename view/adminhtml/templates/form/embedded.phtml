@@ -73,18 +73,13 @@
                 ajaxRequest.always(function () {
 
                 });
-
-                // Add the card token to the form
-                //Frames.addCardToken(paymentForm, event.data.cardToken);
-
-                // Submit the payment form
-                //paymentForm.submit();
             },
         });  
 
         // Handle the submit event
         $(buttonId).on('click touch', function (event) {
             //$('.loading-mask').show();
+            // todo - handle loading mask 
             event.preventDefault();
             Frames.submitCard();
         });
