@@ -13,6 +13,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Payment\Model\Method\AbstractMethod;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class DefaultMethod extends AbstractMethod {
@@ -140,15 +141,15 @@ class DefaultMethod extends AbstractMethod {
 
         // Process the transactions to void
         foreach ($transactions as $transaction) {
-            if ($transaction->getTxnType() == 'authorization') {
+            if ($transaction->getTxnType() == Transaction::TYPE_AUTH) {
                 // Perform the remote action
-                $result = $this->hubService->voidRemoteTransaction(
+                $success = $this->hubService->voidRemoteTransaction(
                     $transaction,
                     $order->getGrandTotal()
                 );
                 
                 // Process the result
-                if (!$result) {
+                if (!$success) {
                     throw new \Magento\Framework\Exception\LocalizedException(__('The transaction could not be voided.')); 
                 }
             }
@@ -174,15 +175,15 @@ class DefaultMethod extends AbstractMethod {
 
         // Process the transactions to void
         foreach ($transactions as $transaction) {
-            if ($transaction->getTxnType() == 'capture') {
+            if ($transaction->getTxnType() == Transaction::TYPE_CAPTURE) {
                 // Perform the remote action
-                $result = $this->hubService->refundRemoteTransaction(
+                $success = $this->hubService->refundRemoteTransaction(
                     $transaction,
                     $amount
                 );
-                
+
                 // Process the result
-                if (!$result) {
+                if (!$success) {
                     throw new \Magento\Framework\Exception\LocalizedException(__('The transaction could not be refunded.')); 
                 }
             }

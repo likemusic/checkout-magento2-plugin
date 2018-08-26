@@ -75,16 +75,16 @@ class TransactionHandlerService {
     /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $paymentData, $mode = null) {
+    public function createTransaction($order, $paymentData, $mode = false) {
         // Prepare the transaction mode
-        $transactionMode = ($mode == 'authorization' || !$mode) ? Transaction::TYPE_AUTH : Transaction::TYPE_CAPTURE;
+        $transactionMode = !$mode ? Transaction::TYPE_AUTH : $mode;
 
         // Prepare the payment object
         $payment = $order->getPayment();
         $payment->setMethod($this->tools->modmeta['tag']);
 
         // Handle the transaction states
-        if ($mode == 'capture') {
+        if ($transactionMode == Transaction::TYPE_CAPTURE) {
             $payment->setIsTransactionClosed(1);
             $this->closeAuthorizedTransactions($order);
         }

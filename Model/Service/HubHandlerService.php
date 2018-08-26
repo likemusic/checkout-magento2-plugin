@@ -12,10 +12,11 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Sales\Model\Order;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Gateway\Http\Client;
+use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 
 class HubHandlerService {
 
@@ -23,11 +24,6 @@ class HubHandlerService {
      * @var OrderRepositoryInterface
      */
     protected $orderRepository;
-
-    /**
-     * @var OrderManagementInterface
-     */
-    protected $orderManagement;
 
     /**
      * @var Config
@@ -45,20 +41,25 @@ class HubHandlerService {
     protected $client;
 
     /**
+     * @var TransactionHandlerService
+     */
+    protected $transactionService;
+
+    /**
      * HubHandlerService constructor.
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
-        OrderManagementInterface $orderManagement,
         Config $config,
         Tools $tools,
-        Client $client
+        Client $client,
+        TransactionHandlerService $transactionService
     ) {
         $this->orderRepository    = $orderRepository;
-        $this->orderManagement    = $orderManagement;
         $this->config             = $config;
         $this->tools              = $tools;
         $this->client             = $client;
+        $this->transactionService = $transactionService;
     }
 
     public function voidRemoteTransaction($transaction, $amount) {
@@ -82,9 +83,6 @@ class HubHandlerService {
 
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
-            // Cancel the order
-            $this->orderManagement->cancel($transaction->getOrderId());
-
             return true;
         }
        
@@ -112,7 +110,12 @@ class HubHandlerService {
 
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
-            $this->orderManagement->cancel($transaction->getOrderId());
+            // Create the transaction
+            $order = $this->transactionService->createTransaction(
+                $order,
+                array('transactionReference' => $response['id']),
+                Transaction::TYPE_REFUND
+            );
 
             return true;
         }

@@ -13,6 +13,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Payment\Model\Method\AbstractMethod;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use CheckoutCom\Magento2\Model\Ui\ConfigProvider;
 
 class AdminMethod extends AbstractMethod {

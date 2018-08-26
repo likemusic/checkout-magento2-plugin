@@ -20,6 +20,7 @@ use Magento\Customer\Model\CustomerFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -168,7 +169,7 @@ class WebhookCallbackService {
                     $order = $this->transactionService->createTransaction(
                         $order,
                         array('transactionReference' => $this->gatewayResponse['message']['id']),
-                        'authorization'
+                        Transaction::TYPE_AUTH
                     );
                 }
 
@@ -184,9 +185,9 @@ class WebhookCallbackService {
                     $order = $this->transactionService->createTransaction(
                         $order,
                         array('transactionReference' => $this->gatewayResponse['message']['id']),
-                        'capture'
+                        Transaction::TYPE_CAPTURE
                     );
-                    
+
                     // Generate invoice if needed
                     if ($this->config->getAutoGenerateInvoice() === true) {
                         // Prepare the amount
