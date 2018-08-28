@@ -145,7 +145,8 @@ class DefaultMethod extends AbstractMethod {
                 // Perform the remote action
                 $success = $this->hubService->voidRemoteTransaction(
                     $transaction,
-                    $order->getGrandTotal()
+                    $order->getGrandTotal(),
+                    $payment
                 );
                 
                 // Process the result

@@ -75,6 +75,14 @@ class HubHandlerService {
 
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
+            // Update the void transaction
+            if ($payment) {
+                $payment->setTransactionId($response['id']);
+                $payment->setParentTransactionId($transaction->getTxnId());
+                $payment->setIsTransactionClosed(1);
+                $payment->save();
+            }
+
             return true;
         }
        
@@ -102,7 +110,7 @@ class HubHandlerService {
 
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
-            // Create the transaction
+            // Update the refund transaction
             if ($payment) {
                $payment->setTransactionId($response['id']);
                $payment->setParentTransactionId($transaction->getTxnId());
