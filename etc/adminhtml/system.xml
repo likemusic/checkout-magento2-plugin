@@ -331,7 +331,7 @@
                         <label>Private Shared Key</label>
                         <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                         <config_path>payment/checkout_com/private_shared_key</config_path>
-                        <comment>Used as an authorization key for the Webhook, allowing sychrnonisation of transactions with the Checkout.com payment backend. In order to get your Private Shared Key, please configure your <a href="https://docs.checkout.com/docs/broadcast-webhooks-the-hub">Webhook URL</a> in the Hub.</comment>
+                        <comment>Used as an authorization key for the Webhook, allowing sychrnonisation of transactions with the Checkout.com payment backend. In order to get your Private Shared Key, please configure your Webhook URL in the Hub.</comment>
                     </field>
                 </group>
 
