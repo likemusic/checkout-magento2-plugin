@@ -54,6 +54,41 @@ class HubHandlerService {
         $this->client             = $client;
     }
 
+    public function captureRemoteTransaction($transaction, $amount, $payment = false) {
+        // Prepare the request URL
+        $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/capture';
+
+        // Get the order
+        $order = $this->orderRepository->get($transaction->getOrderId());
+
+        // Get the track id
+        $trackId = $order->getIncrementId();
+
+        // Prepare the request parameters
+        $params = [
+            'value' => $this->tools->formatAmount($amount),
+            'trackId' => $trackId
+        ]; 
+
+        // Send the request
+        $response = $this->client->getPostResponse($url, $params);
+
+        // Process the response
+        if ($this->tools->isChargeSuccess($response)) {
+            // Update the void transaction
+            if ($payment) {
+                $payment->setTransactionId($response['id']);
+                $payment->setParentTransactionId($transaction->getTxnId());
+                $payment->setIsTransactionClosed(1);
+                $payment->save();
+            }
+
+            return true;
+        }
+       
+        return false;
+    }
+
     public function voidRemoteTransaction($transaction, $amount, $payment = false) {
         // Prepare the request URL
         $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/void';

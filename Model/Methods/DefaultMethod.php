@@ -125,6 +125,42 @@ class DefaultMethod extends AbstractMethod {
     }
 
     /**
+     * Capture a transaction
+     */
+    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        // Initial check
+        if (!$this->canCapture() && $this->backendAuthSession->isLoggedIn()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('The capture action is not available for this order.'));
+        }
+
+        // Get the order
+        $order = $payment->getOrder();
+
+        // Get the transactions
+        $transactions = $this->transactionService->getTransactions($order);
+
+        // Process the transactions to capture
+        foreach ($transactions as $transaction) {
+            if ($transaction->getTxnType() == Transaction::TYPE_AUTH) {
+                // Perform the remote action
+                $success = $this->hubService->captureRemoteTransaction(
+                    $transaction,
+                    $order->getGrandTotal(),
+                    $payment
+                );
+                
+                // Process the result
+                if (!$success) {
+                    throw new \Magento\Framework\Exception\LocalizedException(__('The transaction could not be captured.')); 
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Void a transaction
      */
     public function void(\Magento\Payment\Model\InfoInterface $payment) {
