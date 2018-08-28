@@ -14,6 +14,7 @@ use DomainException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Customer\Model\CustomerFactory;
@@ -21,6 +22,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Api\RefundInvoiceInterface;
 use CheckoutCom\Magento2\Model\Adapter\CallbackEventAdapter;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Config\Config;
@@ -87,6 +89,11 @@ class WebhookCallbackService {
     protected $quoteCollectionFactory;
 
     /**
+     * @var RefundInvoiceInterface
+     */
+    protected $invoiceRefunder;
+
+    /**
      * CallbackService constructor.
      */
     public function __construct(
@@ -100,7 +107,8 @@ class WebhookCallbackService {
         OrderHandlerService $orderService,
         TransactionHandlerService $transactionService,    
         InvoiceHandlerService $invoiceService,
-        CollectionFactory $quoteCollectionFactory
+        CollectionFactory $quoteCollectionFactory,
+        RefundInvoiceInterface $invoiceRefunder
     ) {
         $this->orderFactory            = $orderFactory;
         $this->orderRepository         = $orderRepository;
@@ -113,6 +121,7 @@ class WebhookCallbackService {
         $this->transactionService      = $transactionService;
         $this->invoiceService          = $invoiceService;
         $this->quoteCollectionFactory  = $quoteCollectionFactory;
+        $this->invoiceRefunder         = $invoiceRefunder;
     }
 
     /**
@@ -140,11 +149,38 @@ class WebhookCallbackService {
 
             // Process the payment
             if ($payment instanceof Payment) {
-                // Test the command name
-                if ($eventName == 'charge.refunded' || $eventName == 'charge.voided') {
-                    //$this->orderService->cancelTransactionFromRemote($order);
+                // Perform refund complementary actions
+                if ($eventName == 'charge.refunded') {
+                    // Get the invoices
+                    foreach ($order->getInvoiceCollection() as $invoice) {
+                        // Refund from invoice
+                        $this->invoiceRefunder->execute($invoice->getId(), [], false);                        
+
+                        // Create the refund transaction
+                        $order = $this->transactionService->createTransaction(
+                            $order,
+                            array('transactionReference' => $this->gatewayResponse['message']['id']),
+                            Transaction::TYPE_REFUND
+                        );
+                    }
+
+                    // Close the order
+                    $order->setState(Order::STATE_CLOSED)->setStatus(Order::STATE_CLOSED);
                 }
-            
+
+                // Perform void complementary actions
+                elseif ($eventName == 'charge.voided') {
+                    // Create the void transaction
+                    $order = $this->transactionService->createTransaction(
+                        $order,
+                        array('transactionReference' => $this->gatewayResponse['message']['id']),
+                        Transaction::TYPE_VOID
+                    );
+
+                    // Close the order
+                    $order->setState(Order::STATE_CLOSED)->setStatus(Order::STATE_CLOSED);
+                }
+
                 // Perform authorize complementary actions
                 elseif ($eventName == 'charge.succeeded') {
                     // Update order status
