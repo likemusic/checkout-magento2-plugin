@@ -104,7 +104,6 @@ class TransactionHandlerService {
         $transaction = $this->transactionBuilder->setPayment($payment)
         ->setOrder($order)
         ->setTransactionId($paymentData['transactionReference'])
-        ->setAdditionalInformation([Transaction::RAW_DETAILS => (array) $paymentData])
         ->setFailSafe(true)
         ->build($transactionMode);
 
