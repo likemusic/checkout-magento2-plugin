@@ -84,7 +84,7 @@ class TransactionHandlerService {
         $payment->setMethod($this->tools->modmeta['tag']);
 
         // Handle the transaction states
-        if ($transactionMode == Transaction::TYPE_CAPTURE) {
+        if ($transactionMode == Transaction::TYPE_CAPTURE || $transactionMode == Transaction::TYPE_REFUND) {
             $payment->setIsTransactionClosed(1);
             $this->closeAuthorizedTransactions($order);
         }

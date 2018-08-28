@@ -16,7 +16,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Tools;
 use CheckoutCom\Magento2\Gateway\Http\Client;
-use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 
 class HubHandlerService {
 
@@ -41,28 +40,21 @@ class HubHandlerService {
     protected $client;
 
     /**
-     * @var TransactionHandlerService
-     */
-    protected $transactionService;
-
-    /**
      * HubHandlerService constructor.
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         Config $config,
         Tools $tools,
-        Client $client,
-        TransactionHandlerService $transactionService
+        Client $client
     ) {
         $this->orderRepository    = $orderRepository;
         $this->config             = $config;
         $this->tools              = $tools;
         $this->client             = $client;
-        $this->transactionService = $transactionService;
     }
 
-    public function voidRemoteTransaction($transaction, $amount) {
+    public function voidRemoteTransaction($transaction, $amount, $payment = false) {
         // Prepare the request URL
         $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/void';
 
@@ -89,7 +81,7 @@ class HubHandlerService {
         return false;
     }
 
-    public function refundRemoteTransaction($transaction, $amount) {
+    public function refundRemoteTransaction($transaction, $amount, $payment = false) {
         // Prepare the request URL
         $url = $this->config->getApiUrl() . 'charges/' . $transaction->getTxnId() . '/refund';
 
@@ -111,12 +103,12 @@ class HubHandlerService {
         // Process the response
         if ($this->tools->isChargeSuccess($response)) {
             // Create the transaction
-            // todo - replace auto generated refund transaction or remove this
-            $order = $this->transactionService->createTransaction(
-                $order,
-                array('transactionReference' => $response['id']),
-                Transaction::TYPE_REFUND
-            );
+            if ($payment) {
+               $payment->setTransactionId($response['id']);
+               $payment->setParentTransactionId($transaction->getTxnId());
+               $payment->setIsTransactionClosed(1);
+               $payment->save();
+            }
 
             return true;
         }

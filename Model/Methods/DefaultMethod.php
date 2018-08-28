@@ -179,8 +179,9 @@ class DefaultMethod extends AbstractMethod {
                 // Perform the remote action
                 $success = $this->hubService->refundRemoteTransaction(
                     $transaction,
-                    $amount
-                );
+                    $amount,
+                    $payment
+                );       
 
                 // Process the result
                 if (!$success) {
