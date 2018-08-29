@@ -17,10 +17,12 @@ use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Backend\Model\Auth\Session as BackendSession;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use CheckoutCom\Magento2\Model\Adapter\ChargeAmountAdapter;
 use CheckoutCom\Magento2\Gateway\Http\Client;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Watchdog;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class PaymentTokenService {
 
@@ -70,6 +72,16 @@ class PaymentTokenService {
     protected $backendAuthSession;
 
     /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
+     * @var PriceCurrencyInterface
+     */
+    protected $priceCurrency;
+
+    /**
      * PaymentTokenService constructor.
      */
     public function __construct(
@@ -81,7 +93,9 @@ class PaymentTokenService {
         Watchdog $watchdog,
         RemoteAddress $remoteAddress,
         CookieManagerInterface $cookieManager,
-        BackendSession $backendAuthSession
+        BackendSession $backendAuthSession,
+        Tools $tools,
+        PriceCurrencyInterface $priceCurrency
     ) {
         $this->checkoutSession     = $checkoutSession;
         $this->customerSession     = $customerSession;
@@ -92,6 +106,8 @@ class PaymentTokenService {
         $this->remoteAddress       = $remoteAddress;
         $this->cookieManager       = $cookieManager;
         $this->backendAuthSession  = $backendAuthSession;
+        $this->tools               = $tools;
+        $this->priceCurrency       = $priceCurrency;
     }
 
     /**
@@ -172,6 +188,7 @@ class PaymentTokenService {
             $params['customerName'] = $entity->getCustomerName();
             $params['value'] = $entity->getGrandTotal()*100;
             $params['currency'] = ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode());
+            $params['products'] = $this->prepareProducts($entity);
         }
         // If it's a backend order
         else if ($this->backendAuthSession->isLoggedIn() && $data) {
@@ -181,7 +198,6 @@ class PaymentTokenService {
             $params['autoCapture'] = $this->config->isMotoAutoCapture() ? 'Y' : 'N';
             $params['autoCapTime'] = $this->config->getMotoAutoCaptureTime();
             $params['customerIp'] = $this->remoteAddress->getRemoteAddress();
-
         }
         // No order or quote entity, so it's a zero dollar authorization
         else {
@@ -244,5 +260,28 @@ class PaymentTokenService {
         $this->watchdog->bark($response);
 
         return $response;
+    }
+
+    /**
+     * Prepare product data for the request.
+     */
+    public function prepareProducts($entity) {
+        // Prepare the output array
+        $output = array();
+
+        // Get the products
+        $items = $entity->getAllVisibleItems();
+
+        // Loop through the list
+        foreach ($items as $item) {
+            $output[] = [
+                'name' => $item->getName(),
+                'sku' => $item->getSku(),
+                'price' => $this->tools->formatAmount(number_format($item->getPrice(), 2)),
+                'quantity' => $item->getQty()
+            ];
+        }
+
+        return $output;
     }
 }
