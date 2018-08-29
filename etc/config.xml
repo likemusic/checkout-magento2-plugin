@@ -31,8 +31,6 @@
                 <button_label>Pay Now</button_label>
                 <payment_mode>cards</payment_mode>
                 <embedded_theme>standard</embedded_theme>
-                <css_file>default</css_file>
-                <custom_css></custom_css>
                 <environment>sandbox</environment>
                 <integration>hosted</integration>
                 <auto_capture>0</auto_capture>
@@ -48,10 +46,6 @@
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
                 <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
                 <sort_order>1</sort_order>
-                <debugReplaceKeys>public_key,secret_key</debugReplaceKeys>
-                <masked_fields>cvv,number</masked_fields>
-                <paymentInfoKeys>cc_type,cc_number,card_expiry_month,card_expiry_year,card_last_4,status,responseMessage,responseAdvancedInfo,responseCode,authCode,three_d_secure</paymentInfoKeys>
-                <useccv>1</useccv>
                 <save_card_check_amount>1.00</save_card_check_amount>
                 <save_card_check_currency>USD</save_card_check_currency>
             </checkout_com>            
