@@ -267,7 +267,7 @@ class PaymentTokenService {
      */
     public function prepareProducts($entity) {
         // Prepare the output array
-        $output = array();
+        $output = [];
 
         // Get the products
         $items = $entity->getAllVisibleItems();

@@ -137,15 +137,6 @@
                         </comment>
                     </field>
 
-                    <field id="checkout_com_cc_vault_hide_storage" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Hide card storage</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/checkout_com_cc_vault/hide_card_storage</config_path>
-                        <comment>
-                            If set to "Yes", customers will not be able to access the stored payment methods links from the account.
-                        </comment>
-                    </field>
-
                     <field id="verify_3dsecure" translate="label" sortOrder="60" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>3D Secure Verification</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
