@@ -60,7 +60,7 @@
             <!--/ko-->
         </div>
 
-        <!-- ko if: ((isVaultEnabled()) && !php('isCardAutosave')) -->
+        <!-- ko if: (isVaultEnabled()) -->
         <div class="field choice">
             <input type="checkbox" name="vault[is_enabled]" class="checkbox" data-bind="attr: {'id': js('getCode') + '_enable_vault'}, checked: vaultEnabler.isActivePaymentTokenEnabler, click: js('updateSaveCardCookie')" />
             <label class="label" data-bind="attr: {'for': js('getCode') + '_enable_vault'}">

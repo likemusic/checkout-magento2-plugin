@@ -184,7 +184,7 @@ class StoreCardService {
 
         // Check if card exists
         if ($foundPaymentToken) {
-            if ((int) $foundPaymentToken->getIsActive() == 1 && $this->config->isCardAutosave() === false) {
+            if ((int) $foundPaymentToken->getIsActive() == 1) {
                 $this->messageManager->addNoticeMessage(__('This card has been stored already.'));
             }
 
@@ -207,9 +207,7 @@ class StoreCardService {
             $this->paymentTokenRepository->save($paymentToken);
 
             // Display the success message if needed
-            if ($this->config->isCardAutosave() === false) {
-                $this->messageManager->addSuccessMessage(__('The card has been saved successfully.'));
-            }
+            $this->messageManager->addSuccessMessage(__('The card has been saved successfully.'));
         }
     }
 

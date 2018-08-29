@@ -191,18 +191,6 @@ class Config {
     }
 
     /**
-     * Returns the vault card autosave state.
-     *
-     * @return bool
-     */
-    public function isCardAutosave() {
-        return (bool) $this->getValue(
-            'payment/' . $this->tools->modmeta['tag'] . '_cc_vault/autosave',
-            false
-        );
-    }
-
-    /**
      * Returns the payment mode.
      *
      * @return string
