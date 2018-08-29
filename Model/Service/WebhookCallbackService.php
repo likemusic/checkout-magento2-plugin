@@ -160,7 +160,8 @@ class WebhookCallbackService {
                         $order = $this->transactionService->createTransaction(
                             $order,
                             array('transactionReference' => $this->gatewayResponse['message']['id']),
-                            Transaction::TYPE_REFUND
+                            Transaction::TYPE_REFUND,
+                            $this->gatewayResponse['message']['originalId']
                         );
                     }
 
@@ -174,7 +175,8 @@ class WebhookCallbackService {
                     $order = $this->transactionService->createTransaction(
                         $order,
                         array('transactionReference' => $this->gatewayResponse['message']['id']),
-                        Transaction::TYPE_VOID
+                        Transaction::TYPE_VOID,
+                        $this->gatewayResponse['message']['originalId']
                     );
 
                     // Close the order

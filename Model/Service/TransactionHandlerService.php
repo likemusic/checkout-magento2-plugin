@@ -75,7 +75,7 @@ class TransactionHandlerService {
     /**
      * Create a transaction for an order.
      */
-    public function createTransaction($order, $paymentData, $mode = false) {
+    public function createTransaction($order, $paymentData, $mode = null, $parentTransactionId = null) {
         // Prepare the transaction mode
         $transactionMode = !$mode ? Transaction::TYPE_AUTH : $mode;
 
@@ -94,7 +94,7 @@ class TransactionHandlerService {
         
         // Set the transaction ids
         $payment->setLastTransId($paymentData['transactionReference']);
-        $payment->setParentTransactionId(null);
+        $payment->setParentTransactionId($parentTransactionId);
         $payment->setTransactionId($paymentData['transactionReference']);
 
         // Formatted price
