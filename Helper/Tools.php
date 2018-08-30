@@ -15,7 +15,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Module\Dir\Reader;
-
 class Tools {
 
     const KEY_MODNAME = 'modname';
@@ -28,8 +27,6 @@ class Tools {
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_PRIVATE_KEY = 'private_key';
     const KEY_PRIVATE_SHARED_KEY = 'private_shared_key';
-    const KEY_MADA_BIN_PATH = 'mada_bin_path';
-    const KEY_MADA_BIN_PATH_TEST = 'mada_bin_path_test';
 
     /**
      * @var ScopeConfigInterface
@@ -174,17 +171,5 @@ class Tools {
             $this->customerSession->setAfterAuthUrl($this->urlInterface->getCurrentUrl());
             $this->customerSession->authenticate();
         }    
-    }
-
-    /**
-     * Return the MADA BIN file path.
-     *
-     * @return string
-     */
-    public function getMadaBinPaths() {
-        return [
-            $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_MADA_BIN_PATH),
-            $this->scopeConfig->getValue('payment/' . $this->modmeta['tag'] . '/' . self::KEY_MADA_BIN_PATH_TEST)
-        ];
     }
 }

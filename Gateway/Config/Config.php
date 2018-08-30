@@ -163,6 +163,17 @@ class Config {
     }
 
     /**
+     * Return the MADA BIN file path.
+     *
+     * @return string
+     */
+    public function getMadaBinPath() {
+        return (string) (($this->isLive()) ?
+        $this->getValue(self::KEY_MADA_BIN_PATH) : 
+        $this->getValue(self::KEY_MADA_BIN_PATH_TEST));
+    }
+
+    /**
      * Returns the environment type.
      *
      * @return string
