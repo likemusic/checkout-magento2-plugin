@@ -214,7 +214,8 @@ class PaymentTokenService {
             $params['autoCapture']  = 'Y';
             $params['autoCapTime']  = 0;
             $params['customerIp']   = $this->remoteAddress->getRemoteAddress();
-            $params['currency']     = 'USD';
+            $params['currency']     = $this->config->getSaveCardAuthCurrency();
+            $params['value']        = $this->config->getSaveCardAuthAmount();
             $params['udf5']         = 'isZeroDollarAuthorization';
         }
 

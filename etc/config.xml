@@ -46,8 +46,8 @@
                 <sandbox_hosted_url><![CDATA[https://secure1.checkout.com/sandbox/payment/]]></sandbox_hosted_url>
                 <live_hosted_url><![CDATA[https://secure1.checkout.com/payment/]]></live_hosted_url>
                 <sort_order>1</sort_order>
-                <save_card_check_amount>1.00</save_card_check_amount>
-                <save_card_check_currency>USD</save_card_check_currency>
+                <save_card_auth_amount>1.00</save_card_auth_amount>
+                <save_card_auth_currency>USD</save_card_auth_currency>
                 <mada_enabled>0</mada_enabled>
                 <mada_bin_path>Model/Files/Mada/mada_bin.csv</mada_bin_path>
                 <mada_bin_path_test>Model/Files/Mada/mada_bin_test.csv</mada_bin_path_test>

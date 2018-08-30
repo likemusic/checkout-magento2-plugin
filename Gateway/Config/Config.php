@@ -71,6 +71,8 @@ class Config {
     const KEY_MADA_BIN_PATH = 'mada_bin_path';
     const KEY_MADA_BIN_PATH_TEST = 'mada_bin_path_test';
     const KEY_MADA_ENABLED = 'mada_enabled';
+    const KEY_SAVE_CARD_AUTH_CURRENCY = 'save_card_auth_currency';
+    const KEY_SAVE_CARD_AUTH_AMOUNT = 'save_card_auth_amount';
 
     /**
      * @var array
@@ -160,6 +162,24 @@ class Config {
      */
     public function isMadaEnabled() {
         return (bool) $this->getValue(self::KEY_MADA_ENABLED);
+    }
+
+    /**
+     * Get the currency for the save card authorization
+     *
+     * @return bool
+     */
+    public function getSaveCardAuthCurrency() {
+        return (bool) $this->getValue(self::KEY_SAVE_CARD_AUTH_CURRENCY);
+    }
+
+    /**
+     * Get the amount for the save card authorization
+     *
+     * @return bool
+     */
+    public function getSaveCardAuthAmount() {
+        return (bool) $this->getValue(self::KEY_SAVE_CARD_AUTH_AMOUNT);
     }
 
     /**
