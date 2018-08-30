@@ -68,6 +68,9 @@ class Config {
     const KEY_GATEWAY_LOGGING = 'gateway_logging';
     const KEY_MOTO_AUTO_CAPTURE = 'moto_auto_capture';
     const KEY_MOTO_AUTO_CAPTURE_TIME = 'moto_auto_capture_time';
+    const KEY_MADA_BINS_PATH = 'mada_bin_path';
+    const KEY_MADA_BINS_PATH_TEST = 'mada_bin_path_test';
+    const KEY_MADA_ENABLED = 'mada_enabled';
 
     /**
      * @var array
@@ -148,6 +151,26 @@ class Config {
             $path,
             ScopeInterface::SCOPE_STORE
         );
+    }
+
+    /**
+     * Is MADA BIN check enabled
+     *
+     * @return bool
+     */
+    public function isMadaEnabled() {
+        return (bool) $this->getValue(self::KEY_MADA_ENABLED);
+    }
+
+    /**
+     * Return the MADA BIN file path.
+     *
+     * @return string
+     */
+    public function getMadaBinPath() {
+        return (string) (($this->isLive()) ?
+        $this->getValue(self::KEY_MADA_BIN_PATH) : 
+        $this->getValue(self::KEY_MADA_BIN_PATH_TEST));
     }
 
     /**
