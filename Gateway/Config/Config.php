@@ -68,8 +68,8 @@ class Config {
     const KEY_GATEWAY_LOGGING = 'gateway_logging';
     const KEY_MOTO_AUTO_CAPTURE = 'moto_auto_capture';
     const KEY_MOTO_AUTO_CAPTURE_TIME = 'moto_auto_capture_time';
-    const KEY_MADA_BINS_PATH = 'mada_bin_path';
-    const KEY_MADA_BINS_PATH_TEST = 'mada_bin_path_test';
+    const KEY_MADA_BIN_PATH = 'mada_bin_path';
+    const KEY_MADA_BIN_PATH_TEST = 'mada_bin_path_test';
     const KEY_MADA_ENABLED = 'mada_enabled';
 
     /**
@@ -120,11 +120,11 @@ class Config {
         StoreManagerInterface $storeManager,
         UrlInterface $urlInterface
     ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->tools = $tools;
-        $this->checkoutSession = $checkoutSession;
-        $this->storeManager = $storeManager;
-        $this->urlInterface = $urlInterface;
+        $this->scopeConfig      = $scopeConfig;
+        $this->tools            = $tools;
+        $this->checkoutSession  = $checkoutSession;
+        $this->storeManager     = $storeManager;
+        $this->urlInterface     = $urlInterface;
     }
 
     /**

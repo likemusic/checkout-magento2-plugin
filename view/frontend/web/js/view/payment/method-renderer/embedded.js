@@ -148,7 +148,10 @@ define(
                     cardValidationChanged: function(event) {
                         self.updateButtonState(!(Frames.isCardValid() && Quote.billingAddress() != null));
                     },
-                    cardTokenised: function(event) {                        
+                    cardTokenised: function(event) {     
+                        // Set the card BIN
+                        Adapter.setCardBin(event.data.card.bin);
+
                         // Add the card token to the form
                         Frames.addCardToken(paymentForm, event.data.cardToken);
 

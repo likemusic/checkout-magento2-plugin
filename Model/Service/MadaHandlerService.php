@@ -12,9 +12,13 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use Magento\Framework\File\Csv;
 use Magento\Framework\Module\Dir\Reader;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class MadaHandlerService {
+
+    const MADA_FLAG = 'MADA';
 
     /**
      * @var Csv
@@ -32,16 +36,30 @@ class MadaHandlerService {
     protected $config;
 
     /**
+     * @var CookieManagerInterface
+     */
+    protected $cookieManager;
+
+    /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
      * MadaHandlerService constructor.
      */
     public function __construct(
         Csv $csvParser,
         Reader $directoryReader,
-        Config $config
+        Config $config,
+        CookieManagerInterface $cookieManager,
+        Tools $tools
     ) {
         $this->directoryReader = $directoryReader;
         $this->csvParser       = $csvParser;
         $this->config          = $config;
+        $this->cookieManager   = $cookieManager;
+        $this->tools           = $tools;
     }
 
     /**
@@ -67,4 +85,19 @@ class MadaHandlerService {
         
         return in_array($bin, $binArray);
     }
+
+    /**
+     * Check cookies for MADA data.
+     */
+    public function checkBin() {
+        if ((int) $this->cookieManager->getCookie('ckoCardBin') > 0) {
+            $bin = $this->cookieManager->getCookie('ckoCardBin');
+            if ($this->isMadaBin($bin) && $this->config->isMadaEnabled() === true) {
+                return self::MADA_FLAG;
+            }
+        }
+
+        return '';
+    }
+
 }

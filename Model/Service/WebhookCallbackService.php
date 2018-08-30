@@ -134,11 +134,6 @@ class WebhookCallbackService {
         // Set the gateway response
         $this->gatewayResponse = $response;
 
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/blacklist.log');
-        $logger = new \Zend\Log\Logger();
-        $logger->addWriter($writer);
-        $logger->info(print_r($this->gatewayResponse,1));
-
         // Extract the response info
         $eventName = $this->getEventName();
         $amount = $this->getAmount();

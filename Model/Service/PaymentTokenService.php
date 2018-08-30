@@ -23,6 +23,7 @@ use CheckoutCom\Magento2\Gateway\Http\Client;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Watchdog;
 use CheckoutCom\Magento2\Helper\Tools;
+use CheckoutCom\Magento2\Model\Service\MadaHandlerService;
 
 class PaymentTokenService {
 
@@ -82,6 +83,11 @@ class PaymentTokenService {
     protected $priceCurrency;
 
     /**
+     * @var MadaHandlerService
+     */
+    protected $madaService;
+
+    /**
      * PaymentTokenService constructor.
      */
     public function __construct(
@@ -95,7 +101,8 @@ class PaymentTokenService {
         CookieManagerInterface $cookieManager,
         BackendSession $backendAuthSession,
         Tools $tools,
-        PriceCurrencyInterface $priceCurrency
+        PriceCurrencyInterface $priceCurrency,
+        MadaHandlerService $madaService
     ) {
         $this->checkoutSession     = $checkoutSession;
         $this->customerSession     = $customerSession;
@@ -108,6 +115,7 @@ class PaymentTokenService {
         $this->backendAuthSession  = $backendAuthSession;
         $this->tools               = $tools;
         $this->priceCurrency       = $priceCurrency;
+        $this->madaService         = $madaService;
     }
 
     /**
@@ -182,31 +190,32 @@ class PaymentTokenService {
         // Set the entity (quote or order) params if available
         if ($entity) {
             $params['email'] = ($entity->getBillingAddress()->getEmail()) ? : $this->findCustomerEmail();
-            $params['autoCapture'] = $this->config->isAutoCapture() ? 'Y' : 'N';
-            $params['autoCapTime'] = $this->config->getAutoCaptureTime();
-            $params['customerIp'] = $entity->getRemoteIp();
+            $params['autoCapture']  = $this->config->isAutoCapture() ? 'Y' : 'N';
+            $params['autoCapTime']  = $this->config->getAutoCaptureTime();
+            $params['customerIp']   = $entity->getRemoteIp();
             $params['customerName'] = $entity->getCustomerName();
-            $params['value'] = $entity->getGrandTotal()*100;
-            $params['currency'] = ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode());
-            $params['products'] = $this->prepareProducts($entity);
+            $params['value']        = $entity->getGrandTotal()*100;
+            $params['currency']     = ChargeAmountAdapter::getPaymentFinalCurrencyCode($entity->getCurrencyCode());
+            $params['products']     = $this->prepareProducts($entity);
+            $params['udf1']         = $this->madaService->checkBin();
         }
         // If it's a backend order
         else if ($this->backendAuthSession->isLoggedIn() && $data) {
-            $params['email'] = $data['email'];
-            $params['currency'] = $data['currency'];
-            $params['value'] = $data['value'];
-            $params['autoCapture'] = $this->config->isMotoAutoCapture() ? 'Y' : 'N';
-            $params['autoCapTime'] = $this->config->getMotoAutoCaptureTime();
-            $params['customerIp'] = $this->remoteAddress->getRemoteAddress();
+            $params['email']        = $data['email'];
+            $params['currency']     = $data['currency'];
+            $params['value']        = $data['value'];
+            $params['autoCapture']  = $this->config->isMotoAutoCapture() ? 'Y' : 'N';
+            $params['autoCapTime']  = $this->config->getMotoAutoCaptureTime();
+            $params['customerIp']   = $this->remoteAddress->getRemoteAddress();
         }
         // No order or quote entity, so it's a zero dollar authorization
         else {
-            $params['email'] = $this->findCustomerEmail();
-            $params['autoCapture'] = 'Y';
-            $params['autoCapTime'] = 0;
-            $params['customerIp'] = $this->remoteAddress->getRemoteAddress();
-            $params['currency'] = 'USD';
-            $params['udf5'] = 'isZeroDollarAuthorization';
+            $params['email']        = $this->findCustomerEmail();
+            $params['autoCapture']  = 'Y';
+            $params['autoCapTime']  = 0;
+            $params['customerIp']   = $this->remoteAddress->getRemoteAddress();
+            $params['currency']     = 'USD';
+            $params['udf5']         = 'isZeroDollarAuthorization';
         }
 
         // Handle the request

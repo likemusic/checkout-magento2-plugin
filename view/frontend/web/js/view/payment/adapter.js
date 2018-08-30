@@ -126,6 +126,13 @@ define([
         },
 
         /**
+         * Set card BIN
+         */
+        setCardBin: function(cardBin) {
+            $.cookie('ckoCardBin', cardBin);
+        },
+
+        /**
          * Log messages to console
          *
          * @param {Object} errorMessage
