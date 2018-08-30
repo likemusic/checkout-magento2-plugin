@@ -48,6 +48,9 @@
                 <sort_order>1</sort_order>
                 <save_card_check_amount>1.00</save_card_check_amount>
                 <save_card_check_currency>USD</save_card_check_currency>
+                <mada_enabled>0</mada_enabled>
+                <mada_bin_path>Model/Files/Mada/mada_bin.csv</mada_bin_path>
+                <mada_bin_path_test>Model/Files/Mada/mada_bin_test.csv</mada_bin_path_test>
             </checkout_com>            
             <checkout_com_admin>
                 <title>Credit Card (Checkout.com)</title>
