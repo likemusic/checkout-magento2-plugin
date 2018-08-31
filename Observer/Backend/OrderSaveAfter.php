@@ -14,7 +14,7 @@ use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\Event\ObserverInterface; 
 use Magento\Framework\Event\Observer;
 
-class OrderSaveBefore implements ObserverInterface { 
+class OrderSaveAfter implements ObserverInterface { 
  
     /**
      * @var Session
