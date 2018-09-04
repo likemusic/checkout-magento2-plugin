@@ -3,16 +3,6 @@
         <form class="widget-container" id="embeddedForm" method="POST" action="<?= $block->getUrl($block->tools->modmeta['tag'] . '/payment/placeorderajax'); ?>"></form>
     </div>
 
-    <?php if (!$block->isAutoCapture()): ?>
-        <button id="cko-send-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Authorize')) ?>">
-            <?= $block->escapeHtml(__('Authorize')) ?>
-        </button>
-    <?php else: ?>
-        <button id="cko-send-card" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Capture')) ?>">
-            <?= $block->escapeHtml(__('Capture')) ?>
-        </button>
-    <?php endif; ?>
-
     <div class="loading-mask" data-role="loader">
         <div class="loader">
             <img src="<?= $block->getViewFileUrl('images/loader-1.gif'); ?>">
