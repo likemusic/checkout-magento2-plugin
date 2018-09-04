@@ -141,6 +141,7 @@ class Tools {
      * Check if charge is successful.
      */ 
     public function isChargeSuccess($response) {
+        $response = (array) $response;
         if (isset($response['responseCode'])) {
             $responseCode = (int) $response['responseCode'];
             if ($responseCode == 10000 || $responseCode == 10100)
