@@ -40,7 +40,7 @@
             cardTokenised: function(event) {  
                 // Send the request
                 ajaxRequest = $.ajax({
-                    url: '<?= $block->getUrl('checkout_com/payment/placeorderajax'); ?>',
+                    url: '<?= $block->getUrl('checkout_com/payment/placeorderajax'); ?>', // todo - get url dynamically from block PHP
                     type: "post",
                     data: {
                         form_key: window.FORM_KEY,
