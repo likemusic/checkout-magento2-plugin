@@ -35,7 +35,14 @@ class OrderSaveAfter implements ObserverInterface {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the order
             $order = $observer->getEvent()->getOrder();
+            $customerId = $order->getCustomerId();
 
+     /*
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orderSave.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+            $logger->info($customerId);
+    */
             // todo - move this to save after for and check for MOTO payment
             // Get the customer id
             /*
