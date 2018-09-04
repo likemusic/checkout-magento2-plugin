@@ -2,5 +2,9 @@
     <head>
         <css src="CheckoutCom_Magento2::css/create-order.css" />
     </head>
-    <body></body>
+    <body>
+        <referenceBlock name="content">
+            <block class="CheckoutCom\Magento2\Block\Adminhtml\Order\Create\FramesPaymentToken" name="frames_payment_token" template="CheckoutCom_Magento2::order/create/frames_payment_token.phtml" after="billing_address"/>
+        </referenceBlock>
+    </body>
 </page>
