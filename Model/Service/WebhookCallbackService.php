@@ -295,25 +295,23 @@ class WebhookCallbackService {
             $trackId    = $this->gatewayResponse['message']['trackId'];
             $order      = $this->orderFactory->create()->loadByIncrementId($trackId);
 
+            // If the order doesn't exist yet, create from quote
+            if ($order->isEmpty()) {
+                // Get the quote from track id
+                $quoteCollection = $this->quoteCollectionFactory->create()
+                ->addFieldToFilter('reserved_order_id', $trackId);
+
+                // Create the new order from quote
+                if (count($quoteCollection) == 1) {
+                    $orderId = $this->orderService->createNewOrder($quoteCollection[0]);
+                    $order   = $this->$orderRepository->get($orderId);
+                }
+            }
+
             return !$order->isEmpty() ? $order : null;
         }
 
         return null;
-
-        // If the order doesn't exist yet, create from quote
-        // todo - test this use case
-        /*if ($order->isEmpty()) {
-        
-            // Get the quote from track id
-            $quoteCollection = $this->quoteCollectionFactory->create()
-            ->addFieldToFilter('reserved_order_id', $trackId);
-            
-            // Create the new order from quote
-            if (count($quoteCollection) == 1) {
-                $orderId = $this->orderService->createNewOrder($quoteCollection[0]);
-                $order   = $this->orderFactory->create()->loadByAttribute('order_id', $orderId);
-            }
-        }*/
     }
 
     /**
