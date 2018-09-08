@@ -15,6 +15,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\App\Request\Http;
 use CheckoutCom\Magento2\Model\Service\PaymentTokenService;
+use CheckoutCom\Magento2\Helper\Tools;
 
 class OrderSaveBefore implements ObserverInterface { 
  
@@ -34,16 +35,23 @@ class OrderSaveBefore implements ObserverInterface {
     protected $paymentTokenService;
 
     /**
+     * @var Tools
+     */
+    protected $tools;
+
+    /**
      * OrderSaveBefore constructor.
      */
     public function __construct(
         Session $backendAuthSession,
         Http $request,
-        PaymentTokenService $paymentTokenService
+        PaymentTokenService $paymentTokenService,
+        Tools $tools
     ) {
         $this->backendAuthSession    = $backendAuthSession;
         $this->request               = $request;
         $this->paymentTokenService   = $paymentTokenService;
+        $this->tools                 = $tools;
 
         // Get the request parameters
         $this->params = $this->request->getParams();
@@ -56,25 +64,17 @@ class OrderSaveBefore implements ObserverInterface {
         if ($this->backendAuthSession->isLoggedIn()) {
             // Get the order
             $order = $observer->getEvent()->getOrder();
-            $customerId = $order->getCustomerId();
 
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orderSaveBefore.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info(print_r($this->request->getPost(), 1));
-    
-            // todo - move this to save after for and check for MOTO payment
-            // Get the customer id
-            /*
-            $customerId = $order->getCustomerId();
- 
-            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/orderSave.log');
-            $logger = new \Zend\Log\Logger();
-            $logger->addWriter($writer);
-            $logger->info($customerId);
+            // Send the charge
+            $response = json_decode($this->sendChargeRequest());
 
-            throw new \Magento\Framework\Exception\LocalizedException(__('Hey stop clam.'));
-            */
+            // Process the response
+            if ($this->tools->chargeIsSuccess($response)) {
+                // Todo - Store the response in session for order processing
+            }
+            else {
+                throw new \Magento\Framework\Exception\LocalizedException(__('The transaction could not be processed.'));
+            }
         }
     }
 
