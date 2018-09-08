@@ -1,4 +1,4 @@
 
-view/frontend/layout/.DS_Store
-view/adminhtml/.DS_Store
-Block/Adminhtml/.DS_Store
+.DS_Store
+Observer/Backend/OrderSaveBefore.php
+Observer/Backend/OrderSaveAfter.php
