@@ -17,6 +17,7 @@ use Magento\Framework\Module\ModuleListInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use CheckoutCom\Magento2\Helper\Tools;
+
 class Client {
 
     /**
@@ -108,7 +109,6 @@ class Client {
     private function addHeaders() {
         $this->curl->addHeader('Authorization', $this->config->getSecretKey());
         $this->curl->addHeader('Content-Type', 'application/json');
-        $this->buildMetaData();
     }
 
     private function buildMetaData() {
@@ -140,6 +140,4 @@ class Client {
         // Return the response
         return $this->curl->getBody();     
     }
-
-
 }
