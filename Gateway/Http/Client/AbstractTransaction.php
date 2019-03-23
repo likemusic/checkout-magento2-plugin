@@ -7,7 +7,7 @@
  *
  * License GNU/GPL V3 https://www.gnu.org/licenses/gpl-3.0.en.html
  */
- 
+
 namespace CheckoutCom\Magento2\Gateway\Http\Client;
 
 use Zend_Http_Client_Exception;
@@ -115,7 +115,7 @@ abstract class AbstractTransaction implements ClientInterface {
      * @throws \LogicException
      */
     public function placeRequest(TransferInterface $transferObject) {
-        
+
         if ($this->gatewayResponseHolder->hasCallbackResponse()) {
             $response = $this->gatewayResponseHolder->getGatewayResponse();
 
@@ -145,15 +145,14 @@ abstract class AbstractTransaction implements ClientInterface {
 
         $client = $this->clientFactory;
         $client->setConfig($transferObject->getClientConfig());
-        
+
         $client->setMethod($this->getMethod());
 
         switch($this->getMethod()) {
             case \Zend_Http_Client::GET:
-                $client->setRawData( json_encode($this->body, JSON_FORCE_OBJECT) ) ;
-                break;
             case \Zend_Http_Client::POST:
-                $client->setRawData( json_encode($this->body, JSON_FORCE_OBJECT) ) ;
+                $jsonEncodeOptions = $this->body ? 0 : JSON_FORCE_OBJECT;
+                $client->setRawData( json_encode($this->body, $jsonEncodeOptions) ) ;
                 break;
             default:
                 throw new \LogicException( sprintf('Unsupported HTTP method %s', $transferObject->getMethod()) );
@@ -161,10 +160,10 @@ abstract class AbstractTransaction implements ClientInterface {
 
         $client->setHeaders($transferObject->getHeaders());
         $client->setUri($this->fullUri);
-        
+
         try {
             $response           = $client->request();
-            
+
             $result             = json_decode($response->getBody(), true);
             $log['response']    = $result;
 
